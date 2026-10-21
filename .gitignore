@@ -12,4 +12,14 @@ docs/images/*.import
 *.pem
 Thumbs.db
 .DS_Store
+Unreal/Binaries/
+Unreal/Intermediate/
+Unreal/Saved/
+Unreal/DerivedDataCache/
+Unreal/.vs/
+Unreal/*.sln
+Unreal/*.suo
+Unreal/Content/Python/__pycache__/
+.venv-mcp/
+tools/__pycache__/
 

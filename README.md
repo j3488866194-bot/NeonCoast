@@ -1,5 +1,26 @@
 # NEON COAST · 霓虹海岸
 
+## UE 5.8 迁移工程（开发中）
+
+当前新工程位于 `D:\NeonCoastUE\Unreal\NeonCoast.uproject`，Git 分支为 `ue5-migration`。
+原 Godot 工程保留在 `D:\百度招新作业`；下方旧版截图、功能列表与 213 项测试记录只适用于 Godot 版。
+
+已编写 UE 城市、驾驶与跳车、行人和交通、HUD，以及命令行构建/资源生成/检查入口。
+城市外观、HUD 和材质脚本由 Claude Opus 5.5 high 生成。引擎仍在官方启动器中安装；
+**UE C++ 尚未编译，UE 游戏尚未运行，也没有可交付的 UE 可执行文件。**
+
+安装完成后从此目录运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Test
+powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Editor
+```
+
+第一条会编译、生成资产并执行运行时检查；第二条打开编辑器并启动本机原生 MCP。
+完整入口、当前实现边界与后续验证项目见 [UE 工作流](docs/UE_MIGRATION.md)。
+
+## 旧 Godot 版本记录
+
 **海风、霓虹，以及一份不该接下的快递。**
 
 本机工程根目录：`D:\百度招新作业`。游戏源码、Git 历史、测试和构建产物均在这个目录内。
