@@ -8,6 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "NCValidationRunner.h"
+#include "NCPoliceValidationRunner.h"
+#include "NCPoliceDirector.h"
+#include "NCWorldMarkers.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 
@@ -23,6 +26,7 @@ void ANCGameMode::StartPlay()
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     GetWorld()->SpawnActor<ANCCityVisual>(FVector::ZeroVector,FRotator::ZeroRotator,Params);
+    GetWorld()->SpawnActor<ANCWorldMarkers>(FVector::ZeroVector,FRotator::ZeroRotator,Params);
     auto* Car=GetWorld()->SpawnActor<ANCCar>(FVector(21600,3000,80),FRotator(0,90,0),Params);
     auto* Hero=GetWorld()->SpawnActor<ANCHero>(FVector(21920,3050,110),FRotator(0,90,0),Params);
     if(auto* PC=UGameplayStatics::GetPlayerController(this,0))
@@ -49,7 +53,15 @@ void ANCGameMode::StartPlay()
     }
     UE_LOG(LogTemp,Display,TEXT("NEON_COAST_UE_READY pedestrians=64 vehicles=9 hero=%s car=%s"),*GetNameSafe(Hero),*GetNameSafe(Car));
 #if !UE_BUILD_SHIPPING
-    if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastSmokeTest")))
+    if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastPoliceTest")))
+    {
+        GetWorld()->SpawnActor<ANCPoliceDirector>();
+        GetWorld()->SpawnActor<ANCPoliceValidationRunner>();
+    }
+    else if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastSmokeTest")))
         GetWorld()->SpawnActor<ANCValidationRunner>();
+    else GetWorld()->SpawnActor<ANCPoliceDirector>();
+#else
+    GetWorld()->SpawnActor<ANCPoliceDirector>();
 #endif
 }

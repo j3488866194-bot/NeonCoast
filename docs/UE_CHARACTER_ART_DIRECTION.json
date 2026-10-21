@@ -1,0 +1,51 @@
+{
+  "model": "claude-opus-5-5",
+  "date": "2026-10-21",
+  "source_asset": "Kenney Protagonists (CC0 1.0), one shared skeletal mesh, idle/run/jump",
+  "reviewed_images": [
+    "artifacts/character-assets/protagonists/Preview.png",
+    "Unreal/Saved/Screenshots/NeonCoast00000.png"
+  ],
+  "hero_skin": "criminalMaleA.png",
+  "npc_skins": [
+    { "texture": "skaterMaleA.png", "weight": 0.5 },
+    { "texture": "skaterFemaleA.png", "weight": 0.5 }
+  ],
+  "excluded_skins": [
+    {
+      "texture": "cyborgFemaleA.png",
+      "reason": "Exposed cyborg half-face reads as sci-fi and breaks the grounded neon art-deco coastal tone; do not spawn as player or civilian."
+    }
+  ],
+  "hero_exclusive": true,
+  "height_cm": 178,
+  "npc_height_variation_scale": [0.96, 1.03],
+  "roughness": 0.75,
+  "metallic": 0.0,
+  "specular": 0.3,
+  "texture_filter": "bilinear",
+  "texture_settings": {
+    "srgb": true,
+    "mipmaps": true,
+    "compression": "Default (BC1/DXT1)",
+    "lod_group": "Character"
+  },
+  "material": {
+    "shading_model": "DefaultLit",
+    "blend_mode": "Opaque",
+    "two_sided": false,
+    "base_color": "skin texture sample, no tint",
+    "emissive": "none (neon comes from the city, not the characters)",
+    "cast_shadows": true
+  },
+  "mesh_yaw_degrees": -90,
+  "mesh_yaw_note": "Suggestion only; Kenney glTF/FBX exports typically face +Y after import, so -90 aligns with UE +X forward. Parent must validate in-engine.",
+  "rationale": [
+    "criminalMaleA's white suit with teal collar is the most on-theme silhouette for a neon art-deco coast and contrasts strongly against the dark night asphalt seen in the screenshot, so the player stays readable from the chase camera.",
+    "Keeping the hero skin exclusive makes the player instantly distinguishable from the crowd.",
+    "The two skater skins are casual streetwear (jeans, tees, sneakers) and read as believable beachfront civilians; an even split gives a mixed-gender crowd.",
+    "Roughness 0.75 with low specular keeps the stylized painted textures matte so magenta/teal neon and street lamps tint them softly instead of producing plastic hotspots.",
+    "Textures are painted with soft gradients, not flat palette swatches, so bilinear with mips avoids distance shimmer; nearest would alias on small on-screen NPCs.",
+    "178 cm hero matches the existing vehicle and street-furniture scale; slight NPC scale variation breaks up the cloned look of a single shared mesh."
+  ]
+}

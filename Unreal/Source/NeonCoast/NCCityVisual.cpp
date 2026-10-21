@@ -5,8 +5,11 @@
 #include "Components/SkyLightComponent.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
+#include "Components/PostProcessComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/CollisionProfile.h"
+#include "Engine/World.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
@@ -18,6 +21,7 @@ namespace NCPal
 		DecoWhite, DecoMint, DecoPink, DecoLemon, DecoLavender, DecoPeach, DecoAqua, Stucco, Terracotta,
 		GlassDark, GlassWarm, GlassTower, Concrete, Trunk, Frond, FrondDark, Metal, Wood,
 		NeonPink, NeonAqua, NeonAmber, CanvasCoral, CanvasCream, CanvasTeal, LampGlow, Distant, DistantGlass,
+		SignBoard,
 		Count
 	};
 
@@ -63,6 +67,7 @@ namespace NCPal
 		{ FLinearColor(1.00f, 0.80f, 0.55f), 0.50f, 0.f, 8.f },      // LampGlow
 		{ FLinearColor(0.50f, 0.50f, 0.52f), 0.80f, 0.f, 0.f },      // Distant
 		{ FLinearColor(0.10f, 0.16f, 0.20f), 0.10f, 0.4f, 0.f },     // DistantGlass
+		{ FLinearColor(0.016f, 0.020f, 0.028f), 0.35f, 0.f, 0.f },   // SignBoard (dark enamel behind lettering)
 	};
 
 	static const int32 DecoColors[] = { DecoWhite, DecoMint, DecoPink, DecoLemon, DecoLavender, DecoPeach, DecoAqua };
@@ -71,12 +76,61 @@ namespace NCPal
 
 	template <int32 N>
 	static int32 Pick(const int32 (&Arr)[N], FRandomStream& Rng) { return Arr[Rng.RandRange(0, N - 1)]; }
+
+	/** M_Coast surface controls: world-space grain, per-instance tint jitter, contact darkening near the ground. */
+	struct FSurface { float Grain; float Variation; float Occlusion; };
+
+	static FSurface SurfaceFor(int32 P)
+	{
+		switch (P)
+		{
+		case Asphalt:   return { 1.00f, 0.00f, 0.f };
+		case Sidewalk:  return { 0.55f, 0.00f, 0.f };
+		case Promenade: return { 0.60f, 0.00f, 0.f };
+		case Concrete:  return { 0.50f, 0.04f, 0.f };
+		case Lawn:      return { 0.80f, 0.00f, 0.f };
+		case Sand:      return { 0.70f, 0.00f, 0.f };
+		case WetSand:   return { 0.45f, 0.00f, 0.f };
+		case Water:     return { 0.25f, 0.00f, 0.f };
+		case Trunk: case Wood: return { 0.40f, 0.06f, 0.f };
+		case DecoWhite: case DecoMint: case DecoPink: case DecoLemon: case DecoLavender: case DecoPeach: case DecoAqua:
+		case Stucco: case Terracotta:
+			return { 0.12f, 0.07f, 1.f };
+		case GlassDark: case GlassWarm: return { 0.f, 0.12f, 0.f };
+		case GlassTower: case Distant: case DistantGlass: return { 0.f, 0.06f, 0.f };
+		case Frond: case FrondDark: return { 0.f, 0.14f, 0.f };
+		case CanvasCoral: case CanvasCream: case CanvasTeal: return { 0.f, 0.05f, 0.f };
+		default:        return { 0.f, 0.f, 0.f };
+		}
+	}
+
+	static float Smooth01(float X) { X = FMath::Clamp(X, 0.f, 1.f); return X * X * (3.f - 2.f * X); }
+
+	// Original names only; sRGB sign colours tuned to read against dark enamel boards.
+	static const TCHAR* HotelNames[] = { TEXT("AZURINE"), TEXT("MARISOL"), TEXT("SOLANA"), TEXT("BELLAMAR"), TEXT("LUNA"), TEXT("PALOMA"),
+		TEXT("TIDEWELL"), TEXT("SEAGLASS"), TEXT("ORCHIDEE"), TEXT("CASA ROSA"), TEXT("VERANO"), TEXT("LAGUNA") };
+	static const TCHAR* ShopNames[] = { TEXT("KEY LIME CAFE"), TEXT("SALT & CITRUS"), TEXT("DUNE RECORDS"), TEXT("CABANA SUPPLY"),
+		TEXT("LIDO PHARMACY"), TEXT("TANGERINE DINER"), TEXT("VELVET HOUR"), TEXT("PALMETTO BOOKS"), TEXT("MANGO & MINT"),
+		TEXT("HARBOR LIGHTS"), TEXT("COASTLINE CYCLES"), TEXT("SUNDECK SURF"), TEXT("BLUE HERON BAR"), TEXT("CORAL CINEMA"),
+		TEXT("NIGHT FERRY"), TEXT("ESPRESSO 19"), TEXT("TROPIC LAUNDRY"), TEXT("SEASHELL DELI") };
+	static const TCHAR* TowerNames[] = { TEXT("MERIDIAN"), TEXT("BAYFRONT"), TEXT("SOLSTICE"), TEXT("CORAL ONE"), TEXT("AZURE KEY"), TEXT("THE ALCOVE") };
+	static const FColor SignColors[] = { FColor(255, 92, 150), FColor(96, 240, 214), FColor(255, 176, 74), FColor(255, 238, 206) };
+}
+
+namespace
+{
+	constexpr int32 MaxSigns = 84;
+
+	/** Sign choices draw from a stream keyed on the lot position, so the layout stream (and every building bound) is untouched. */
+	FRandomStream NCSignStream(const FVector2D& P, int32 Seed)
+	{
+		const uint32 H = static_cast<uint32>(Seed) * 92821u ^ static_cast<uint32>(FMath::RoundToInt(P.X)) * 73856093u ^ static_cast<uint32>(FMath::RoundToInt(P.Y)) * 19349663u;
+		return FRandomStream(static_cast<int32>(H & 0x7fffffff));
+	}
 }
 
 ANCCityVisual::ANCCityVisual()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	// Static root so the static HISM batches can attach; lights below are movable children.
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SceneRoot->Mobility = EComponentMobility::Static;
@@ -112,7 +166,27 @@ ANCCityVisual::ANCCityVisual()
 	HeightFog->StartDistance = 3000.f;
 	HeightFog->FogMaxOpacity = 0.8f;
 
+	// Grade: fixed exposure in this project (auto exposure is off), so UpdateLighting drives exposure bias,
+	// white balance and bloom with the clock to keep night readable rather than black.
+	Grade = CreateDefaultSubobject<UPostProcessComponent>(TEXT("Grade"));
+	Grade->SetupAttachment(SceneRoot);
+	Grade->bUnbound = true;
+	Grade->Priority = -1.f; // any authored volume in the level wins
+	FPostProcessSettings& PP = Grade->Settings;
+	PP.bOverride_AutoExposureBias = true;
+	PP.bOverride_WhiteTemp = true;
+	PP.bOverride_ColorSaturation = true;
+	PP.bOverride_ColorContrast = true;
+	PP.bOverride_BloomIntensity = true;
+	PP.bOverride_VignetteIntensity = true;
+	PP.ColorContrast = FVector4(1.04f, 1.04f, 1.04f, 1.f);
+	PP.VignetteIntensity = 0.32f;
+
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.25f;
+
 	CoastMaterial = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Materials/M_Coast.M_Coast")));
+	SignTextMaterial = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Materials/M_CoastSignText.M_CoastSignText")));
 	FallbackMaterial = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")));
 	ShapeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
 	ShapeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"))));
@@ -130,6 +204,17 @@ void ANCCityVisual::BeginPlay()
 	}
 	bBuilt = true;
 
+	TimeOfDayHours = FMath::Fmod(FMath::Max(0.f, StartHour), 24.f);
+	SetActorTickEnabled(bDayNightCycle);
+	SignMID = nullptr;
+	if (bBuildSigns)
+	{
+		if (UMaterialInterface* TextMat = SignTextMaterial.LoadSynchronous())
+		{
+			SignMID = UMaterialInstanceDynamic::Create(TextMat, this);
+		}
+	}
+
 	LoadAssets();
 	BuildPalettes();
 	BuildGround();
@@ -142,6 +227,7 @@ void ANCCityVisual::BeginPlay()
 		BuildDistant();
 	}
 	FlushBatches();
+	UpdateLighting(0.f, true);
 }
 
 void ANCCityVisual::LoadAssets()
@@ -177,6 +263,10 @@ void ANCCityVisual::BuildPalettes()
 			MID->SetScalarParameterValue(TEXT("Roughness"), Def.Roughness);
 			MID->SetScalarParameterValue(TEXT("Metallic"), Def.Metallic);
 			MID->SetScalarParameterValue(TEXT("EmissiveStrength"), Def.Emissive);
+			const NCPal::FSurface Surf = NCPal::SurfaceFor(i);
+			MID->SetScalarParameterValue(TEXT("Grain"), Surf.Grain);
+			MID->SetScalarParameterValue(TEXT("InstanceVariation"), Surf.Variation);
+			MID->SetScalarParameterValue(TEXT("GroundOcclusion"), Surf.Occlusion);
 		}
 		PaletteMaterials.Add(MID);
 	}
@@ -425,6 +515,7 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 			// Hotels leave a 900cm service/garden gap in front of the west strip.
 			Lot.Depth = bHotelFront ? 2.f * B - StripDepth - 900.f : StripDepth;
 
+			LotSignChance = !bBuildSigns ? 0.f : bHotelFront ? 0.85f : bDecoDistrict ? 0.13f : 0.06f;
 			const bool bDeco = bHotelFront || (bDecoDistrict && Rng.FRand() < 0.55f);
 			if (bDeco)
 			{
@@ -444,6 +535,7 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 
 	// Courtyard: towers downtown / inland, pool decks behind the coastal hotels.
 	const FVector2D Center(CX, CY);
+	LotSignChance = bBuildSigns ? 0.7f : 0.f;
 	if (bDowntown)
 	{
 		BuildTower(Center, Rng.FRandRange(1500.f, 2000.f), Rng.FRandRange(6500.f, 11000.f), Rng, true);
@@ -462,6 +554,7 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 	{
 		AddPalm(FVector(CX, CY, 0.f), Rng.FRandRange(700.f, 1000.f), Rng, true);
 	}
+	LotSignChance = 0.f;
 }
 
 void ANCCityVisual::BuildDecoHotel(const FLot& Lot, FRandomStream& Rng)
@@ -506,6 +599,29 @@ void ANCCityVisual::BuildDecoHotel(const FLot& Lot, FRandomStream& Rng)
 			AddLotBox(Lot, Neon, S * 90.f, 50.f, 445.f + FinH * 0.55f, 10.f, 50.f, FinH * 0.8f, false, false);
 		}
 		AddLotBox(Lot, Neon, 0.f, 82.f, FinTop - 120.f, 120.f, 6.f, 120.f, false, false);
+
+		// Stacked-letter blade sign down the fin face, the signature of the strip.
+		FRandomStream SignRng = NCSignStream(Lot.Facade, Seed);
+		if (SignRng.FRand() < LotSignChance && SignCount < MaxSigns)
+		{
+			const FString Name = NCPal::HotelNames[SignRng.RandRange(0, static_cast<int32>(UE_ARRAY_COUNT(NCPal::HotelNames)) - 1)];
+			const float Bottom = 445.f + 90.f;
+			const float Top = FinTop - 220.f;
+			const float Size = FMath::Min(105.f, (Top - Bottom) / (Name.Len() * 1.25f));
+			if (Size >= 55.f)
+			{
+				FString Stacked;
+				for (int32 i = 0; i < Name.Len(); ++i)
+				{
+					if (i > 0)
+					{
+						Stacked += TEXT("<br>");
+					}
+					Stacked.AppendChar(Name[i]);
+				}
+				AddLotSign(Lot, Stacked, 81.f, (Bottom + Top) * 0.5f, Size, NCPal::SignColors[Neon - NCPal::NeonPink]);
+			}
+		}
 	}
 
 	// Upper floors: eyebrow ledges and punched windows.
@@ -558,8 +674,25 @@ void ANCCityVisual::BuildStorefront(const FLot& Lot, FRandomStream& Rng)
 	AddLotBox(Lot, NCPal::GlassDark, Rng.FRandRange(-W * 0.3f, W * 0.3f), 6.f, 125.f, 120.f, 10.f, 240.f, false, false);
 	AddLotBox(Lot, Canvas, 0.f, 90.f, 345.f, W - 100.f, 180.f, 12.f);
 	AddLotBox(Lot, Canvas, 0.f, 178.f, 322.f, W - 100.f, 6.f, 50.f, false, false);
-	const int32 Sign = Rng.FRand() < 0.45f ? NCPal::Pick(NCPal::Neons, Rng) : NCPal::CanvasCream;
-	AddLotBox(Lot, Sign, 0.f, 8.f, 405.f, W * Rng.FRandRange(0.45f, 0.75f), 12.f, 70.f, false, false);
+	int32 Sign = Rng.FRand() < 0.45f ? NCPal::Pick(NCPal::Neons, Rng) : NCPal::CanvasCream;
+	float SignW = W * Rng.FRandRange(0.45f, 0.75f);
+
+	// Some boards become dark enamel with lettering in the board's colour (layout RNG draws unchanged).
+	FRandomStream SignRng = NCSignStream(Lot.Facade, Seed);
+	if (SignRng.FRand() < LotSignChance && SignCount < MaxSigns)
+	{
+		const FString Name = NCPal::ShopNames[SignRng.RandRange(0, static_cast<int32>(UE_ARRAY_COUNT(NCPal::ShopNames)) - 1)];
+		const float Size = FMath::Clamp((W - 160.f) / (Name.Len() * 0.62f), 34.f, 54.f);
+		const float Needed = Name.Len() * Size * 0.62f + 90.f;
+		if (Needed <= W - 60.f)
+		{
+			SignW = FMath::Max(SignW, Needed);
+			const FColor Color = Sign == NCPal::CanvasCream ? NCPal::SignColors[3] : NCPal::SignColors[Sign - NCPal::NeonPink];
+			Sign = NCPal::SignBoard;
+			AddLotSign(Lot, Name, 15.f, 405.f, Size, Color);
+		}
+	}
+	AddLotBox(Lot, Sign, 0.f, 8.f, 405.f, SignW, 12.f, 70.f, false, false);
 
 	const int32 Floors = FMath::Max(0, FMath::RoundToInt((H - 420.f) / 320.f));
 	const int32 Cols = FMath::Max(2, FMath::FloorToInt(W / 300.f));
@@ -597,6 +730,18 @@ void ANCCityVisual::BuildTower(const FVector2D& Center, float Size, float Height
 	Add(ENCShape::Cube, NCPal::DecoWhite, FVector(Center.X, Center.Y, Height + 150.f), FVector(Size * 0.7f, Size * 0.7f, 300.f));
 	Add(ENCShape::Cube, Neon, FVector(Center.X, Center.Y, Height + 6.f), FVector(Size + 80.f, Size + 80.f, 10.f), FRotator::ZeroRotator, false, false);
 	Add(ENCShape::Sphere, NCPal::NeonPink, FVector(Center.X, Center.Y, Height + 330.f), FVector(60.f), FRotator::ZeroRotator, false, false);
+
+	// Crown lettering towards the coast (east) and the southern approach.
+	FRandomStream SignRng = NCSignStream(Center, Seed);
+	if (SignRng.FRand() < LotSignChance && SignCount < MaxSigns - 1)
+	{
+		const FString Name = NCPal::TowerNames[SignRng.RandRange(0, static_cast<int32>(UE_ARRAY_COUNT(NCPal::TowerNames)) - 1)];
+		const float Half = Size * 0.35f;
+		const float WS = FMath::Min(160.f, Size * 0.62f / (Name.Len() * 0.62f));
+		const FColor Color = NCPal::SignColors[Neon - NCPal::NeonPink];
+		AddSign(Name, Center + FVector2D(Half, 0.f), FVector2D(1.f, 0.f), 3.f, Height + 150.f, WS, Color);
+		AddSign(Name, Center - FVector2D(0.f, Half), FVector2D(0.f, -1.f), 3.f, Height + 150.f, WS, Color);
+	}
 }
 
 void ANCCityVisual::AddPalm(const FVector& Base, float Height, FRandomStream& Rng, bool bCollide)
@@ -776,6 +921,7 @@ void ANCCityVisual::BuildWaterfront()
 void ANCCityVisual::BuildDistant()
 {
 	FRandomStream Rng(Seed * 13 + 11);
+	LotSignChance = 0.f;
 
 	// The deco strip continues north and south of the playable city along the coast road.
 	for (float Sign : { -1.f, 1.f })
@@ -811,5 +957,163 @@ void ANCCityVisual::BuildDistant()
 		Add(ENCShape::Cube, Rng.FRand() < 0.6f ? NCPal::DistantGlass : NCPal::Distant, FVector(C.X, C.Y, H * 0.5f), FVector(S, S * Rng.FRandRange(0.7f, 1.3f), H), FRotator::ZeroRotator, false, false);
 		Add(ENCShape::Cube, NCPal::DecoWhite, FVector(C.X, C.Y, H + 200.f), FVector(S * 0.6f, S * 0.6f, 400.f), FRotator::ZeroRotator, false, false);
 		Add(ENCShape::Sphere, NCPal::NeonPink, FVector(C.X, C.Y, H + 460.f), FVector(120.f), FRotator::ZeroRotator, false, false);
+	}
+}
+
+void ANCCityVisual::AddLotSign(const FLot& Lot, const FString& Text, float Out, float Z, float WorldSize, const FColor& Color)
+{
+	AddSign(Text, Lot.Facade, Lot.Normal, Out, Z, WorldSize, Color);
+}
+
+void ANCCityVisual::AddSign(const FString& Text, const FVector2D& Facade, const FVector2D& Normal, float Out, float Z, float WorldSize, const FColor& Color)
+{
+	if (SignCount >= MaxSigns || Text.IsEmpty())
+	{
+		return;
+	}
+	const FVector2D P = Facade + Normal * Out;
+	// TextRender faces local +X; yaw it onto the street normal.
+	const FRotator Facing(0.f, FMath::RadiansToDegrees(FMath::Atan2(Normal.Y, Normal.X)), 0.f);
+
+	UTextRenderComponent* Text3D = NewObject<UTextRenderComponent>(this);
+	Text3D->SetupAttachment(SceneRoot);
+	Text3D->SetMobility(EComponentMobility::Static);
+	Text3D->SetRelativeLocationAndRotation(FVector(P.X, P.Y, Z), Facing);
+	Text3D->SetHorizontalAlignment(EHTA_Center);
+	Text3D->SetVerticalAlignment(EVRTA_TextCenter);
+	Text3D->SetWorldSize(WorldSize);
+	Text3D->SetTextRenderColor(Color);
+	Text3D->SetText(FText::FromString(Text));
+	if (SignMID)
+	{
+		Text3D->SetTextMaterial(SignMID);
+	}
+	Text3D->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Text3D->SetCanEverAffectNavigation(false);
+	Text3D->SetCastShadow(false);
+	Text3D->LDMaxDrawDistance = WorldSize >= 100.f ? 70000.f : 22000.f;
+	Text3D->RegisterComponent();
+	AddInstanceComponent(Text3D);
+	Signs.Add(Text3D);
+	++SignCount;
+}
+
+void ANCCityVisual::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (!bDayNightCycle)
+	{
+		return;
+	}
+	TimeOfDayHours = FMath::Fmod(TimeOfDayHours + DeltaSeconds / FMath::Max(1.f, SecondsPerGameHour), 24.f);
+	UpdateLighting(DeltaSeconds, false);
+}
+
+void ANCCityVisual::UpdateLighting(float DeltaSeconds, bool bSnap)
+{
+	// Sun arc: 0 at sunrise (east), 0.5 at noon (south, high), 1 at sunset (west-north-west); 1..2 below the horizon.
+	constexpr float Sunrise = 6.5f;
+	constexpr float Sunset = 19.f;
+	constexpr float MaxElevation = 64.f;
+	constexpr float MoonElevation = 38.f;
+	const float H = TimeOfDayHours;
+	const float Arc = (H >= Sunrise && H <= Sunset)
+		? (H - Sunrise) / (Sunset - Sunrise)
+		: 1.f + FMath::Fmod(H - Sunset + 24.f, 24.f) / (24.f - (Sunset - Sunrise));
+	const float Angle = PI * Arc;
+	const float SinA = FMath::Sin(Angle);
+	const float ElevDeg = SinA * (SinA >= 0.f ? MaxElevation : 40.f);
+
+	FVector2D Horiz(FMath::Cos(Angle), -SinA + 0.35f);
+	Horiz.Normalize();
+	const float ElevRad = FMath::DegreesToRadians(ElevDeg);
+	const FVector SunDir(Horiz.X * FMath::Cos(ElevRad), Horiz.Y * FMath::Cos(ElevRad), FMath::Sin(ElevRad));
+	const float MoonRad = FMath::DegreesToRadians(MoonElevation);
+	const FVector MoonDir(-Horiz.X * FMath::Cos(MoonRad), -Horiz.Y * FMath::Cos(MoonRad), FMath::Sin(MoonRad));
+
+	// Blend weights, all continuous in time.
+	const float DayW = FMath::Pow(FMath::Clamp((ElevDeg + 4.f) / 22.f, 0.f, 1.f), 0.6f) * NCPal::Smooth01((ElevDeg + 4.f) / 4.f);
+	const float Golden = NCPal::Smooth01(1.f - FMath::Abs(ElevDeg - 6.f) / 14.f);
+	const float Night = 1.f - NCPal::Smooth01((ElevDeg + 8.f) / 14.f);
+	const float MoonW = NCPal::Smooth01((-ElevDeg - 2.f) / 8.f);
+	const float LampsOn = 1.f - NCPal::Smooth01((ElevDeg - 1.f) / 7.f);
+	const float Warm = NCPal::Smooth01(1.f - (ElevDeg - 2.f) / 22.f);
+	// Dusk band (~sun 16deg .. -6deg, roughly 18:00-19:30): the low sun puts the whole street in building shadow
+	// while the captured sky dims, so lift sky fill and exposure here only; noon and deep night are untouched.
+	const float Dusk = NCPal::Smooth01((ElevDeg + 7.f) / 6.f) * (1.f - NCPal::Smooth01((ElevDeg - 12.f) / 10.f)) * (1.f - Night);
+
+	const float SunLux = 10.f * DayW;
+	const float MoonLux = 0.9f * MoonW;
+
+	// One directional light: the sun, handing over to a cool moon once both are near zero (no visible pop).
+	if (Sun)
+	{
+		const bool bSun = ElevDeg > -3.5f;
+		Sun->SetRelativeRotation((bSun ? -SunDir : -MoonDir).Rotation());
+		Sun->SetIntensity(bSun ? SunLux : MoonLux);
+		const FLinearColor Noon(1.f, 0.96f, 0.90f);
+		const FLinearColor Low(1.f, 0.68f, 0.44f);
+		Sun->SetLightColor(bSun ? FLinearColor::LerpUsingHSV(Noon, Low, Warm) : FLinearColor(0.62f, 0.74f, 1.f));
+	}
+
+	if (SkyLight)
+	{
+		// Warm-lavender fill at dusk keeps shadowed streets, cars and pedestrians readable without flattening the sunset.
+		SkyLight->SetIntensity(FMath::Lerp(1.f, 1.7f, Night) + 1.5f * Dusk);
+		const FLinearColor DayFill = FMath::Lerp(FLinearColor::White, FLinearColor(1.f, 0.88f, 0.84f), Dusk);
+		SkyLight->SetLightColor(FMath::Lerp(DayFill, FLinearColor(0.72f, 0.80f, 1.f), Night));
+	}
+
+	if (HeightFog)
+	{
+		const FLinearColor DayFog(0.42f, 0.58f, 0.82f);
+		const FLinearColor GoldFog(0.95f, 0.58f, 0.45f);
+		const FLinearColor NightFog(0.05f, 0.07f, 0.13f);
+		HeightFog->SetFogDensity(0.0028f + 0.0018f * Golden + 0.0006f * Night);
+		HeightFog->SetFogInscatteringColor(FMath::Lerp(FMath::Lerp(DayFog, GoldFog, Golden), NightFog, Night));
+		HeightFog->SetDirectionalInscatteringColor(FLinearColor(0.9f, 0.45f, 0.2f) * Golden);
+	}
+
+	// Fixed exposure: partially compensate for the light level so night reads moody but playable.
+	// +0.4 EV at dusk is modest enough that sun-facing white deco walls stay below noon-sand brightness after the warm tint.
+	const float TargetBias = FMath::Clamp(0.85f * FMath::Log2(10.f / (SunLux + 2.6f * MoonLux + 0.45f)) + 0.4f * Dusk, 0.f, 3.4f);
+	AppliedExposureBias = bSnap ? TargetBias : FMath::FInterpTo(AppliedExposureBias, TargetBias, DeltaSeconds, 0.8f);
+	if (Grade)
+	{
+		FPostProcessSettings& PP = Grade->Settings;
+		PP.AutoExposureBias = AppliedExposureBias;
+		PP.WhiteTemp = 6500.f + 1100.f * Golden - 900.f * Night;
+		const float Sat = 1.f + 0.10f * Golden + 0.05f * Night;
+		PP.ColorSaturation = FVector4(Sat, Sat, Sat, 1.f);
+		PP.BloomIntensity = 0.675f + 0.15f * Golden + 0.35f * Night;
+	}
+
+	// Emissive palettes: neon readable by day without blooming out after dark; lamps and interiors switch on at dusk.
+	for (int32 i = 0; i < PaletteMaterials.Num() && i < NCPal::Count; ++i)
+	{
+		UMaterialInstanceDynamic* MID = PaletteMaterials[i];
+		const float Base = NCPal::Defs[i].Emissive;
+		if (!MID || Base <= 0.f)
+		{
+			continue;
+		}
+		float Mult = 1.f;
+		if (i == NCPal::NeonPink || i == NCPal::NeonAqua || i == NCPal::NeonAmber)
+		{
+			Mult = FMath::Lerp(1.4f, 0.55f, Night);
+		}
+		else if (i == NCPal::LampGlow)
+		{
+			Mult = FMath::Lerp(0.05f, 0.7f, LampsOn);
+		}
+		else if (i == NCPal::GlassWarm)
+		{
+			Mult = FMath::Lerp(0.35f, 1.f, LampsOn);
+		}
+		MID->SetScalarParameterValue(TEXT("EmissiveStrength"), Base * Mult);
+	}
+	if (SignMID)
+	{
+		SignMID->SetScalarParameterValue(TEXT("Glow"), FMath::Lerp(0.8f, 2.2f, LampsOn));
 	}
 }

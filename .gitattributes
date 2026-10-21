@@ -20,3 +20,5 @@ LICENSE text eol=lf
 *.ttf binary
 *.ogg binary
 
+# Preserve the upstream CC0 license text verbatim, including tab-only lines.
+Unreal/ArtSource/Characters/License.txt -whitespace

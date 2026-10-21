@@ -35,7 +35,9 @@ async def run(args):
                 text = json.dumps(output, ensure_ascii=False, indent=2)
                 if args.output:
                     Path(args.output).write_text(text + "\n", encoding="utf-8")
-                print(text)
+                    print(json.dumps({"output": str(Path(args.output).resolve()), "bytes": len((text + "\n").encode("utf-8"))}, ensure_ascii=False))
+                else:
+                    print(text)
 
 
 def main():

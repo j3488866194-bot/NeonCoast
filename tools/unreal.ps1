@@ -29,7 +29,7 @@ $build=Join-Path $engineRoot 'Engine/Build/BatchFiles/Build.bat'
 $editor=Join-Path $engineRoot 'Engine/Binaries/Win64/UnrealEditor.exe'
 $commandlet=Join-Path $engineRoot 'Engine/Binaries/Win64/UnrealEditor-Cmd.exe'
 $buildLog=Join-Path $artifacts 'ue-build.log'
-& $build NeonCoastEditor Win64 Development $project -WaitMutex -NoHotReloadFromIDE 2>&1|Tee-Object -FilePath $buildLog
+& $build NeonCoastEditor Win64 Development $project -WaitMutex -NoHotReloadFromIDE -MaxParallelActions=6 2>&1|Tee-Object -FilePath $buildLog
 if($LASTEXITCODE -ne 0){throw "UE compilation failed. See $buildLog"}
 if($Action -eq 'Build'){exit 0}
 $bootstrap=Join-Path $repo 'Unreal/Content/Python/bootstrap_project.py'
@@ -40,17 +40,36 @@ if(-not (Select-String -LiteralPath $prepareLog -SimpleMatch 'NEON_COAST_ASSETS_
 switch($Action){
     'Prepare' {Write-Host 'Compilation and asset generation completed.'}
     'Editor' {Start-Process -FilePath $editor -ArgumentList @($project,'-ModelContextProtocolStartServer',"-ModelContextProtocolPort=$McpPort") -WorkingDirectory (Split-Path -Parent $project) -WindowStyle Normal}
-    'Play' {Start-Process -FilePath $editor -ArgumentList @($project,'-game','-windowed','-ResX=1600','-ResY=900') -WorkingDirectory (Split-Path -Parent $project) -WindowStyle Normal}
+    'Play' {Start-Process -FilePath $editor -ArgumentList @($project,'-game','-DisablePython','-windowed','-ResX=1600','-ResY=900') -WorkingDirectory (Split-Path -Parent $project) -WindowStyle Normal}
     'Test' {
         $testLog=Join-Path $artifacts 'ue-smoke.log'
-        & $commandlet $project -game -NeonCoastSmokeTest -unattended -nop4 -nosplash -NullRHI '-ExecCmds=t.MaxFPS 60' "-abslog=$testLog"
+        & $commandlet $project -game -DisablePython -NeonCoastSmokeTest -unattended -nop4 -nosplash -NullRHI '-ExecCmds=t.MaxFPS 60' "-abslog=$testLog"
         if($LASTEXITCODE -ne 0 -or -not (Select-String -LiteralPath $testLog -SimpleMatch 'NEON_COAST_SMOKE_PASS' -Quiet)){throw "Gameplay smoke test failed. See $testLog"}
-        Select-String -LiteralPath $testLog -Pattern 'NC_CHECK|NEON_COAST_SMOKE_'
+        Select-String -LiteralPath $testLog -Pattern 'NC_CHECK FAIL|NC_METRIC|NEON_COAST_SMOKE_'
+        $policeLog=Join-Path $artifacts 'ue-police.log'
+        & $commandlet $project -game -DisablePython -NeonCoastPoliceTest -NeonCoastSmokeTest -unattended -nop4 -nosplash -NullRHI '-ExecCmds=t.MaxFPS 60' "-abslog=$policeLog"
+        if($LASTEXITCODE -ne 0 -or -not (Select-String -LiteralPath $policeLog -SimpleMatch 'NEON_COAST_POLICE_PASS' -Quiet)){throw "Police integration test failed. See $policeLog"}
+        Select-String -LiteralPath $policeLog -Pattern 'NC_POLICE_CHECK FAIL|NC_POLICE_METRIC|NEON_COAST_POLICE_'
+        $automationLog=Join-Path $artifacts 'ue-automation.log'
+        $reportDir=Join-Path $artifacts ('ue-automation-'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
+        & $commandlet $project -DisablePython -unattended -nop4 -nosplash -NullRHI '-ExecCmds=Automation RunTests NeonCoast.Progress' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$reportDir" "-abslog=$automationLog"
+        if($LASTEXITCODE -ne 0){throw "Progress automation failed. See $automationLog"}
+        $report=Get-Content -LiteralPath (Join-Path $reportDir 'index.json') -Raw|ConvertFrom-Json
+        if($report.succeeded -ne 2 -or $report.failed -ne 0 -or $report.notRun -ne 0){throw "Progress tests did not all pass. See $reportDir"}
+        Write-Host "Progress automation: 2 passed; report $reportDir"
     }
     'Package' {
         $uat=Join-Path $engineRoot 'Engine/Build/BatchFiles/RunUAT.bat'
         $release=Join-Path $repo 'builds/NeonCoast-UE-Windows'
-        & $uat BuildCookRun "-project=$project" -noP4 -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive "-archivedirectory=$release" -utf8output 2>&1|Tee-Object -FilePath (Join-Path $artifacts 'ue-package.log')
+        # .NET 10 matches the bracketed IPv6 host used by Zen literally.
+        # Keep this bypass in the current build process; no machine proxy changes.
+        if(($env:NO_PROXY -split ',') -notcontains '[::1]'){$env:NO_PROXY=$env:NO_PROXY+',[::1]'}
+        # AppData logs can inherit EFS encryption, which prevents staging to D:.
+        # UAT clears this directory, so give each run a new task-owned folder.
+        $env:uebp_LogFolder=Join-Path $artifacts ('uat-package-'+[guid]::NewGuid().ToString('N'))
+        $env:uebp_FinalLogFolder=$env:uebp_LogFolder
+        New-Item -ItemType Directory -Path $env:uebp_LogFolder | Out-Null
+        & $uat BuildCookRun "-project=$project" -noP4 -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive "-archivedirectory=$release" '-ubtargs=-MaxParallelActions=6' -utf8output 2>&1|Tee-Object -FilePath (Join-Path $artifacts 'ue-package.log')
         if($LASTEXITCODE -ne 0){throw 'UE packaging failed.'}
         Write-Host "Package: $release"
     }

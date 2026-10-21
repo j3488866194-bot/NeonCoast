@@ -1,3 +1,3 @@
 @echo off
 chcp 65001 >nul
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\run.ps1" -Editor
+call "%~dp0打开UE5工程.cmd"

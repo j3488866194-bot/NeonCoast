@@ -12,6 +12,8 @@ class UDirectionalLightComponent;
 class USkyLightComponent;
 class USkyAtmosphereComponent;
 class UExponentialHeightFogComponent;
+class UPostProcessComponent;
+class UTextRenderComponent;
 
 /** Primitive meshes used by the city batches (all from /Engine/BasicShapes). */
 UENUM()
@@ -39,6 +41,10 @@ public:
 	ANCCityVisual();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	/** Current city clock in hours [0, 24). Advances one game hour per SecondsPerGameHour real seconds. */
+	float GetTimeOfDayHours() const { return TimeOfDayHours; }
 
 	// City layout contract (cm).
 	static constexpr float CityHalfExtent = 24000.f;
@@ -62,6 +68,20 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Neon Coast|City")
 	bool bBuildDistantSkyline = true;
 
+	/** Neon text on hotel fins, storefront boards and tower crowns. */
+	UPROPERTY(EditAnywhere, Category = "Neon Coast|City")
+	bool bBuildSigns = true;
+
+	/** Clock at BeginPlay; late afternoon so the first view is golden hour. */
+	UPROPERTY(EditAnywhere, Category = "Neon Coast|Time", meta = (ClampMin = "0", ClampMax = "24"))
+	float StartHour = 18.f;
+
+	UPROPERTY(EditAnywhere, Category = "Neon Coast|Time", meta = (ClampMin = "1"))
+	float SecondsPerGameHour = 80.f;
+
+	UPROPERTY(EditAnywhere, Category = "Neon Coast|Time")
+	bool bDayNightCycle = true;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Neon Coast|City")
 	TObjectPtr<USceneComponent> SceneRoot;
@@ -81,8 +101,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Neon Coast|Assets")
 	TSoftObjectPtr<UMaterialInterface> CoastMaterial;
 
+	UPROPERTY(VisibleAnywhere, Category = "Neon Coast|Sky")
+	TObjectPtr<UPostProcessComponent> Grade;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Neon Coast|Assets")
 	TSoftObjectPtr<UMaterialInterface> FallbackMaterial;
+
+	/** Optional masked font material from build_visual_assets.py; engine default text material otherwise. */
+	UPROPERTY(EditDefaultsOnly, Category = "Neon Coast|Assets")
+	TSoftObjectPtr<UMaterialInterface> SignTextMaterial;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Neon Coast|Assets")
 	TArray<TSoftObjectPtr<UStaticMesh>> ShapeMeshes;
@@ -131,6 +158,11 @@ private:
 	void AddLamp(const FVector& Base, bool bCollide);
 	void FlushBatches();
 
+	/** Text sign facing Normal, centred at Facade + Normal * Out, height Z. Uses its own RNG so layout never shifts. */
+	void AddSign(const FString& Text, const FVector2D& Facade, const FVector2D& Normal, float Out, float Z, float WorldSize, const FColor& Color);
+	void AddLotSign(const FLot& Lot, const FString& Text, float Out, float Z, float WorldSize, const FColor& Color);
+	void UpdateLighting(float DeltaSeconds, bool bSnap);
+
 	/** Queue an instance. Size is the full world-space extent in cm (meshes are 100cm primitives). */
 	void Add(ENCShape Shape, int32 Palette, const FVector& Center, const FVector& Size, const FRotator& Rot = FRotator::ZeroRotator,
 		bool bCollide = false, bool bShadow = true, bool bProp = false);
@@ -151,6 +183,16 @@ private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UHierarchicalInstancedStaticMeshComponent>> Batches;
 
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UTextRenderComponent>> Signs;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInstanceDynamic> SignMID;
+
 	TMap<FBatchKey, TArray<FTransform>> PendingInstances;
 	bool bBuilt = false;
+	float LotSignChance = 0.f;	// set per lot by BuildBlock; distant strip copies never carry text
+	int32 SignCount = 0;
+	float TimeOfDayHours = 18.f;
+	float AppliedExposureBias = 0.f;
 };

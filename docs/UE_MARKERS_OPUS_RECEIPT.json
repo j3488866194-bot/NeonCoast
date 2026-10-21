@@ -1,0 +1,18 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "session_id": "14a52881-bcef-4748-9708-27d27efe3a28",
+  "is_error": false,
+  "duration_ms": 393815,
+  "files": [
+    {
+      "path": "Unreal/Source/NeonCoast/NCWorldMarkers.h",
+      "sha256": "138601a21bf8b556621bc13d25cfebbcc26fbe554d3aabd9557f5be32c490b51"
+    },
+    {
+      "path": "Unreal/Source/NeonCoast/NCWorldMarkers.cpp",
+      "sha256": "6b06baac2b419eb9dfbc202a4dafe2b3b436ce23a76edae2cf93e0edac34305e"
+    }
+  ],
+  "scope": "In-world marker art; Codex integrates and validates separately"
+}

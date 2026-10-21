@@ -9,7 +9,11 @@ def main():
     if not source.is_file():
         raise RuntimeError(f"Missing Opus visual asset builder: {source}")
     namespace = runpy.run_path(str(source), run_name="neon_coast_visual_builder")
-    namespace["build"]()
+    namespace.get("build_all", namespace["build"])()
+    audio_source = Path(__file__).with_name("build_audio_assets.py")
+    runpy.run_path(str(audio_source), run_name="neon_coast_audio_builder")["build"]()
+    character_source = Path(__file__).with_name("build_character_assets.py")
+    runpy.run_path(str(character_source), run_name="neon_coast_character_builder")["build"]()
     level_path = "/Game/Maps/NeonCoast"
     editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     if unreal.EditorAssetLibrary.does_asset_exist(level_path):
