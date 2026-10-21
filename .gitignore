@@ -1,0 +1,13 @@
+.godot/
+.claude/
+builds/
+artifacts/
+*.log
+*.tmp
+.env
+.env.*
+*.key
+*.pem
+Thumbs.db
+.DS_Store
+
