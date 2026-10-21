@@ -1,0 +1,32 @@
+name: Verify game systems
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify official Godot
+        shell: pwsh
+        run: ./tools/setup-engine.ps1 -InstallDirectory "$env:RUNNER_TEMP/godot"
+      - name: Import assets
+        shell: pwsh
+        run: |
+          & "$env:RUNNER_TEMP/godot/Godot_v4.7.2-stable_win64_console.exe" --headless --path . --editor --import --quit
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify physics, saves, missions, maps and interface input
+        shell: pwsh
+        run: ./tools/verify.ps1 -Godot "$env:RUNNER_TEMP/godot/Godot_v4.7.2-stable_win64_console.exe"
+      - name: Preserve test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-test-logs
+          path: artifacts/*.log

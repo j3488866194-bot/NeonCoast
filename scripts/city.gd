@@ -75,6 +75,44 @@ func _create_materials() -> void:
 	_material("sign", Color("244c49"), 0.65)
 	(_materials["palm"] as StandardMaterial3D).cull_mode = BaseMaterial3D.CULL_DISABLED
 	(_materials["palm_light"] as StandardMaterial3D).cull_mode = BaseMaterial3D.CULL_DISABLED
+	_surface_grain("asphalt", 41027, 0.26, 0.22, 0.93, 0.18)
+	_surface_grain("sand", 91503, 0.62, 0.16, 0.95, 0.12)
+
+func _surface_grain(material_key: String, seed_value: int, world_scale: float, frequency: float, low_value: float, normal_strength: float) -> void:
+	# Two small, deterministic shared textures. World-space projection keeps grain
+	# consistent on large scaled boxes, and mipmaps suppress distant shimmer.
+	var noise: FastNoiseLite = FastNoiseLite.new()
+	noise.seed = seed_value
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise.frequency = frequency
+	noise.fractal_octaves = 3
+	var ramp: Gradient = Gradient.new()
+	ramp.set_color(0,Color(low_value,low_value,low_value,1.0))
+	ramp.set_color(1,Color.WHITE)
+	var albedo: NoiseTexture2D = NoiseTexture2D.new()
+	albedo.width = 256
+	albedo.height = 256
+	albedo.noise = noise
+	albedo.seamless = true
+	albedo.generate_mipmaps = true
+	albedo.color_ramp = ramp
+	var normal: NoiseTexture2D = NoiseTexture2D.new()
+	normal.width = 256
+	normal.height = 256
+	normal.noise = noise
+	normal.seamless = true
+	normal.generate_mipmaps = true
+	normal.as_normal_map = true
+	normal.bump_strength = 0.18
+	var material: StandardMaterial3D = _materials[material_key]
+	material.albedo_texture = albedo
+	material.normal_enabled = true
+	material.normal_texture = normal
+	material.normal_scale = normal_strength
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = true
+	material.uv1_scale = Vector3.ONE*world_scale
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 
 func _material(key: String, color: Color, roughness: float, metallic: float = 0.0, emission: Color = Color.BLACK, energy: float = 0.0) -> void:
 	var mat: StandardMaterial3D = StandardMaterial3D.new()

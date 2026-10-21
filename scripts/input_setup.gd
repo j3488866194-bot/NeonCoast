@@ -32,6 +32,8 @@ static func configure() -> void:
 		"ui_cancel": JOY_BUTTON_B, "ui_left": JOY_BUTTON_DPAD_LEFT,
 		"ui_right": JOY_BUTTON_DPAD_RIGHT, "ui_up": JOY_BUTTON_DPAD_UP,
 		"ui_down": JOY_BUTTON_DPAD_DOWN,
+		"ui_focus_next": JOY_BUTTON_RIGHT_SHOULDER,
+		"ui_focus_prev": JOY_BUTTON_LEFT_SHOULDER,
 	}
 	for action: String in buttons:
 		var event: InputEventJoypadButton = InputEventJoypadButton.new()

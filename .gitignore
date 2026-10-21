@@ -1,7 +1,9 @@
 .godot/
+.tools/
 .claude/
 builds/
 artifacts/
+docs/images/*.import
 *.log
 *.tmp
 .env

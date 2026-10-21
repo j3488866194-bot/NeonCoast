@@ -18,6 +18,7 @@ var city: Node3D
 var player: CharacterBody3D
 var hero_car: CharacterBody3D
 var current_car: CharacterBody3D
+var last_used_car: CharacterBody3D
 var hud: CanvasLayer
 var missions: Node
 var sound: Node
@@ -51,6 +52,7 @@ var waypoint: Vector3 = Vector3.ZERO
 var waypoint_active: bool = false
 var has_started: bool = false
 var has_save: bool = false
+var saving_suspended: bool = false
 var profile: Dictionary = {}
 var settings: Dictionary = {"volume":0.5,"sensitivity":1.0,"quality":"high","invert_y":false}
 var objective_ring: Node3D
@@ -320,6 +322,10 @@ func _input(event: InputEvent) -> void:
 		elif mode == "settings": _set_mode(settings_return)
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("ui_cancel") and mode in ["paused","map","settings"]:
+		_set_mode(settings_return if mode == "settings" else "playing")
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("map") and mode in ["playing","map"]:
 		_set_mode("playing" if mode=="map" else "map")
 		get_viewport().set_input_as_handled()
@@ -383,7 +389,7 @@ func _update_photo(delta: float) -> void:
 	var motion: Vector2 = Input.get_vector("move_left","move_right","move_forward","move_back")
 	var direction: Vector3 = camera.basis*Vector3(motion.x,0,motion.y)
 	if Input.is_action_pressed("jump"): direction.y += 1.0
-	if Input.is_key_pressed(KEY_CTRL) or Input.is_joy_button_pressed(active_pad,JOY_BUTTON_B): direction.y -= 1.0
+	if Input.is_key_pressed(KEY_CTRL) or (active_pad>=0 and Input.is_joy_button_pressed(active_pad,JOY_BUTTON_B)): direction.y -= 1.0
 	camera.position += direction*delta*(26.0 if Input.is_action_pressed("sprint") else 9.0)
 	camera.position.y = clampf(camera.position.y,1.0,180.0)
 
@@ -408,6 +414,7 @@ func _update_hud() -> void:
 		"health":player.health,"car_health":current_car.health if car_mode else 100.0,"cash":cash,
 		"wanted":wanted,"heat":heat,"mission_title":status.title,"objective":status.objective,
 		"objective_position":target,"has_objective":has_target,"distance":Vector2(at.x-target.x,at.z-target.z).length(),
+		"mission_position":status.target,"mission_active":bool(status.has_target),
 		"district":city.get_district(at),"time":"%02d:%02d" % [hh,mm],"controller":using_controller,
 		"prompt":prompt,"radio":_radio_name(),"fps":Engine.get_frames_per_second(),"mission_index":missions.mission_index,
 		"progress":status.progress,"save_exists":has_save,"settings":settings,"collectibles":collected.size(),
@@ -537,6 +544,7 @@ func _enter_car(car: CharacterBody3D) -> void:
 	car.driver_present = true
 	car.npc_driving = false
 	current_car = car
+	last_used_car = car
 	player.set_seated(true)
 	camera_yaw = car.rotation.y
 	look_idle = 3.0
@@ -563,6 +571,7 @@ func _safe_exit_position(car: CharacterBody3D) -> Vector3:
 	return _safe_foot_position(car.position,candidates)
 
 func _safe_foot_position(at: Vector3, candidates: Array[Vector3] = []) -> Vector3:
+	candidates = candidates.duplicate()
 	if candidates.is_empty(): candidates.append(at)
 	var road: Vector3 = _road_point(at)
 	for offset: Vector3 in [Vector3.ZERO,Vector3(3,0,0),Vector3(-3,0,0),Vector3(0,0,5),Vector3(0,0,-5)]:
@@ -647,6 +656,7 @@ func _mission_completed(title: String, reward: int) -> void:
 	_save()
 
 func _start_game(resume: bool) -> void:
+	saving_suspended = false
 	heat = 0
 	wanted = 0
 	unseen_time = 0
@@ -655,6 +665,17 @@ func _start_game(resume: bool) -> void:
 		patrol.queue_free()
 	patrols.clear()
 	if is_instance_valid(current_car): _exit_car()
+	last_used_car = hero_car
+	if has_started:
+		for car: CharacterBody3D in cars:
+			if car!=hero_car: car.queue_free()
+		cars.clear()
+		cars.append(hero_car)
+		traffic_routes.clear()
+		_spawn_traffic()
+		for person: Node3D in pedestrians: person.queue_free()
+		pedestrians.clear()
+		_spawn_people()
 	hero_car.reset_at(START,0)
 	hero_car.repair()
 	player.reset_at(START+Vector3(3.1,0,1.5))
@@ -723,9 +744,14 @@ func _ui_action(action: String) -> void:
 			_save()
 			get_tree().quit()
 		"reset_save":
-			SaveStore.clear_save()
+			if not _test_mode and not SaveStore.clear_save():
+				_notify("清除存档失败", "请检查本机游戏数据目录的写入权限。")
+				return
+			saving_suspended = true
 			has_save = false
 			profile.clear()
+			_set_mode("title")
+			_notify("存档已清除", "开始新游戏后会重新启用自动保存。")
 
 func _setting_changed(key: String, value: float) -> void:
 	match key:
@@ -751,15 +777,17 @@ func _set_waypoint(point: Vector3) -> void:
 	waypoint_active = true
 	_notify("导航点已设置", "青色标记显示你的自定义目的地。")
 
-func _save() -> void:
-	if not has_started or _test_mode: return
-	var parked: CharacterBody3D = current_car if is_instance_valid(current_car) else hero_car
+func _save_state() -> Dictionary:
+	var parked: CharacterBody3D = current_car if is_instance_valid(current_car) else (last_used_car if is_instance_valid(last_used_car) else hero_car)
 	var position_to_save: Vector3 = _actor_position()
 	if is_instance_valid(current_car): position_to_save = _safe_exit_position(current_car)
-	var data: Dictionary = {"cash":cash,"mission_index":missions.mission_index,"mission_stage":missions.stage,
+	return {"cash":cash,"mission_index":missions.mission_index,"mission_stage":missions.stage,
 		"position":position_to_save,"car_position":parked.position,"car_yaw":parked.rotation.y,
-		"health":player.health,"time_of_day":time_of_day,"collectibles":collected}
-	if SaveStore.write_save(data):
+		"health":player.health,"time_of_day":time_of_day,"collectibles":collected.duplicate()}
+
+func _save() -> void:
+	if not has_started or saving_suspended or _test_mode: return
+	if SaveStore.write_save(_save_state()):
 		has_save = true
 		save_clock = 0
 	else: _notify("存档写入失败", "当前进度仍在本次游戏中，请检查磁盘空间。")
@@ -777,6 +805,7 @@ func _recover() -> void:
 		hero_car.reset_at(at+Vector3(0,0.3,-6),0)
 		hero_car.repair()
 		player.position = at+Vector3(3,0.3,-6)
+		last_used_car = hero_car
 	cash = maxi(0,cash-75)
 	_notify("道路救援完成", "服务费 $75 · 车辆已移到附近道路。")
 
@@ -785,6 +814,7 @@ func _respawn() -> void:
 	player.reset_at(START+Vector3(3,0,1))
 	hero_car.reset_at(START,0)
 	hero_car.repair()
+	last_used_car = hero_car
 	cash = maxi(0,cash-200)
 	heat = 0
 	wanted = 0
@@ -824,8 +854,19 @@ func _capture(label: String, test_capture: bool) -> void:
 		hud.hide()
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
-	var folder: String = "res://artifacts" if test_capture else "user://screenshots"
-	DirAccess.make_dir_recursive_absolute(folder)
+	# Exported res:// is a read-only package; test captures need its physical sibling directory.
+	var folder: String = "user://screenshots"
+	if test_capture:
+		folder = ProjectSettings.globalize_path("res://artifacts") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir().path_join("artifacts")
+	var directory_result: Error = DirAccess.make_dir_recursive_absolute(folder)
+	if directory_result != OK and directory_result != ERR_ALREADY_EXISTS:
+		if hide_interface: hud.show()
+		if test_capture:
+			push_error("Cannot create capture directory: "+folder)
+			get_tree().quit(1)
+		else:
+			_notify("照片保存失败", "无法创建截图目录，请检查磁盘空间。")
+		return
 	var filename: String = label+".png" if test_capture else "NeonCoast_"+Time.get_datetime_string_from_system().replace(":","-")+".png"
 	var path: String = folder.path_join(filename)
 	var result: Error = get_viewport().get_texture().get_image().save_png(path)
@@ -833,6 +874,11 @@ func _capture(label: String, test_capture: bool) -> void:
 	if result==OK:
 		print("SCREENSHOT_SAVED ",ProjectSettings.globalize_path(path))
 		if not test_capture: _notify("照片已保存",ProjectSettings.globalize_path(path))
+	elif test_capture:
+		push_error("Cannot save capture: "+path)
+		get_tree().quit(1)
+	else:
+		_notify("照片保存失败", "无法写入图片，请检查磁盘空间。")
 
 func _notification(what: int) -> void:
 	if what==NOTIFICATION_WM_CLOSE_REQUEST:

@@ -1,0 +1,9 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "cliVersion": "2.1.306",
+  "provider": "firstParty",
+  "success": true,
+  "scope": "scripts/ui_map.gd before integration changes",
+  "sha256": "4a5e6340387a97f39d427a3edb887a975c74224ae29272d8b4d13c37237c07d8"
+}
