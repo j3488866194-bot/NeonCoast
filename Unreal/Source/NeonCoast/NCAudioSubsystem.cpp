@@ -2,6 +2,7 @@
 #include "NCCar.h"
 #include "NCHero.h"
 #include "NCGameplaySubsystem.h"
+#include "NCGameUserSettings.h"
 #include "Components/AudioComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -11,6 +12,20 @@
 #include "Misc/Parse.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
+
+namespace
+{
+    float EffectsGain()
+    {
+        const auto* Settings = UNCGameUserSettings::Get();
+        return Settings ? Settings->GetEffectsGain() : 1.f;
+    }
+    float MusicGain()
+    {
+        const auto* Settings = UNCGameUserSettings::Get();
+        return Settings ? Settings->GetMusicGain() : .6f;
+    }
+}
 
 bool UNCAudioSubsystem::DoesSupportWorldType(EWorldType::Type WorldType) const
 {
@@ -95,9 +110,9 @@ bool UNCAudioSubsystem::EnsureStarted()
     SirenAttenuation->Attenuation.AttenuationShapeExtents = FVector(500, 0, 0);
     SirenAttenuation->Attenuation.FalloffDistance = 9500.f;
 
-    RadioLoop = StartLoop(RadioSounds.IsValidIndex(Station) ? RadioSounds[Station].Get() : nullptr, .001f);
-    EngineLoop = StartLoop(EngineSound, .001f);
-    AmbienceLoop = StartLoop(AmbienceSound, .12f);
+    RadioLoop = StartLoop(RadioSounds.IsValidIndex(Station) ? RadioSounds[Station].Get() : nullptr, .001f * MusicGain());
+    EngineLoop = StartLoop(EngineSound, .001f * EffectsGain());
+    AmbienceLoop = StartLoop(AmbienceSound, .12f * EffectsGain());
     if (RadioLoop) RadioLoop->SetPaused(true);
     if (EngineLoop) EngineLoop->SetPaused(true);
     if (SirenSound)
@@ -105,7 +120,7 @@ bool UNCAudioSubsystem::EnsureStarted()
         const APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
         const FVector InitialLocation = PlayerPawn ? PlayerPawn->GetActorLocation() : FVector::ZeroVector;
         SirenLoop = UGameplayStatics::SpawnSoundAtLocation(this, SirenSound, InitialLocation,
-            FRotator::ZeroRotator, .001f, 1.f, 0.f, SirenAttenuation, nullptr, false);
+            FRotator::ZeroRotator, .001f * EffectsGain(), 1.f, 0.f, SirenAttenuation, nullptr, false);
         if (SirenLoop)
         {
             SirenLoop->bIsUISound = false;
@@ -133,7 +148,7 @@ void UNCAudioSubsystem::Tick(float DeltaTime)
     if (EngineLoop)
     {
         EngineLoop->SetPaused(!bEngineRunning && EngineGain < .002f);
-        EngineLoop->SetVolumeMultiplier(FMath::Max(.001f, EngineGain));
+        EngineLoop->SetVolumeMultiplier(FMath::Max(.001f, EngineGain) * EffectsGain());
         EngineLoop->SetPitchMultiplier(EnginePitch);
     }
     const bool bRadioPlaying = Car && Station < 2;
@@ -141,9 +156,9 @@ void UNCAudioSubsystem::Tick(float DeltaTime)
     if (RadioLoop)
     {
         RadioLoop->SetPaused(!bRadioPlaying && RadioGain < .002f);
-        RadioLoop->SetVolumeMultiplier(FMath::Max(.001f, RadioGain));
+        RadioLoop->SetVolumeMultiplier(FMath::Max(.001f, RadioGain) * MusicGain());
     }
-    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier(Car ? .065f : .13f);
+    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier((Car ? .065f : .13f) * EffectsGain());
     UpdateSiren(DeltaTime, Pawn);
     UpdateFootsteps(Pawn);
 }
@@ -170,7 +185,7 @@ void UNCAudioSubsystem::UpdateSiren(float DeltaTime, APawn* Pawn)
     SirenGain = FMath::FInterpTo(SirenGain, bAudiblePursuit ? .22f + Wanted * .025f : 0.f, DeltaTime, 4.f);
     if (NearestPolice.IsValid()) SirenLoop->SetWorldLocation(NearestPolice->GetActorLocation());
     SirenLoop->SetPaused(!bAudiblePursuit && SirenGain < .002f);
-    SirenLoop->SetVolumeMultiplier(FMath::Max(.001f, SirenGain));
+    SirenLoop->SetVolumeMultiplier(FMath::Max(.001f, SirenGain) * EffectsGain());
 }
 
 void UNCAudioSubsystem::UpdateFootsteps(APawn* Pawn)
@@ -182,7 +197,7 @@ void UNCAudioSubsystem::UpdateFootsteps(APawn* Pawn)
     if (!Movement || !Movement->IsMovingOnGround() || Speed < 100.f) return;
     const float Pitch = 1.f + FMath::Sin(Clock * 17.f) * .055f;
     UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, Hero->GetActorLocation() - FVector(0, 0, 85),
-        .13f, Pitch, 0.f, EffectAttenuation);
+        .13f * EffectsGain(), Pitch, 0.f, EffectAttenuation);
     StepReadyAt = Clock + FMath::Clamp(170.f / Speed, .19f, .48f);
 }
 
@@ -195,7 +210,7 @@ void UNCAudioSubsystem::CycleRadio()
         RadioLoop->Stop();
         RadioLoop->SetSound(RadioSounds[Station]);
         RadioGain = 0.f;
-        RadioLoop->SetVolumeMultiplier(.001f);
+        RadioLoop->SetVolumeMultiplier(.001f * MusicGain());
         RadioLoop->Play();
         RadioLoop->SetPaused(!Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0)));
     }
@@ -215,21 +230,31 @@ void UNCAudioSubsystem::SoundHorn()
 {
     const ANCCar* Car = Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0));
     if (!Car || Clock < HornReadyAt || !EnsureStarted() || !HornSound) return;
-    UGameplayStatics::PlaySoundAtLocation(this, HornSound, Car->GetActorLocation(), .36f, 1.f, 0.f, EffectAttenuation);
+    UGameplayStatics::PlaySoundAtLocation(this, HornSound, Car->GetActorLocation(), .36f * EffectsGain(), 1.f, 0.f, EffectAttenuation);
     HornReadyAt = Clock + .5f;
 }
 
 void UNCAudioSubsystem::PlayGunshot(FVector Location)
 {
     if (!EnsureStarted() || !GunshotSound) return;
-    UGameplayStatics::PlaySoundAtLocation(this, GunshotSound, Location, .48f,
+    UGameplayStatics::PlaySoundAtLocation(this, GunshotSound, Location, .48f * EffectsGain(),
         .98f + FMath::Sin(Clock * 31.f) * .035f, 0.f, EffectAttenuation);
 }
 
 void UNCAudioSubsystem::PlayReload(FVector Location)
 {
     if (!EnsureStarted() || !ReloadSound) return;
-    UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, Location, .20f, 1.f, 0.f, EffectAttenuation);
+    UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, Location, .20f * EffectsGain(), 1.f, 0.f, EffectAttenuation);
+}
+
+void UNCAudioSubsystem::ApplyUserVolumeSettings()
+{
+    const float Effects = EffectsGain();
+    const bool bDriving = GetWorld() && Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0));
+    if (EngineLoop) EngineLoop->SetVolumeMultiplier(FMath::Max(.001f, EngineGain) * Effects);
+    if (RadioLoop) RadioLoop->SetVolumeMultiplier(FMath::Max(.001f, RadioGain) * MusicGain());
+    if (SirenLoop) SirenLoop->SetVolumeMultiplier(FMath::Max(.001f, SirenGain) * Effects);
+    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier((bDriving ? .065f : .13f) * Effects);
 }
 
 void UNCAudioSubsystem::StopLoop(TObjectPtr<UAudioComponent>& Component)

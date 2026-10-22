@@ -31,6 +31,7 @@ public:
     void LeaveCar(FVector Position, FVector Momentum, float SpeedKmh);
     void Recover();
     void Greet();
+    void ResetHeldInput();
 protected:
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> Arm;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> Camera;

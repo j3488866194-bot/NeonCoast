@@ -9,6 +9,12 @@ third-party components. Each retains
 its applicable license and ownership. The UE vehicle assets are not original
 procedural geometry covered by this project's MIT license.
 
+The compiled Windows game has additional end-user terms in
+[RELEASE_LICENSE.txt](docs/RELEASE_LICENSE.txt). Those terms do not restrict the
+rights separately granted under MIT, CC0, OFL, or another component's license.
+Publishing this project's source does not publish or relicense the proprietary
+Unreal Engine source code or the editable Renderpeople character assets.
+
 ## Unreal Engine and Epic vehicle content
 
 The UE version is developed with the locally installed Unreal Engine 5.8.4. Unreal
@@ -28,6 +34,23 @@ That source carries: **Copyright Epic Games, Inc. All Rights Reserved.** These
 portions retain Epic's applicable terms. Source locations and agreement references
 are recorded in [EPIC_VEHICLES_PROVENANCE.md](docs/licenses/EPIC_VEHICLES_PROVENANCE.md).
 The notice records provenance; it does not create a separate license grant.
+
+Epic's EULA, rechecked on 2026-10-22, defines content from the engine installation's
+Samples and Templates folders as Examples (section 1), and permits distribution
+of Examples, including modifications, in source or object form to third parties
+(section 5(b)). The 59 vehicle files and 27 Manny/Quinn dependency files were
+rechecked against the local installation by SHA-256 and matched. They remain
+Epic content, not MIT content. This permission does not extend to unrelated
+engine source, Marketplace/Fab content, or Renderpeople models.
+
+Neon Coast uses Unreal® Engine. Unreal® is a trademark or registered trademark of
+Epic Games, Inc. in the United States of America and elsewhere.
+
+Unreal® Engine, Copyright 1998 – 2026, Epic Games, Inc. All rights reserved.
+
+Retain the packaged engine's NOTICES.txt and the applicable component licenses
+from Engine/Source/ThirdParty/Licenses with distributed binaries. These notices
+supplement this project's credits and do not confer rights in Epic trademarks.
 
 The procedural city also uses meshes, materials and fonts supplied with Unreal
 Engine, including `/Engine/BasicShapes`. Such engine resources retain their own
@@ -57,6 +80,18 @@ access. This project keeps the FBX, textures and imported uncooked character
 `.uasset` files private, and uses them only as integrated cooked game resources.
 The source directory under `artifacts/` and generated
 `Unreal/Content/RealisticCharacters/` are excluded by `.gitignore`.
+
+The official terms were rechecked on 2026-10-22: section 2.5 applies the same
+license provisions to free downloads; section 4.1(b) covers commercial and
+private games; section 4.2(c) excludes games from its application-use restriction.
+Section 4.3(b) still requires technical handling that does not make individual
+model files easily accessible. Public binary releases containing these scans
+must therefore use encrypted cooked asset containers and encrypted indexes,
+exclude raw and editable assets, and exclude key configuration and metadata.
+Cooking alone is not evidence of this protection. Release validation must inspect
+the actual containers and confirm the game can load them; it must not claim
+encryption makes extraction impossible. These are project release requirements,
+not a representation that Renderpeople has separately approved this project.
 
 Idle, walk, forward jog (the runtime run slot) and jump motions for these scans
 come from Epic's installed **Manny/Quinn template assets**, retargeted using the

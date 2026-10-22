@@ -1,4 +1,7 @@
-name: Verify game systems
+name: Verify legacy Godot game systems
+
+# This workflow covers only the retained Godot version. UE package acceptance
+# is documented separately in docs/UE_VERIFICATION.md.
 
 on:
   push:
@@ -9,6 +12,7 @@ permissions:
 
 jobs:
   verify:
+    name: Legacy Godot checks (not Unreal Engine)
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
@@ -21,12 +25,12 @@ jobs:
         run: |
           & "$env:RUNNER_TEMP/godot/Godot_v4.7.2-stable_win64_console.exe" --headless --path . --editor --import --quit
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify physics, saves, missions, maps and interface input
+      - name: Verify legacy Godot physics, saves, missions, maps and interface input
         shell: pwsh
         run: ./tools/verify.ps1 -Godot "$env:RUNNER_TEMP/godot/Godot_v4.7.2-stable_win64_console.exe"
       - name: Preserve test output
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: game-test-logs
+          name: legacy-godot-test-logs
           path: artifacts/*.log

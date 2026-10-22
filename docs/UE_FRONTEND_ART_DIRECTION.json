@@ -1,0 +1,89 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "date": "2026-10-22",
+  "scope": "Native Slate front end: title, pause, settings (画面/操控/声音), controls guide, quit and display-keep dialogs. Implemented in Unreal/Source/NeonCoast/SNCFrontEnd.h/.cpp only.",
+  "reviewed": ["docs/images/ue/packaged-game.png", "Unreal/Source/NeonCoast/NCHUD.h", "Unreal/Source/NeonCoast/NCPlayerController.h/.cpp", "Unreal/Source/NeonCoast/NCGameUserSettings.h/.cpp", "Unreal/Config/DefaultInput.ini", "docs/UE_REALISM_ART_DIRECTION.json"],
+  "identity": {
+    "brand": "NEON COAST (Latin wordmark, Bold, letter spacing 180) with 霓虹海岸 as a teal eyebrow above it. This is an original title, with no third-party marks, fonts or layouts.",
+    "tone": "Restrained, warm, cinematic. The live paused street scene is the hero image. The UI shades it and does not replace it: no logos, textures, gradients from image files, or neon glow on the interface.",
+    "language": "All labels are Chinese. Key names (Enter, Esc, Tab, LB/RB, A/B/X/Y, LT/RT, L3) stay Latin, as players see them on their hardware."
+  },
+  "palette_srgb": {
+    "ink": "#101D28, panels at 0.90 and dialogs at 0.98 alpha. Same value as ANCHUD::Ink.",
+    "deep_ink": "#09121A, full-screen scrims only",
+    "cream": "#FFF2D6 for primary text and the focus plate",
+    "sand": "#D9CDB5 for secondary text, descriptions and hints",
+    "mist": "#9CAEAC for tertiary text, column labels and inactive tabs",
+    "teal": "#5FD8C0 for focus edges, active tab underline, values of the focused row, gamepad key caps and primary actions",
+    "amber": "#FFC457 for attention: the pause eyebrow, panel rule, unsaved dots, unsaved status and the display countdown",
+    "coral": "#FF8A6E, used only for an apply failure"
+  },
+  "backdrop": {
+    "method": "Painted in SNCFrontEnd::OnPaint with three Slate gradients. There is no image asset.",
+    "side_scrim": "Left to right. Title and pause use deep ink at 0.88 / 0.70 / 0.20 / 0.04 at x = 0 / 30 / 60 / 100%, so the street and car stay clear on the right. Settings and controls use 0.94 / 0.86 / 0.58 / 0.42 so the panel reads first.",
+    "top_haze": "0.50 at the top edge, fading to 0 at 16% height.",
+    "floor": "0 at 58% height, rising to 0.74 at the bottom edge, so the footer key hints sit on dark."
+  },
+  "layout_reference": {
+    "units": "Slate units at a 1920x1080 reference. The engine's default DPI curve (shortest side) scales the whole tree, so 1280x720 is 0.667x and 1600x900 is 0.833x with identical composition. Panel widths fit 16:9 and 16:10.",
+    "left_margin": "120-132 units for every page, so text never moves when switching pages.",
+    "root": "Column 540 wide, vertically centred: eyebrow 22, wordmark, 72x3 amber rule, tagline 21, menu buttons 58 high with 6 gaps, optional 当前进度 card from GetFrontEndProgressText.",
+    "wordmark": "Correction after native 1600x900 capture (single-line 86 overran the 540 column and showed NEON CO…): the title stacks NEON / COAST as two Bold 80 lines with letter spacing 180 (COAST is about 400 wide), with the second line pulled up 22 units into the first line's descent so the two read as one mark. Pause keeps a single NEON COAST line at 46 (about 460 wide). Both fit the 540 column at every 16:9 size because the whole tree scales from the 1920x1080 reference.",
+    "progress_card": "Correction: the controller string 'label value · label value · …' is split on '·' and shown as a stat strip: each item is a mist label (Regular 16) over a cream value (Bold 22), auto-width with 36 gaps, so 发现 0/8 never wraps alone. If the string is not 2-4 'label value' items it falls back to the plain wrapped text. No controller change.",
+    "settings_panel": "1040 wide, 64 from the top and 96 from the bottom, radius 6, padding 48/36. Contents: amber rule + eyebrow, title 42, hairline, tab strip [LB] 画面 操控 声音 [RB], rows 60 high with 6 gaps (label left, 440-wide control right), a description box for the focused row, then a footer with status on the left and 恢复默认 / 返回 / 应用 on the right.",
+    "controls_panel": "1180 wide, with two sections per band (步行 | 驾驶, 通用 | 其他). Each line is action / keyboard cap / gamepad cap at 34 high, followed by a teal camera-direction note and 调整操控设置 / 返回.",
+    "dialogs": "660-wide card centred over a deep-ink 0.62 dim: accent rule + eyebrow, title 34, body 20, buttons bottom-right. The display dialog adds an amber countdown line and a draining bar.",
+    "footer_hints": "Bottom-right, 34 from the edge. Key caps are outlined (keyboard cream, gamepad teal), with the action in sand at 17."
+  },
+  "typography": {
+    "source": "FCoreStyle default font (Roboto plus the engine CJK fallback). There is no font asset. The Bold/Regular faces carry the hierarchy, and letter spacing is used only on Latin and eyebrows.",
+    "scale": "80 two-line title wordmark / 46 pause wordmark,42 page title, 34 dialog title, 25 menu item, 22 row label/value, 21 tab, 20 button/body, 19 description, 17-18 hints/status, 14-16 eyebrows/column labels. The 14-unit minimum is about 9.3 px at 720p, used only for Latin-heavy column labels. Chinese body text is never below 17 (11.3 px at 720p)."
+  },
+  "interaction_states": {
+    "focus_language": "One state everywhere. The focused item gets a cream plate (0.96) with ink text and a teal edge (4-unit bar on menu items, 3-unit bar on rows, underline on tabs). Pressed flashes teal. The engine's dashed focus rectangle is suppressed by overriding GetFocusBrush to null on the subclassed SButton, SCheckBox and SSlider.",
+    "hover": "A real mouse move over an item moves focus to it (EFocusCause::Mouse), so mouse and pad never show two highlighted items. Moves with zero cursor delta are ignored, so a stationary cursor cannot steal the default focus when a page is rebuilt.",
+    "rows": "The focused row background rises from cream 0.025 to 0.09, the label goes from sand to cream and the value turns teal. An amber 8-unit dot marks a row that changed but is not applied.",
+    "tabs": "Active tab: cream text with a teal underline. Inactive tab: mist. Keyboard or pad focus moving onto a tab selects it (deferred one tick). Mouse hover does not.",
+    "disabled": "The resolution row is disabled in borderless mode and shows 跟随桌面 · W × H. It is skipped by navigation."
+  },
+  "input_model": {
+    "ownership": "The widget handles every key, analog, mouse button and wheel event that its children do not use, and returns Handled. Nothing bubbles to the game viewport.",
+    "arrows_dpad": "The focused control turns these into a navigation request (SWidget::OnKeyDown). SNCFrontEnd::OnNavigation then resolves them on an explicit row/column grid: head (tabs), body (option rows), tail (footer buttons), or the dialog row. The root menu wraps vertically and settings does not. Arriving at the tab row lands on the active tab. Arriving at the settings footer lands on 应用. Each arrow is handled exactly once.",
+    "left_stick": "FSlateApplication::GetNavigationDirectionFromAnalog provides Slate's thresholds and hold-to-repeat. The right stick is consumed.",
+    "left_right_on_rows": "Choice rows step their value, sliders step by StepSize (RequiresControllerLock off), and toggles flip.",
+    "accept": "Enter, Space or A on the focused SButton/SCheckBox. Clicking a toggle row's label also flips it.",
+    "back": "Esc, B or Virtual_Back call HandleBack, ignoring key repeats. Title opens quit_confirm. Pause resumes. Settings discards the draft and returns. Controls returns. quit_confirm cancels. video_confirm reverts.",
+    "start": "On title or pause, Start calls StartOrResumeGame. In settings and controls it acts as back. In video_confirm it is ignored.",
+    "tabs": "LB/RB, PageUp/PageDown and Tab/Shift+Tab cycle tabs. Focus stays on the tab strip if it was there, otherwise it goes to the first row.",
+    "focus_guarantees": "Every page or dialog change requests focus on its first action, and the request is re-applied each tick until accepted. Returning from a sub page refocuses the root button that opened it. Closing a dialog refocuses what was focused before it opened. If focus falls to the SViewport or SWindow while the app is active and IsFrontEndOpen(), the last focused item is restored. A click on empty space keeps the current selection."
+  },
+  "settings_behaviour": {
+    "draft": "FNCSettingsDraft (header) holds every option. Original is captured from UNCGameUserSettings when settings opens. Browsing, cancelling and 恢复默认 only change the draft. 恢复默认 resets the current tab only. Video defaults are borderless, desktop resolution, 高 (High), 60 FPS and VSync on. Controls and audio defaults match the backend (1.0 / off / 0.15, and 1.0 / 0.6 / 1.0).",
+    "apply": "All setters are called (SetFullscreenMode, SetScreenResolution, SetOverallScalabilityLevel only when the level changed, SetFrameRateLimit, SetVSyncEnabled, plus the custom input and volume setters), then ApplySettings(false), which applies input/audio and saves. Without a display change, ConfirmVideoMode and SaveSettings run immediately and the status reads 设置已应用并保存。",
+    "display_change": "The previous mode and resolution are snapshotted and video_confirm opens with a 15 s FPlatformTime wall-clock deadline, checked in Tick so it expires while the world is paused. 保留设置 calls ConfirmVideoMode and SaveSettings. 恢复, Esc/B, timeout, OpenRoot or widget destruction restore the snapshot, then call ApplyResolutionSettings(false), ConfirmVideoMode and SaveSettings. Other applied settings are kept. The default focus is 恢复, so a blind press on a broken display does not keep it.",
+    "crash_safety": "Between Apply and Keep the ini holds the new FullscreenMode/Resolution and the old LastConfirmed* values. Startup can detect the mismatch and RevertVideoMode. That check belongs to the controller/backend.",
+    "resolution_list": "1280x720, 1600x900 and 1920x1080, minus any larger than the desktop, plus the desktop and current resolutions, sorted by area.",
+    "quality": "低 / 中 / 高 / 极高 = scalability 0-3. Level -1 or 4 shows 自定义 and is left untouched unless changed.",
+    "feedback": "The status line shows teal for applied or kept, amber for reverted, timed out or defaults set, and mist for nothing to apply. A persistent amber line reads 有未应用的更改 · 按“应用”保存 while the draft is dirty (the discard behaviour is in the 返回 hint). Correction: the status sits in the roughly 396 units left of the three 168-wide footer buttons, so every message is kept to one line of at most about 14 CJK characters at 18 (设置已应用并保存。 / 显示设置已保留并保存。 / 显示已恢复，其他更改仍保留。 / 未确认，已恢复原显示设置。 / 本页已恢复默认，按“应用”保存。 / 本页已经是默认值。 / 没有需要应用的更改。 / 无法读取设置，未作更改。). The text also wraps at a fixed 370, so a longer string breaks onto a second line instead of running under the buttons."
+  },
+  "qa_tags": {
+    "contract": ["Menu.Primary", "Menu.Settings", "Menu.Controls", "Menu.ReturnTitle", "Menu.Quit", "Settings.Tab.Video", "Settings.Tab.Controls", "Settings.Tab.Audio", "Settings.Apply", "Settings.Defaults", "Settings.Back", "Settings.InvertGamepadY (SCheckBox)", "Settings.GamepadSensitivity (SSlider)", "Dialog.Keep", "Dialog.Revert", "Dialog.Confirm", "Dialog.Cancel"],
+    "additional": ["Settings.WindowMode", "Settings.Resolution", "Settings.Quality", "Settings.FrameRate (SButton choice rows)", "Settings.VSync", "Settings.InvertMouseY (SCheckBox)", "Settings.MouseSensitivity", "Settings.GamepadDeadZone", "Settings.MasterVolume", "Settings.MusicVolume", "Settings.EffectsVolume (SSlider)", "Controls.OpenSettings", "Controls.Back"],
+    "page_ids": ["title", "pause", "settings", "controls", "quit_confirm", "video_confirm"]
+  },
+  "integration_notes": [
+    "Add the widget with GameViewport->AddViewportWidgetContent so the engine DPI scale applies. Use FInputModeGameAndUI with SetWidgetToFocus(widget). The root forwards focus to the first action.",
+    "The controller should not also act on Esc/Start while the widget has focus. The widget consumes them and calls HandleBack itself.",
+    "The widget calls ANCPlayerController::StartOrResumeGame, ReturnToMainMenu, QuitToDesktop, CanContinueGame, GetFrontEndProgressText and IsFrontEndOpen, and nothing else on the controller.",
+    "ANCHUD::DrawPause should not draw while the front end is open, so the two pause layers do not stack.",
+    "The source has UTF-8 Chinese literals in LOCTEXT. UBT compiles MSVC with UTF-8 source charset."
+  ],
+  "acceptance": [
+    "Captures at 1280x720, 1600x900 and 1920x1080 show the same composition with the street and car readable on the right on title/pause.",
+    "Every tag is reachable by keyboard and by pad (D-pad and left stick) from its page default, without the mouse.",
+    "Arrow and D-pad presses move exactly one step. Esc/B never also toggles the controller pause.",
+    "A display change left unanswered reverts after 15 s while the world is paused. Keep persists across a restart.",
+    "Cancelling settings writes nothing. The GameUserSettings.ini timestamp is unchanged."
+  ]
+}

@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "NCValidationRunner.h"
 #include "NCPoliceValidationRunner.h"
+#include "NCFrontEndValidationRunner.h"
 #include "NCPoliceDirector.h"
 #include "NCWorldMarkers.h"
 #include "Misc/CommandLine.h"
@@ -53,7 +54,9 @@ void ANCGameMode::StartPlay()
     }
     UE_LOG(LogTemp,Display,TEXT("NEON_COAST_UE_READY pedestrians=64 vehicles=9 hero=%s car=%s"),*GetNameSafe(Hero),*GetNameSafe(Car));
 #if !UE_BUILD_SHIPPING
-    if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastPoliceTest")))
+    if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastMenuTest")))
+        GetWorld()->SpawnActor<ANCFrontEndValidationRunner>();
+    else if(FParse::Param(FCommandLine::Get(),TEXT("NeonCoastPoliceTest")))
     {
         GetWorld()->SpawnActor<ANCPoliceDirector>();
         GetWorld()->SpawnActor<ANCPoliceValidationRunner>();

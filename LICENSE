@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Scope clarification (not a change to the MIT terms above):
+This license covers original Neon Coast material that its contributors have the
+right to license. It does not relicense Unreal Engine, Epic template assets or
+adapted Epic example portions, Renderpeople characters, fonts, or other
+third-party components. Those components retain their own terms and notices.
+See THIRD_PARTY_NOTICES.md for component provenance and license boundaries, and
+docs/RELEASE_LICENSE.txt for terms applicable to the compiled game. The compiled
+game as a whole is not offered under MIT alone.

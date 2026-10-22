@@ -1,0 +1,118 @@
+NEON COAST · 霓虹海岸
+Compiled Windows Game — End-User License and Credits
+发行版使用许可与署名
+Updated: 2026-10-22
+
+中文说明
+
+本安装包是一款独立的海滨开放世界原型。安装或使用本游戏即表示您同意下述
+发行版使用条款。项目原创代码及可授权的原创内容使用 MIT 许可；Unreal Engine、
+Epic 模板内容、Renderpeople 扫描人物及其他第三方组件仍适用各自许可。整款已
+编译游戏并非仅以 MIT 许可提供。独立组件本身许可赋予您的权利不受本文缩减。
+
+您可以安装、运行本游戏并进行正常游戏体验，也可以保留用于个人使用的副本。
+引擎与专有素材仅作为完整游戏中不可分离的已编译资源提供；本项目没有授予您
+单独提取、传播、再授权 Renderpeople 模型或将 Unreal Engine 技术用于其他产品
+的权利。若您另行从权利人获得许可，该单独许可赋予的权利不受影响。
+
+在法律允许的最大范围内，游戏及 Unreal Engine 等第三方技术按现状和可提供
+状态提供，开发者、Epic 及其许可方不对该技术作出任何明示、默示或法定的陈述、
+保证或条件，包括适销性、特定目的适用性、权利、不侵权、准确性或无故障运行。
+在法律允许的最大范围内，上述主体不承担因使用或无法使用该技术引起或与之
+有关的损失或责任。本文不排除当地法律规定不得排除的消费者权利或责任。
+
+以下英文条款与组件通知进一步说明授权范围。请保留本文件、项目 MIT 许可、
+THIRD_PARTY_NOTICES.md、随包 NOTICES.txt 及 Licenses 目录中的相关许可证。
+
+1. License scope
+
+By installing or using this compiled game, you agree to these end-user terms.
+You may install, run, use, reproduce, display and publicly perform the included
+Unreal Engine technology solely as incorporated in this game in object code as
+an inseparable part of the game, and only as necessary to make permitted uses of
+the game. This game license does not authorize incorporating Unreal Engine
+technology into another product, service or project. A separate license obtained
+directly from Epic may grant other rights.
+
+Original project material is available under the MIT license supplied as
+Licenses/PROJECT_LICENSE.txt. Third-party components retain their own licenses.
+Nothing in these end-user terms narrows rights independently granted to you by
+MIT, CC0, SIL OFL, or another applicable component license. Source availability
+does not relicense Unreal Engine or proprietary artwork.
+
+2. Unreal Engine disclaimer
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE GAME AND ALL UNREAL ENGINE
+TECHNOLOGY INCLUDED IN IT ARE PROVIDED "AS IS" AND "AS AVAILABLE". THE NEON COAST
+CONTRIBUTORS, EPIC GAMES, INC., EPIC'S AFFILIATES, AND THEIR LICENSORS EXPRESSLY
+DISCLAIM ALL REPRESENTATIONS, WARRANTIES AND CONDITIONS RELATING TO THAT
+TECHNOLOGY, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, AND
+UNINTERRUPTED OR ERROR-FREE OPERATION. TO THE SAME EXTENT, THEY DISCLAIM ALL
+LIABILITY ARISING FROM OR RELATING TO THAT TECHNOLOGY, INCLUDING ITS USE OR
+INABILITY TO BE USED, AND ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+CONSEQUENTIAL OR OTHER LOSS OR DAMAGE, UNDER ANY THEORY OF LIABILITY, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE. NOTHING HERE EXCLUDES ANY
+RIGHT OR LIABILITY THAT APPLICABLE LAW DOES NOT PERMIT TO BE EXCLUDED.
+
+3. Epic attribution and component notices
+
+Neon Coast uses Unreal® Engine. Unreal® is a trademark or registered trademark of
+Epic Games, Inc. in the United States of America and elsewhere.
+
+Unreal® Engine, Copyright 1998 – 2026, Epic Games, Inc. All rights reserved.
+
+Epic's vehicle templates and Manny/Quinn template characters and animations
+remain Epic content under the applicable Unreal Engine agreement. They are not
+original project art or relicensed under MIT.
+https://www.unrealengine.com/eula/unreal
+
+Portions of this software are copyright © The FreeType Project
+(http://www.freetype.org). All rights reserved.
+
+Retain the engine's packaged NOTICES.txt and the accompanying third-party license
+files. Additional or alternative component terms apply to the components they
+identify. See Licenses/THIRD_PARTY_NOTICES.md and Licenses/UnrealThirdParty/.
+
+4. Renderpeople characters
+
+Eric Rigged 001 and Carla Rigged 001: Renderpeople GmbH.
+https://renderpeople.com/free-3d-people/
+https://renderpeople.com/general-terms-and-conditions/
+
+These scanned characters are provided only as integrated game resources under
+Renderpeople's proprietary terms. They are not CC0 or MIT. This distribution
+does not grant a license to obtain, extract, sell, redistribute, sublicense, or
+otherwise use the models or textures as individual asset files. Obtain any
+separate rights directly from Renderpeople. Conversion, retargeting, and
+encryption do not transfer ownership or change the underlying license.
+
+5. Other artwork, fonts and original work
+
+Poly Haven environment models and textures: CC0 1.0. Credits include Rob Tuytel,
+Charlotte Baglioni, James Ray Cock, Rico Cilliers, Kirill Sannikov and Josh Dean.
+Individual asset sources and authors are listed in Licenses/PUBLIC_ASSETS.md.
+https://polyhaven.com/license
+
+Kenney Animated Characters Protagonists 1.1: CC0 1.0.
+https://kenney.nl/assets/animated-characters-protagonists
+
+The retained legacy Godot source uses Godot under MIT and Barlow Condensed
+(Jeremy Tribby) / Noto Sans SC (Noto Project) under SIL OFL 1.1. Their original
+license texts accompany those components where distributed. This credit does
+not imply the current Unreal binary includes the legacy Godot engine or fonts.
+
+Original project code, permitted original assets and synthesized soundtrack:
+Copyright (c) 2026 Neon Coast contributors. MIT license; see PROJECT_LICENSE.txt.
+The original soundtrack contains no commercial songs or downloaded recordings.
+
+Visual design and implementation include actual Claude Opus 5.5 contributions;
+Codex contributed integration, game systems, asset preparation and verification.
+These credits do not imply endorsement by a model provider or an asset supplier.
+
+6. Independent project
+
+Neon Coast is an independent prototype, not GTA VI and not affiliated with
+Rockstar Games. Rockstar and GTA names belong to their respective owners.
+The game contains no Rockstar source code, official characters, logos, music,
+or leaked assets.

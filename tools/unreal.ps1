@@ -25,6 +25,7 @@ $status|ConvertTo-Json|Set-Content -LiteralPath (Join-Path $artifacts 'ue-toolch
 if($Action -eq 'Check'){$status|ConvertTo-Json;exit 0}
 if(-not $engineRoot){throw 'UE 5.8 is not installed yet. Complete its download in Epic Games Launcher, then rerun this command.'}
 if(-not $compiler){throw 'MSVC x64 build tools are missing.'}
+if($Action -eq 'Package'){& (Join-Path $PSScriptRoot 'prepare-release-crypto.ps1')}
 $build=Join-Path $engineRoot 'Engine/Build/BatchFiles/Build.bat'
 $editor=Join-Path $engineRoot 'Engine/Binaries/Win64/UnrealEditor.exe'
 $commandlet=Join-Path $engineRoot 'Engine/Binaries/Win64/UnrealEditor-Cmd.exe'
@@ -37,6 +38,12 @@ $prepareLog=Join-Path $artifacts 'ue-prepare.log'
 & $commandlet $project '-run=pythonscript' "-script=$bootstrap" -unattended -nop4 -nosplash -NullRHI "-abslog=$prepareLog"
 if($LASTEXITCODE -ne 0){throw "UE asset generation failed. See $prepareLog"}
 if(-not (Select-String -LiteralPath $prepareLog -SimpleMatch 'NEON_COAST_ASSETS_READY' -Quiet)){throw "Asset builder did not complete. See $prepareLog"}
+# The editor may generate an Android file-server configuration in this Windows
+# project. Remove that unrelated block before cooking or committing the config.
+$defaultEnginePath=Join-Path $repo 'Unreal/Config/DefaultEngine.ini'
+$engineConfig=[IO.File]::ReadAllText($defaultEnginePath)
+$engineConfig=[regex]::Replace($engineConfig,'(?ms)^\[/Script/AndroidFileServerEditor\.AndroidFileServerRuntimeSettings\]\r?\n.*?(?=^\[|\z)','')
+[IO.File]::WriteAllText($defaultEnginePath,$engineConfig.TrimEnd()+"`r`n",[Text.UTF8Encoding]::new($false))
 switch($Action){
     'Prepare' {Write-Host 'Compilation and asset generation completed.'}
     'Editor' {Start-Process -FilePath $editor -ArgumentList @($project,'-ModelContextProtocolStartServer',"-ModelContextProtocolPort=$McpPort") -WorkingDirectory (Split-Path -Parent $project) -WindowStyle Normal}
@@ -52,11 +59,11 @@ switch($Action){
         Select-String -LiteralPath $policeLog -Pattern 'NC_POLICE_CHECK FAIL|NC_POLICE_METRIC|NEON_COAST_POLICE_'
         $automationLog=Join-Path $artifacts 'ue-automation.log'
         $reportDir=Join-Path $artifacts ('ue-automation-'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
-        & $commandlet $project -DisablePython -unattended -nop4 -nosplash -NullRHI '-ExecCmds=Automation RunTests NeonCoast.Progress' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$reportDir" "-abslog=$automationLog"
+        & $commandlet $project -DisablePython -unattended -nop4 -nosplash -NullRHI '-ExecCmds=Automation RunTests NeonCoast.' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$reportDir" "-abslog=$automationLog"
         if($LASTEXITCODE -ne 0){throw "Progress automation failed. See $automationLog"}
         $report=Get-Content -LiteralPath (Join-Path $reportDir 'index.json') -Raw|ConvertFrom-Json
-        if($report.succeeded -ne 2 -or $report.failed -ne 0 -or $report.notRun -ne 0){throw "Progress tests did not all pass. See $reportDir"}
-        Write-Host "Progress automation: 2 passed; report $reportDir"
+        if($report.succeeded -ne 7 -or $report.failed -ne 0 -or $report.notRun -ne 0){throw "Progress/settings tests did not all pass. See $reportDir"}
+        Write-Host "Progress/settings automation: 7 passed; report $reportDir"
     }
     'Package' {
         $uat=Join-Path $engineRoot 'Engine/Build/BatchFiles/RunUAT.bat'
@@ -70,7 +77,12 @@ switch($Action){
         $env:uebp_FinalLogFolder=$env:uebp_LogFolder
         New-Item -ItemType Directory -Path $env:uebp_LogFolder | Out-Null
         & $uat BuildCookRun "-project=$project" -noP4 -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive "-archivedirectory=$release" '-ubtargs=-MaxParallelActions=6' -utf8output 2>&1|Tee-Object -FilePath (Join-Path $artifacts 'ue-package.log')
-        if($LASTEXITCODE -ne 0){throw 'UE packaging failed.'}
+        $packageExit=$LASTEXITCODE
+        # Cook may regenerate this unrelated editor-only Windows-host secret.
+        $engineConfig=[IO.File]::ReadAllText($defaultEnginePath)
+        $engineConfig=[regex]::Replace($engineConfig,'(?ms)^\[/Script/AndroidFileServerEditor\.AndroidFileServerRuntimeSettings\]\r?\n.*?(?=^\[|\z)','')
+        [IO.File]::WriteAllText($defaultEnginePath,$engineConfig.TrimEnd()+"`r`n",[Text.UTF8Encoding]::new($false))
+        if($packageExit -ne 0){throw 'UE packaging failed.'}
         Write-Host "Package: $release"
     }
 }

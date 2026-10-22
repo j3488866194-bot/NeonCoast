@@ -33,6 +33,7 @@ public:
     void ExitCar();
     void Recover();
     void Repair();
+    void ResetHeldInput();
     void TryService();
     void SetRoute(const TArray<FVector>& Points);
     void SetDrivingInput(float Throttle, float Steering, bool Brake);

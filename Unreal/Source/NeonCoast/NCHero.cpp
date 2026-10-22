@@ -3,6 +3,7 @@
 #include "NCPedestrian.h"
 #include "NCGameplaySubsystem.h"
 #include "NCAudioSubsystem.h"
+#include "NCGameUserSettings.h"
 #include "NCPrimitives.h"
 #include "NCCharacterVisual.h"
 #include "Camera/CameraComponent.h"
@@ -129,11 +130,35 @@ void ANCHero::SetupPlayerInputComponent(UInputComponent* Input)
 }
 void ANCHero::Forward(float V) { if (Controller && !IsRecovering()) AddMovementInput(FRotationMatrix(FRotator(0,Controller->GetControlRotation().Yaw,0)).GetUnitAxis(EAxis::X),V); }
 void ANCHero::Right(float V) { if (Controller && !IsRecovering()) AddMovementInput(FRotationMatrix(FRotator(0,Controller->GetControlRotation().Yaw,0)).GetUnitAxis(EAxis::Y),V); }
-void ANCHero::LookYaw(float V) { if (!IsDefeated()) AddControllerYawInput(V*(bAiming?.45f:.8f)); }
-void ANCHero::LookPitch(float V) { if (!IsDefeated()) AddControllerPitchInput(V*(bAiming?.4f:.7f)); }
-void ANCHero::PadYaw(float V) { if (!IsDefeated()) AddControllerYawInput(V*(bAiming?60.f:100.f)*GetWorld()->GetDeltaSeconds()); }
-void ANCHero::PadPitch(float V) { if (!IsDefeated()) AddControllerPitchInput(V*(bAiming?45.f:75.f)*GetWorld()->GetDeltaSeconds()); }
+void ANCHero::LookYaw(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformMouseYaw(V);
+    if (!IsDefeated()) AddControllerYawInput(V * (bAiming ? 1.125f : 2.f));
+}
+void ANCHero::LookPitch(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformMousePitch(V);
+    if (!IsDefeated()) AddControllerPitchInput(V * (bAiming ? 1.f : 1.75f));
+}
+void ANCHero::PadYaw(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformGamepadYaw(V);
+    if (!IsDefeated()) AddControllerYawInput(V * (bAiming ? 60.f : 100.f) * GetWorld()->GetDeltaSeconds());
+}
+void ANCHero::PadPitch(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformGamepadPitch(V);
+    if (!IsDefeated()) AddControllerPitchInput(V * (bAiming ? 45.f : 75.f) * GetWorld()->GetDeltaSeconds());
+}
 void ANCHero::TryJump() { if(!IsRecovering()) Jump(); }
+void ANCHero::ResetHeldInput()
+{
+    EndFire();
+    EndAim();
+    EndSprint();
+    StopJumping();
+    ConsumeMovementInputVector();
+}
 void ANCHero::UpdateMovementSpeed() { GetCharacterMovement()->MaxWalkSpeed=bAiming?280.f:(bSprinting?830.f:510.f); }
 void ANCHero::BeginSprint() { bSprinting=true; UpdateMovementSpeed(); }
 void ANCHero::EndSprint() { bSprinting=false; UpdateMovementSpeed(); }

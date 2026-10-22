@@ -27,7 +27,10 @@ $log=Join-Path $repo 'artifacts/ue-release-smoke.log'
 $console=Join-Path $repo 'artifacts/ue-release-smoke-console.log'
 $phase='smoke'
 $smokeStartedUtc=[DateTime]::UtcNow
-$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"','"-LogCmds=LogTemp Verbose"',('"-abslog='+$log+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -RedirectStandardOutput $console -RedirectStandardError ($console+'.stderr') -PassThru
+$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"','"-LogCmds=LogTemp Verbose"',('"-abslog='+$log+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -PassThru
+# Keep the native handle alive before exit; Windows PowerShell may otherwise
+# return a null ExitCode for redirected GUI processes after their handle closes.
+$nativeProcessHandle=$process.Handle
 if(-not $process.WaitForExit(180000)){
     Stop-Process -Id $process.Id
     throw "Packaged gameplay check timed out. See $log"
@@ -49,7 +52,10 @@ $policeConsole=Join-Path $repo 'artifacts/ue-release-police-console.log'
 $phase='police'
 $lastGameExitCode=$null
 $policeStartedUtc=[DateTime]::UtcNow
-$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastPoliceTest','-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$policeLog+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -RedirectStandardOutput $policeConsole -RedirectStandardError ($policeConsole+'.stderr') -PassThru
+$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastPoliceTest','-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$policeLog+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -PassThru
+# Keep the native handle alive before exit; Windows PowerShell may otherwise
+# return a null ExitCode for redirected GUI processes after their handle closes.
+$nativeProcessHandle=$process.Handle
 if(-not $process.WaitForExit(180000)){
     Stop-Process -Id $process.Id
     throw "Packaged police check timed out. See $policeLog"

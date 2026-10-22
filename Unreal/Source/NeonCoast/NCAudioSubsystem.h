@@ -27,6 +27,8 @@ public:
     void PlayGunshot(FVector Location);
     void PlayReload(FVector Location);
     FString GetRadioLabel() const;
+    // Also callable while paused, so applying a menu volume immediately updates loops.
+    void ApplyUserVolumeSettings();
 
 protected:
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;

@@ -1,0 +1,34 @@
+{
+  "purpose": "Native Unreal title, pause and settings visual design and Slate implementation",
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "session_id": "9097d46b-7ab2-4418-ae04-4e58cbf61a54",
+  "status": "success",
+  "is_error": false,
+  "duration_ms": 1535388,
+  "authored_files": [
+    {
+      "file": "SNCFrontEnd.h",
+      "sha256": "f5fa928df3b34c5bbe4ca27840217574335ec368bfdc7cb70fd49ff90ee57dff"
+    },
+    {
+      "file": "SNCFrontEnd.cpp",
+      "sha256": "8706b469ef84598fbb4ea689fe25b18dceaa99006bbd2cdbe027bb7755d661e4"
+    }
+  ],
+  "art_direction_sha256": "1b8b145c67e49c564437ac8279cb13f3cb0ec7c5ea150f61b94e90975ab060c1",
+  "integration_note": "Codex: UE C4458 parameter rename; explicit display acceptance guarded against engine auto-confirm on resize; controller/input/audio/configuration and QA integration; paused render-history fix. Authored snapshots precede these integration changes. Runtime verification is recorded separately.",
+  "refinement": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "session_id": "bd62b37d-c9a2-4426-98f2-c671661f192f",
+    "status": "success",
+    "duration_ms": 204236,
+    "reviewed": [
+      "artifacts/frontend-verification/d4de5d39a62b45d99d6ed7224632b6e7/title.png",
+      "artifacts/frontend-verification/d4de5d39a62b45d99d6ed7224632b6e7/settings.png"
+    ],
+    "authored_cpp_sha256": "9b33d566d19f93e966e2e3fae59663b5aee6607de7a07f53717718577120ab21",
+    "art_direction_sha256": "f2d8dac68ba5e1a195af51311df35466fd1d94741bbf98b74554a7ede6e04e09"
+  }
+}

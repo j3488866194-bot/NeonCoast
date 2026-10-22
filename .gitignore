@@ -16,6 +16,8 @@ Unreal/Binaries/
 Unreal/Intermediate/
 Unreal/Saved/
 Unreal/DerivedDataCache/
+Unreal/Config/DefaultCrypto.ini
+**/Crypto.json
 Unreal/.vs/
 Unreal/*.sln
 Unreal/*.suo

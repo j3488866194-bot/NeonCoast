@@ -1,12 +1,22 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "TimerManager.h"
 #include "NCPlayerController.generated.h"
+class SNCFrontEnd;
 UCLASS()
 class NEONCOAST_API ANCPlayerController : public APlayerController
 {
     GENERATED_BODY()
 public:
+    void StartOrResumeGame();
+    void ReturnToMainMenu();
+    void QuitToDesktop();
+    bool CanContinueGame() const;
+    FString GetFrontEndProgressText() const;
+    bool IsFrontEndOpen() const { return bFrontEndOpen; }
+    TSharedPtr<SNCFrontEnd> GetFrontEndWidget() const { return FrontEnd; }
+    void OpenFrontEnd(bool bTitleScreen);
     bool IsMapOpen() const { return bMapOpen; }
     bool IsHelpOpen() const { return bHelpOpen; }
     bool IsPhotoMode() const { return bPhotoMode; }
@@ -14,6 +24,7 @@ public:
     FVector GetWaypoint() const { return Waypoint; }
 protected:
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void SetupInputComponent() override;
     void TogglePause();
     void ToggleMap();
@@ -32,4 +43,18 @@ protected:
     void SoundHorn();
     bool bMapOpen=false, bHelpOpen=false, bPhotoMode=false, bMenuPaused=false, bHasWaypoint=false;
     FVector Waypoint=FVector::ZeroVector;
+private:
+    TSharedPtr<SNCFrontEnd> FrontEnd;
+    bool bFrontEndOpen=false;
+    bool bSessionStarted=false;
+    bool bExistingProgress=false;
+    bool bPreviousCameraMoveableWhenPaused=false;
+    bool bStartupSceneWarmed=false;
+    bool bMenuWarmupPending=false;
+    FTimerHandle StartupWarmupTimer;
+    TArray<TWeakObjectPtr<AActor>> MenuHiddenMarkers;
+    FString FrontEndError;
+    bool SaveBeforeLeaving();
+    void FinishStartupWarmup();
+    void RestoreFrontEndScene();
 };

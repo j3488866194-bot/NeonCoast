@@ -1,0 +1,170 @@
+{
+  "version": "0.4.0",
+  "engine": "Unreal Engine 5.8.4",
+  "configuration": "Win64 Development, cooked, DX12",
+  "game_executable_sha256": "0303a58132e62db819e47ba6b734575c10ac21bbce89af0cdec86751356e1ddb",
+  "content_files": [
+    {
+      "name": "global.ucas",
+      "bytes": 3344192,
+      "sha256": "928e3a35e90a2c99db8bc23d055c36747d09a0c9649f3705c664a29494ccb239"
+    },
+    {
+      "name": "global.utoc",
+      "bytes": 818,
+      "sha256": "bb612221ce66d3c068920c1755c3f649028614615133340d7527980f43e905cd"
+    },
+    {
+      "name": "NeonCoast-Windows.pak",
+      "bytes": 11269862,
+      "sha256": "6f0b189e42bb5faaad05d12613844ea8062697ed0295d0283d876cb9607cc457"
+    },
+    {
+      "name": "NeonCoast-Windows.ucas",
+      "bytes": 569312288,
+      "sha256": "6009945e324ad8fce06d566b16cbf452582d959b9c0b3d7b81fae11beb8d8bb8"
+    },
+    {
+      "name": "NeonCoast-Windows.utoc",
+      "bytes": 337290,
+      "sha256": "bfe1d48c82af0f6e121b3ef710152214aa5c58c3e29f560728e982b57c0f5a37"
+    }
+  ],
+  "source_tree": {
+    "scope": [
+      "Unreal/Source",
+      "Unreal/Config"
+    ],
+    "excluded": [
+      "DefaultCrypto.ini",
+      "Crypto*.json",
+      "*Encryption*.ini"
+    ],
+    "algorithm": "SHA-256 of sorted lowercase file SHA-256 + two spaces + repo-relative slash path + LF, UTF-8",
+    "file_count": 48,
+    "sha256": "9406574de15f17e36eb301050285f4db7884f1dfa52c190618d63d1b0316f7d0"
+  },
+  "tests": {
+    "frontend": {
+      "run_id": "3819740edba14902af334a86759516ac",
+      "checks": 163,
+      "failures": 0,
+      "exit_code": 0,
+      "metrics": {
+        "walking_normal_pitch_delta": 25.0,
+        "walking_inverted_pitch_delta": -34.2898,
+        "vehicle_normal_pitch_delta": 25.0,
+        "vehicle_inverted_pitch_delta": -34.0396
+      }
+    },
+    "gameplay": {
+      "run_id": "8b7a7bf1d69b4d93af0c051f17adfb9e",
+      "checks": 95,
+      "police_checks": 22,
+      "failures": 0
+    },
+    "settings_progress_automation": {
+      "succeeded": 7,
+      "failed": 0
+    },
+    "render": {
+      "run_id": "0ecd5d3a5b86475bb298a6b128d11b7c",
+      "exit_code": 0,
+      "screenshot_sha256": "f69415036fcb90f4791161ae5a3e85d113952ac09c515ef1c418060547b657b5",
+      "profile_sha256": "3c37052c0f2bb9dcc9e1338f0e52f98696fd58a258081deaaa23fc70c4a7cb7b"
+    },
+    "normal_exit": {
+      "run_id": "ede9235d4ca74602abb476bf7a094de8",
+      "exit_code": 0
+    },
+    "installer": {
+      "run_id": "1058854f118c44a9b984ffeaa175afaa",
+      "checks": 15,
+      "install_exit_code": 0,
+      "uninstall_exit_code": 0,
+      "verified_file_count": 1349,
+      "installer_sha256": "f83d27a2179d211bcb15ea7e414939ba953ce91a20fa2d9e36e84e390a2f9711"
+    },
+    "portable": {
+      "status": "passed",
+      "archive_sha256": "139223176237facd96e8f7d6f74c60239f2c5148147c51e7a96ee90356486633",
+      "verified_file_count": 1349,
+      "started_utc": "2026-10-22T07:02:16.6305601Z",
+      "executable_sha256": "0303a58132e62db819e47ba6b734575c10ac21bbce89af0cdec86751356e1ddb",
+      "finished_utc": "2026-10-22T07:02:20.1999643Z"
+    },
+    "installed_launcher": {
+      "status": "passed",
+      "checks": 163,
+      "failures": 0,
+      "exit_code": 0,
+      "user_dir_isolated": true
+    }
+  },
+  "encryption": {
+    "game_utoc_flags": 11,
+    "pak_index_encrypted": true,
+    "unkeyed_pak_checks": [
+      {
+        "name": "NeonCoast-Windows.pak",
+        "exit_code": 3,
+        "missing_key_diagnostic": true,
+        "unkeyed_index_listing_refused": true
+      }
+    ]
+  },
+  "performance": {
+    "resolution": [
+      1600,
+      900
+    ],
+    "fps_cap": 60,
+    "sample_count": 359,
+    "average_fps": 59.98696394713287,
+    "metrics": {
+      "FrameTime": {
+        "mean_ms": 16.670288579387186,
+        "median_ms": 16.6655,
+        "p95_ms": 17.55074,
+        "max_ms": 21.6677
+      },
+      "GameThreadTime": {
+        "mean_ms": 5.731313649025069,
+        "median_ms": 5.6365,
+        "p95_ms": 6.58379,
+        "max_ms": 10.8521
+      },
+      "RenderThreadTime": {
+        "mean_ms": 6.9572050139275765,
+        "median_ms": 6.8928,
+        "p95_ms": 8.308499999999999,
+        "max_ms": 13.722
+      },
+      "GPUTime": {
+        "mean_ms": 7.4343930362116994,
+        "median_ms": 7.4033,
+        "p95_ms": 7.94367,
+        "max_ms": 8.6206
+      }
+    },
+    "scope": "Stationary arrival view in the packaged DX12 game. Warm frames before frame-600 screenshot; not a driving-route, whole-city, long-session or uncapped performance guarantee."
+  },
+  "release_files": [
+    {
+      "file": "NeonCoast-0.4.0-Windows-Portable.zip",
+      "bytes": 771359940,
+      "sha256": "139223176237facd96e8f7d6f74c60239f2c5148147c51e7a96ee90356486633"
+    },
+    {
+      "file": "NeonCoast-0.4.0-Windows-Setup.exe",
+      "bytes": 744453272,
+      "sha256": "f83d27a2179d211bcb15ea7e414939ba953ce91a20fa2d9e36e84e390a2f9711"
+    }
+  ],
+  "limits": [
+    "Physical controller hardware not validated.",
+    "Single-machine short stationary performance sample, not full-city or long-session coverage.",
+    "Installed prerequisites already present on this PC; missing-runtime installation requires another machine.",
+    "Unsigned prototype release; proprietary assets are not relicensed as MIT."
+  ]
+}

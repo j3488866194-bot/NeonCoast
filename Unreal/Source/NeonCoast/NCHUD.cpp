@@ -86,6 +86,7 @@ void ANCHUD::DrawHUD()
 	UWorld* World = GetWorld();
 	APlayerController* PC = GetOwningPlayerController();
 	const ANCPlayerController* NCPC = Cast<ANCPlayerController>(PC);
+	if (NCPC && NCPC->IsFrontEndOpen()) return;
 	APawn* Pawn = PC ? PC->GetPawn() : nullptr;
 	const float SW = Canvas->ClipX;
 	const float SH = Canvas->ClipY;

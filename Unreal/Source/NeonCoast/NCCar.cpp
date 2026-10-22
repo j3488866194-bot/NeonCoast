@@ -3,6 +3,7 @@
 #include "NCHero.h"
 #include "NCPedestrian.h"
 #include "NCGameplaySubsystem.h"
+#include "NCGameUserSettings.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -205,6 +206,10 @@ void ANCCar::ClearDrivingInput()
     Vehicle->SetBrakeInput(0.f);
     Vehicle->SetSteeringInput(0.f);
     Vehicle->SetHandbrakeInput(false);
+}
+void ANCCar::ResetHeldInput()
+{
+    ClearDrivingInput();
 }
 void ANCCar::SetDriver(ANCHero* Hero)
 {
@@ -641,10 +646,30 @@ void ANCCar::UpdateLights()
     const int32 Flash=GetWorld()?FMath::FloorToInt(GetWorld()->GetTimeSeconds()*7.f)%2:0;
     for(int32 I=0;I<PoliceLights.Num();++I) PoliceLights[I]->SetVisibility(bAlert && I==Flash);
 }
-void ANCCar::LookYaw(float V) { if(FMath::Abs(V)>.001f) LookIdle=0.f; AddControllerYawInput(V*.8f); }
-void ANCCar::LookPitch(float V) { if(FMath::Abs(V)>.001f) LookIdle=0.f; AddControllerPitchInput(V*.7f); }
-void ANCCar::PadYaw(float V) { LookYaw(V*100.f*GetWorld()->GetDeltaSeconds()); }
-void ANCCar::PadPitch(float V) { LookPitch(V*75.f*GetWorld()->GetDeltaSeconds()); }
+void ANCCar::LookYaw(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformMouseYaw(V);
+    if (FMath::Abs(V) > .001f) LookIdle = 0.f;
+    AddControllerYawInput(V * 2.f);
+}
+void ANCCar::LookPitch(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformMousePitch(V);
+    if (FMath::Abs(V) > .001f) LookIdle = 0.f;
+    AddControllerPitchInput(V * 1.75f);
+}
+void ANCCar::PadYaw(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformGamepadYaw(V);
+    if (FMath::Abs(V) > .001f) LookIdle = 0.f;
+    AddControllerYawInput(V * 100.f * GetWorld()->GetDeltaSeconds());
+}
+void ANCCar::PadPitch(float V)
+{
+    if (const auto* Settings = UNCGameUserSettings::Get()) V = Settings->TransformGamepadPitch(V);
+    if (FMath::Abs(V) > .001f) LookIdle = 0.f;
+    AddControllerPitchInput(V * 75.f * GetWorld()->GetDeltaSeconds());
+}
 void ANCCar::SetupPlayerInputComponent(UInputComponent* Input)
 {
     Super::SetupPlayerInputComponent(Input);

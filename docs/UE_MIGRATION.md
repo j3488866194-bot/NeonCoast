@@ -1,6 +1,6 @@
 # Unreal Engine 工作流与操作
 
-更新：2026-10-22，**v0.3.0-dev / UE 5.8.4**。本轮使用 Renderpeople Eric/Carla 扫描人物、Epic 独立步行/跑步动画、Poly Haven 公共模型与 PBR 贴图；城市和材质视觉继续由 Claude Opus 5.5 high 参与。导入、编译与真实渲染已验证，最终发行包的检查结果、退出状态、截图和性能样本统一见 [UE_VERIFICATION.md](UE_VERIFICATION.md)。此处不沿用 v0.2 的检查时间或帧率；混音试听与物理手柄仍需单独验收。
+更新：2026-10-22，**v0.4.0-dev / UE 5.8.4**。新增由 Claude Opus 5.5 high 编写的启动/暂停菜单、画面/操控/声音设置和退出确认；修正步行与驾驶的手柄视角方向，提供独立鼠标/手柄反转和灵敏度。设置与显示恢复行为见 [菜单说明](UE_FRONTEND.md)，当前发行验证见 [UE_VERIFICATION.md](UE_VERIFICATION.md)。v0.3 的扫描人物、动画、公共模型和 PBR 材质继续保留，其历史验收见 [v0.3 记录](UE_VERIFICATION_V0_3.md)。物理手柄与混音试听仍需单独验收。
 
 ## 位置与工具链
 
@@ -68,7 +68,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 .\.venv-mcp\Scripts\python.exe tools/ue_mcp.py call describe_toolset --args-file artifacts/toolset-query.json
 ```
 
-先读取工具列表，再调用场景、Python 或测试工具；调用顺序执行。端口可通过 `-McpPort 8010` 更改，并同步客户端 URL。根目录 `.mcp.json` 可供 Claude Code 连接。原生 MCP 为实验性功能，本机此前已实际调用 `EditorToolset.EditorAppToolset.StartPIE`、`SlateInspectorToolset.SlateInspectorToolset.PressKey` 和 `EditorToolset.EditorAppToolset.CaptureEditorImage`，并完成 E/F/M/F12 操作。`artifacts/ue-characters-editor.log`、`artifacts/ue-final-editor.log` 以及 `docs/images/ue/first-view.png`、`driving.png`、`map.png` 是 **v0.2 历史证据**。当前 v0.3 独立包主图使用 `docs/images/ue/packaged-game.png`，本轮证据见验证记录。
+先读取工具列表，再调用场景、Python 或测试工具；调用顺序执行。端口可通过 `-McpPort 8010` 更改，并同步客户端 URL。根目录 `.mcp.json` 可供 Claude Code 连接。原生 MCP 为实验性功能，本机此前已实际调用 `EditorToolset.EditorAppToolset.StartPIE`、`SlateInspectorToolset.SlateInspectorToolset.PressKey` 和 `EditorToolset.EditorAppToolset.CaptureEditorImage`，并完成 E/F/M/F12 操作。`artifacts/ue-characters-editor.log`、`artifacts/ue-final-editor.log` 以及 `docs/images/ue/first-view.png`、`driving.png`、`map.png` 是 **v0.2 历史证据**。v0.3 历史截图保存在 `docs/images/ue/v0.3-packaged-game.png`；当前 v0.4 菜单和游戏截图、同包验收结果见验证记录。
 
 ## UE 版操作
 
@@ -92,7 +92,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 | 地图 | M | View |
 | 暂停 / 返回 | Esc | Menu / Start |
 | 操作帮助 | F1 | — |
-| 暂停时画质低 / 中 / 高 | 1 / 2 / 3 | — |
+| 画质、操控、音量设置 | Esc → 设置 | Menu → 设置 |
 | 窗口 / 无边框全屏 | F11 | — |
 | 隐藏 HUD 的照片视图 | F6 | — |
 | 保存截图 | F12 | — |

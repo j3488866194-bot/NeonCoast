@@ -36,7 +36,7 @@ $log=Join-Path $repo 'artifacts/ue-release-render.log'
 # Synchronous CSV avoids the profiler background-thread teardown failure seen
 # in this package's A/B check. This flag affects verification, not normal play.
 $renderStartedUtc=[DateTime]::UtcNow
-$process=Start-Process -FilePath $game -ArgumentList @('-windowed','-ResX=1600','-ResY=900','-nosplash','-unattended','-csvCaptureFrames=720','-csvCompression=0','-csvNoProcessingThread',('-csvMetadata=NeonCoastVerificationRun='+$runId),('"-csvExecCmds=600:shot filename='+$shotName+' -nosuffix"'),'-ExitAfterCsvProfiling','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$log+'"')) -WorkingDirectory $workingDirectory -WindowStyle Hidden -PassThru
+$process=Start-Process -FilePath $game -ArgumentList @('-SkipFrontEnd','-windowed','-ResX=1600','-ResY=900','-nosplash','-unattended','-csvCaptureFrames=720','-csvCompression=0','-csvNoProcessingThread',('-csvMetadata=NeonCoastVerificationRun='+$runId),('"-csvExecCmds=600:shot filename='+$shotName+' -nosuffix"'),'-ExitAfterCsvProfiling','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$log+'"')) -WorkingDirectory $workingDirectory -WindowStyle Hidden -PassThru
 if(-not $process.WaitForExit(180000)){
     Stop-Process -Id $process.Id
     throw "Packaged render check timed out. See $log"
