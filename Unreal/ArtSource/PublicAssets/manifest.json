@@ -1,0 +1,910 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "started_at": "2026-10-21T16:26:29.687102+00:00",
+  "provider": "Poly Haven",
+  "powered_by_url": "https://polyhaven.com/",
+  "user_agent": "NeonCoastLocalPrototype/1.0",
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "api_terms_url": "https://github.com/Poly-Haven/Public-API/blob/master/ToS.md",
+  "max_concurrency": 3,
+  "max_bytes": 450000000,
+  "assets": [
+    {
+      "id": "asphalt_02",
+      "name": "Asphalt 02",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/asphalt_02",
+      "metadata_url": "https://api.polyhaven.com/info/asphalt_02",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/asphalt_02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "2839a331f389f6ad1e30a78f24db58369d92f742",
+      "source_dimensions_mm": [
+        3000.000238418579,
+        3000
+      ],
+      "files": [
+        {
+          "path": "asphalt_02/textures/asphalt_02_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_diff_2k.jpg",
+          "expected_size": 3075676,
+          "upstream_md5": "336af399fd98a39ab986d8b3bf73b4ff",
+          "size": 3075676,
+          "md5": "336af399fd98a39ab986d8b3bf73b4ff",
+          "sha256": "28f5ba8690553f192c0e5e1a5ff40f34765b4b93f4cc7059b1a3e9c795b6c28c",
+          "md5_verified": true
+        },
+        {
+          "path": "asphalt_02/textures/asphalt_02_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_nor_dx_2k.jpg",
+          "expected_size": 5052243,
+          "upstream_md5": "801b454d4070a499e48c448d299fcf1f",
+          "size": 5052243,
+          "md5": "801b454d4070a499e48c448d299fcf1f",
+          "sha256": "64dc04b1fc4288e1ceea00202ad581ef6e1715b12fd7a3e30c9d8b325772fa80",
+          "md5_verified": true
+        },
+        {
+          "path": "asphalt_02/textures/asphalt_02_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_rough_2k.jpg",
+          "expected_size": 2230457,
+          "upstream_md5": "6fe669ab38640ef2009d6a28d1ad5ee9",
+          "size": 2230457,
+          "md5": "6fe669ab38640ef2009d6a28d1ad5ee9",
+          "sha256": "b9a516b61b7040a9245ac206642d5f767ad9589a0169c4a1668221429e8a998c",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        300.0,
+        300.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "concrete_pavement",
+      "name": "Concrete Pavement",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/concrete_pavement",
+      "metadata_url": "https://api.polyhaven.com/info/concrete_pavement",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/concrete_pavement",
+      "authors": {
+        "Charlotte Baglioni": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "13659c72c1314d12b0c5cd809f89ccc9fec09cbf",
+      "source_dimensions_mm": [
+        1800.0000715255737,
+        1800.0000715255737
+      ],
+      "files": [
+        {
+          "path": "concrete_pavement/textures/concrete_pavement_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/concrete_pavement/concrete_pavement_diff_2k.jpg",
+          "expected_size": 3817566,
+          "upstream_md5": "f7cdc6f38538e2739d48fbb4f1507ddb",
+          "size": 3817566,
+          "md5": "f7cdc6f38538e2739d48fbb4f1507ddb",
+          "sha256": "e5a1cecfe7765cc0b24a6ab0abf492bd21c9e7af64e97fc46ef6021d0645fbd3",
+          "md5_verified": true
+        },
+        {
+          "path": "concrete_pavement/textures/concrete_pavement_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/concrete_pavement/concrete_pavement_nor_dx_2k.jpg",
+          "expected_size": 5183398,
+          "upstream_md5": "78759c726de9867082587563b3e00f35",
+          "size": 5183398,
+          "md5": "78759c726de9867082587563b3e00f35",
+          "sha256": "3bd5c94646943c48f813b5324affb2ebe54a76868221f2ab88b3b28957a5f85a",
+          "md5_verified": true
+        },
+        {
+          "path": "concrete_pavement/textures/concrete_pavement_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/concrete_pavement/concrete_pavement_rough_2k.jpg",
+          "expected_size": 2125646,
+          "upstream_md5": "670223ce80309b606ceea892f47aa766",
+          "size": 2125646,
+          "md5": "670223ce80309b606ceea892f47aa766",
+          "sha256": "e97b7d190dcda5a842813502505bf3d1b2348b4cad57b1d51d1bcc694a92d137",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        180.0,
+        180.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "coast_sand_02",
+      "name": "Coast Sand 02",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/coast_sand_02",
+      "metadata_url": "https://api.polyhaven.com/info/coast_sand_02",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/coast_sand_02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "f0a2615f231cff3567d9a4239c4a6070181a304a",
+      "source_dimensions_mm": [
+        15000,
+        15000
+      ],
+      "files": [
+        {
+          "path": "coast_sand_02/textures/coast_sand_02_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_02/coast_sand_02_diff_2k.jpg",
+          "expected_size": 3381179,
+          "upstream_md5": "0e757f90192c825c536cb8cfcaa137a0",
+          "size": 3381179,
+          "md5": "0e757f90192c825c536cb8cfcaa137a0",
+          "sha256": "3dba77f23cecaa8ab16889fe9b30f2018a24f2afb002d1c046143b9a5e097946",
+          "md5_verified": true
+        },
+        {
+          "path": "coast_sand_02/textures/coast_sand_02_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_02/coast_sand_02_nor_dx_2k.jpg",
+          "expected_size": 4369446,
+          "upstream_md5": "d1a6420d9a4988e6b6d53dab5f0870a8",
+          "size": 4369446,
+          "md5": "d1a6420d9a4988e6b6d53dab5f0870a8",
+          "sha256": "ce649b8a8a5a01a6874bbc97595009beae46d8e34d64e236f0ca220cbe422cd2",
+          "md5_verified": true
+        },
+        {
+          "path": "coast_sand_02/textures/coast_sand_02_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_02/coast_sand_02_rough_2k.jpg",
+          "expected_size": 1749937,
+          "upstream_md5": "e748b4a52ba8db67c7d6c237e506dfb3",
+          "size": 1749937,
+          "md5": "e748b4a52ba8db67c7d6c237e506dfb3",
+          "sha256": "66203bbaec57fe19248d039dc5e58573509bde9eff74c80125fbee13528112a2",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        1500.0,
+        1500.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "white_plaster_02",
+      "name": "White Plaster 02",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/white_plaster_02",
+      "metadata_url": "https://api.polyhaven.com/info/white_plaster_02",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/white_plaster_02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "508068441dd24eb06ef6d269a43f6ea7c8bade6b",
+      "source_dimensions_mm": [
+        1000,
+        1000
+      ],
+      "files": [
+        {
+          "path": "white_plaster_02/textures/white_plaster_02_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_diff_2k.jpg",
+          "expected_size": 2568315,
+          "upstream_md5": "35f9c96c16aa0d934da7884b232f6d07",
+          "size": 2568315,
+          "md5": "35f9c96c16aa0d934da7884b232f6d07",
+          "sha256": "0ca5245ba70777d3e41ff4566c9f8d363855461891802c55cb7dc0f6f85f084e",
+          "md5_verified": true
+        },
+        {
+          "path": "white_plaster_02/textures/white_plaster_02_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_nor_dx_2k.jpg",
+          "expected_size": 3438555,
+          "upstream_md5": "6178690fae17d3728de2f69b48295217",
+          "size": 3438555,
+          "md5": "6178690fae17d3728de2f69b48295217",
+          "sha256": "9395eda83bd3e9697cf56c5782d100832b1a8403b346684eda5f8d1062173b60",
+          "md5_verified": true
+        },
+        {
+          "path": "white_plaster_02/textures/white_plaster_02_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/white_plaster_02/white_plaster_02_rough_2k.jpg",
+          "expected_size": 1604444,
+          "upstream_md5": "47f989e9fd3e69e667244ff4b9f406f8",
+          "size": 1604444,
+          "md5": "47f989e9fd3e69e667244ff4b9f406f8",
+          "sha256": "a3dc1911f6e25d88fdb0031fe0cfb602eec5496084c508774c60691bed087417",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        100.0,
+        100.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "red_brick_plaster_patch_02",
+      "name": "Red Brick Plaster Patch 02",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/red_brick_plaster_patch_02",
+      "metadata_url": "https://api.polyhaven.com/info/red_brick_plaster_patch_02",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/red_brick_plaster_patch_02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "ac54839c6209d339e24bde69d7ad1a35cfb723e1",
+      "source_dimensions_mm": [
+        1500,
+        1500
+      ],
+      "files": [
+        {
+          "path": "red_brick_plaster_patch_02/textures/red_brick_plaster_patch_02_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg",
+          "expected_size": 3007093,
+          "upstream_md5": "4bd110cbe21a4972d7e8d60374c808ea",
+          "size": 3007093,
+          "md5": "4bd110cbe21a4972d7e8d60374c808ea",
+          "sha256": "288e02a39280ccb16546f81df2184c3be97ed987e4e84c237a7cd0cfd43065df",
+          "md5_verified": true
+        },
+        {
+          "path": "red_brick_plaster_patch_02/textures/red_brick_plaster_patch_02_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick_plaster_patch_02/red_brick_plaster_patch_02_nor_dx_2k.jpg",
+          "expected_size": 1812364,
+          "upstream_md5": "44a43980035048ccb432a31e5ab869dd",
+          "size": 1812364,
+          "md5": "44a43980035048ccb432a31e5ab869dd",
+          "sha256": "c67dc5a4c2115a6a50ba463a8f74320c77b5e96fa01525f939af690e77cb555f",
+          "md5_verified": true
+        },
+        {
+          "path": "red_brick_plaster_patch_02/textures/red_brick_plaster_patch_02_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/red_brick_plaster_patch_02/red_brick_plaster_patch_02_rough_2k.jpg",
+          "expected_size": 898505,
+          "upstream_md5": "9dd46ce86f9311983c96b305afb0a7a1",
+          "size": 898505,
+          "md5": "9dd46ce86f9311983c96b305afb0a7a1",
+          "sha256": "7a80958117e8976db21b7119daa10833a463a47669728c4ac7d1a889f6aae7ff",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        150.0,
+        150.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "grass_path_2",
+      "name": "Grass Path 2",
+      "kind": "texture",
+      "asset_url": "https://polyhaven.com/a/grass_path_2",
+      "metadata_url": "https://api.polyhaven.com/info/grass_path_2",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=textures",
+      "files_api_url": "https://api.polyhaven.com/files/grass_path_2",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "b4f12e39d7b91eb602717bd76dc4ed8a0ab34185",
+      "source_dimensions_mm": [
+        1000,
+        1000
+      ],
+      "files": [
+        {
+          "path": "grass_path_2/textures/grass_path_2_diff_2k.jpg",
+          "role": "base_color",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_path_2/grass_path_2_diff_2k.jpg",
+          "expected_size": 2788295,
+          "upstream_md5": "e03c3884e3a1f13dc838a4eee9af4dab",
+          "size": 2788295,
+          "md5": "e03c3884e3a1f13dc838a4eee9af4dab",
+          "sha256": "e6b353085d0fc0062832e70cfdf1b77f8b886a1fbb303541479e4f99a3b3ee79",
+          "md5_verified": true
+        },
+        {
+          "path": "grass_path_2/textures/grass_path_2_nor_dx_2k.jpg",
+          "role": "normal_directx",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_path_2/grass_path_2_nor_dx_2k.jpg",
+          "expected_size": 2411501,
+          "upstream_md5": "3dc47a0b7c7cc036d6267fedbf7affb0",
+          "size": 2411501,
+          "md5": "3dc47a0b7c7cc036d6267fedbf7affb0",
+          "sha256": "99acd4e9e6e42a5c15a6753c9d07c5e3380461efcd44934d3adab7830d4a7cfe",
+          "md5_verified": true
+        },
+        {
+          "path": "grass_path_2/textures/grass_path_2_rough_2k.jpg",
+          "role": "roughness",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/grass_path_2/grass_path_2_rough_2k.jpg",
+          "expected_size": 1329811,
+          "upstream_md5": "22fa874bdfd9a18f8c541342486493b0",
+          "size": 1329811,
+          "md5": "22fa874bdfd9a18f8c541342486493b0",
+          "sha256": "96bc66d10e0f29ca5d1a9efda7734fd0522b5e0c01ba4a828415176d754667b5",
+          "md5_verified": true
+        }
+      ],
+      "tile_size_cm": [
+        100.0,
+        100.0
+      ],
+      "dimensions_schema_url": "https://api.polyhaven.com/api-docs/swagger.json"
+    },
+    {
+      "id": "modular_urban_apartments_facade",
+      "name": "Modular Urban Apartments Facade",
+      "kind": "model",
+      "asset_url": "https://polyhaven.com/a/modular_urban_apartments_facade",
+      "metadata_url": "https://api.polyhaven.com/info/modular_urban_apartments_facade",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=models",
+      "files_api_url": "https://api.polyhaven.com/files/modular_urban_apartments_facade",
+      "authors": {
+        "James Ray Cock": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "1710ec01c24ef6193511942c08ec3c754f3eb8fb",
+      "source_dimensions_mm": [
+        51529.99687194824,
+        6664.999693632126,
+        17000
+      ],
+      "files": [
+        {
+          "path": "modular_urban_apartments_facade/modular_urban_apartments_facade_2k.gltf",
+          "role": "gltf_scene",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_2k.gltf",
+          "expected_size": 270799,
+          "upstream_md5": "1ce22fcd5537779fcfbf941f6375a8a7",
+          "size": 270799,
+          "md5": "1ce22fcd5537779fcfbf941f6375a8a7",
+          "sha256": "ce1ef4af29b37ca558ca05c29f0b1cc65d5a51dd66627f9d979b5ffc948b5333",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/modular_urban_apartments_facade.bin",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/modular_urban_apartments_facade/modular_urban_apartments_facade.bin",
+          "expected_size": 8168772,
+          "upstream_md5": "e54b1de59041da0f44db64efb8bda8f6",
+          "size": 8168772,
+          "md5": "e54b1de59041da0f44db64efb8bda8f6",
+          "sha256": "f041e71b6bd31864f20dd64d3a82519454a603c300686161e0349ff44f838bf2",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_objects_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_objects_arm_2k.jpg",
+          "expected_size": 2748860,
+          "upstream_md5": "35e430dbb5fba6ec02c463d1b384a80a",
+          "size": 2748860,
+          "md5": "35e430dbb5fba6ec02c463d1b384a80a",
+          "sha256": "8573bb7a15e809f635aa71fb0348355f93195394f1788bf05ea68ca4daa2e887",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_objects_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_objects_diff_2k.jpg",
+          "expected_size": 2013153,
+          "upstream_md5": "e52fdfcb5694cabffc38bc8de8af623d",
+          "size": 2013153,
+          "md5": "e52fdfcb5694cabffc38bc8de8af623d",
+          "sha256": "0fe0a7ef75c49a7f4f16699b6bfe99f8455f384aefe256d5d0f568fd730c4a26",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_objects_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_objects_nor_gl_2k.jpg",
+          "expected_size": 2064585,
+          "upstream_md5": "bcac084cb8270eea360a6ca596ea80ba",
+          "size": 2064585,
+          "md5": "bcac084cb8270eea360a6ca596ea80ba",
+          "sha256": "8c3cfb763c1343eed3082ba5f256f9d9c80775f6199aca9dc6434843e7b7a9dd",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_plaster_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_plaster_arm_2k.jpg",
+          "expected_size": 2352206,
+          "upstream_md5": "f01279c252016feebe255da56d03e459",
+          "size": 2352206,
+          "md5": "f01279c252016feebe255da56d03e459",
+          "sha256": "0658b150074321691cdd81e04d0c42966034f45f4c74b501ec497a29c4144375",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_plaster_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_plaster_diff_2k.jpg",
+          "expected_size": 2238064,
+          "upstream_md5": "719453e638edda0c75a98b56f03b8d25",
+          "size": 2238064,
+          "md5": "719453e638edda0c75a98b56f03b8d25",
+          "sha256": "56189b59a07675924e8c82d2aa963f861c60191fef337e29cca8f09b47767f72",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_plaster_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_plaster_nor_gl_2k.jpg",
+          "expected_size": 4895944,
+          "upstream_md5": "7d45cd5c65ac1bfe04626f11a5ac2436",
+          "size": 4895944,
+          "md5": "7d45cd5c65ac1bfe04626f11a5ac2436",
+          "sha256": "582ac0de84d07e45d467ac898d2c14492db2258d06fbeba65644c25a346564ec",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_01_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_01_arm_2k.jpg",
+          "expected_size": 2559719,
+          "upstream_md5": "7a0024112f4038c16466e2c45c22e7db",
+          "size": 2559719,
+          "md5": "7a0024112f4038c16466e2c45c22e7db",
+          "sha256": "c34c3eb081a60a8d5daacc217bdca889c945225be79b272135abd08fb6b8aa85",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_01_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_01_diff_2k.jpg",
+          "expected_size": 2198191,
+          "upstream_md5": "609c1fc3cbccfb481ac700e2a678b9ae",
+          "size": 2198191,
+          "md5": "609c1fc3cbccfb481ac700e2a678b9ae",
+          "sha256": "6446a76c4b45a88101f2ba14723ca53f5f2269721249461fcff4c666914b626a",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_01_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_01_nor_gl_2k.jpg",
+          "expected_size": 3610799,
+          "upstream_md5": "8f6ca282e1c154b95468f59e99ada317",
+          "size": 3610799,
+          "md5": "8f6ca282e1c154b95468f59e99ada317",
+          "sha256": "cecff1160db9801e7c7d7eb2be4cae63cc883f8e1af9e496a0025a0776610813",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_02_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_02_arm_2k.jpg",
+          "expected_size": 2887047,
+          "upstream_md5": "129bac48a9995c901103d3ce6159b630",
+          "size": 2887047,
+          "md5": "129bac48a9995c901103d3ce6159b630",
+          "sha256": "bab306cc2a40a9f699e5c33fd97e0f3a4ac1817e71afa47518861fb452011e86",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_02_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_02_diff_2k.jpg",
+          "expected_size": 1991640,
+          "upstream_md5": "9d0ab416e8b446f85181531805b6a3a7",
+          "size": 1991640,
+          "md5": "9d0ab416e8b446f85181531805b6a3a7",
+          "sha256": "9fa34f2f5c1c421f700b16bd21e143d34c0b5e65423b8d7b5203d2b8761594e4",
+          "md5_verified": true
+        },
+        {
+          "path": "modular_urban_apartments_facade/textures/modular_urban_apartments_facade_trim_02_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/modular_urban_apartments_facade/modular_urban_apartments_facade_trim_02_nor_gl_2k.jpg",
+          "expected_size": 3427345,
+          "upstream_md5": "80031f2f13f19bf23f4953ecaa0ecdd6",
+          "size": 3427345,
+          "md5": "80031f2f13f19bf23f4953ecaa0ecdd6",
+          "sha256": "eef1cf6efafd3cb92a23d382d09db5817f51dd3f1c09b5785e192bf4561e70c5",
+          "md5_verified": true
+        }
+      ],
+      "entry_point": "modular_urban_apartments_facade/modular_urban_apartments_facade_2k.gltf",
+      "source_polycount": 118215,
+      "source_has_lods": false,
+      "gltf_dependency_check": {
+        "status": "passed",
+        "references_checked": 13
+      },
+      "inspection_path": "modular_urban_apartments_facade/inspection.json"
+    },
+    {
+      "id": "island_tree_02",
+      "name": "Island Tree 02",
+      "kind": "model",
+      "asset_url": "https://polyhaven.com/a/island_tree_02",
+      "metadata_url": "https://api.polyhaven.com/info/island_tree_02",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=models",
+      "files_api_url": "https://api.polyhaven.com/files/island_tree_02",
+      "authors": {
+        "Rob Tuytel": "scanning, processing",
+        "Rico Cilliers": "cleanup, processing"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "4292954a33702fc0809a2b2f17a310bb36fd1aca",
+      "source_dimensions_mm": [
+        8485.51321029663,
+        4078.6155462265015,
+        3408.9039135724306
+      ],
+      "files": [
+        {
+          "path": "island_tree_02/island_tree_02_2k.gltf",
+          "role": "gltf_scene",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/island_tree_02/island_tree_02_2k.gltf",
+          "expected_size": 8545,
+          "upstream_md5": "8f26ebaa1648086a1958ce67a8154e64",
+          "size": 8545,
+          "md5": "8f26ebaa1648086a1958ce67a8154e64",
+          "sha256": "134b85d69f89fa6ad84555999ea02ae28ddf4713d4672e18e03d5917fd43ae62",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/island_tree_02.bin",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/island_tree_02/island_tree_02.bin",
+          "expected_size": 40686576,
+          "upstream_md5": "7fa9d6ee752b670cabb65053a5c6395b",
+          "size": 40686576,
+          "md5": "7fa9d6ee752b670cabb65053a5c6395b",
+          "sha256": "427d69ccc1ea12d1fb9c6af89691563b4a097f39a6f34c15be6e45ef5e5fd4ce",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_arm_2k.jpg",
+          "expected_size": 2347246,
+          "upstream_md5": "661a0b08c23989c081904d53d1bb1433",
+          "size": 2347246,
+          "md5": "661a0b08c23989c081904d53d1bb1433",
+          "sha256": "89e20810f614231578314846acff92821249f4124f4aa6e2f630df45d7acb6b2",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_branches_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_branches_arm_2k.jpg",
+          "expected_size": 1523257,
+          "upstream_md5": "969af8206d91a37edfefaf65a668470e",
+          "size": 1523257,
+          "md5": "969af8206d91a37edfefaf65a668470e",
+          "sha256": "a39d8291ba54adf1ca42f15abe2f622d0ac59fb13c87087a0fabc755b91dfee8",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_branches_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_branches_diff_2k.jpg",
+          "expected_size": 1476655,
+          "upstream_md5": "3210126439a8423b3caba28de0f3c25f",
+          "size": 1476655,
+          "md5": "3210126439a8423b3caba28de0f3c25f",
+          "sha256": "52cb2c660983836249e3f31ad286ca1bab8033e93070569b23e1867e3ae70b4d",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_branches_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_branches_nor_gl_2k.jpg",
+          "expected_size": 2437750,
+          "upstream_md5": "0b598c975ce1515ea0d51fb0d5696ea3",
+          "size": 2437750,
+          "md5": "0b598c975ce1515ea0d51fb0d5696ea3",
+          "sha256": "e4cac77b4f35ad47ba4fcdb9061f91acf3318d9889dd259cb5e6e132b0ab60c7",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_diff_2k.jpg",
+          "expected_size": 2684467,
+          "upstream_md5": "1593cf55910abff0a418b2799870471a",
+          "size": 2684467,
+          "md5": "1593cf55910abff0a418b2799870471a",
+          "sha256": "2ca2706adc5bde6bc46fa4a4680041a1797cf6684a31629259559935a97e0057",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_leaves_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_leaves_arm_2k.jpg",
+          "expected_size": 1645169,
+          "upstream_md5": "a03c8dd6852becfbc0fbec70a4f0b30f",
+          "size": 1645169,
+          "md5": "a03c8dd6852becfbc0fbec70a4f0b30f",
+          "sha256": "cf4d604711d955d74a13b656bdbf840015ac38a71e24821849efade730634cc6",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_leaves_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_leaves_diff_2k.jpg",
+          "expected_size": 661175,
+          "upstream_md5": "9898a7bf79fe6214f7ca8c3b139c4116",
+          "size": 661175,
+          "md5": "9898a7bf79fe6214f7ca8c3b139c4116",
+          "sha256": "e5c56ca13525aed76572852da5f69ae87cbee9e15abe2e1eff23adf92975f14a",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_leaves_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_leaves_nor_gl_2k.jpg",
+          "expected_size": 1378585,
+          "upstream_md5": "b7d1e6306288a64119e1d17dae3c272d",
+          "size": 1378585,
+          "md5": "b7d1e6306288a64119e1d17dae3c272d",
+          "sha256": "efa74b8b59a7466a295bf210505560002990183817b6c33663f3ec0dd438dd73",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/island_tree_02/island_tree_02_nor_gl_2k.jpg",
+          "expected_size": 4339456,
+          "upstream_md5": "e5e741ee0d2b5299893ddef2952e4c55",
+          "size": 4339456,
+          "md5": "e5e741ee0d2b5299893ddef2952e4c55",
+          "sha256": "3b088058cd9c8759f1ee223fad90f860257f574ae2ba7401cd4982c687b853cf",
+          "md5_verified": true
+        },
+        {
+          "path": "island_tree_02/textures/island_tree_02_leaves_alpha_2k.png",
+          "role": "foliage_opacity_mask",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/png/2k/island_tree_02/island_tree_02_leaves_alpha_2k.png",
+          "expected_size": 139077,
+          "upstream_md5": "063774afef8fe1d35ce52d56bf41bf81",
+          "size": 139077,
+          "md5": "063774afef8fe1d35ce52d56bf41bf81",
+          "sha256": "30c36ae0d9023400035f0af9d336ed5f73a84bf8a88c8e2bec8faa07d725992b",
+          "md5_verified": true
+        }
+      ],
+      "entry_point": "island_tree_02/island_tree_02_2k.gltf",
+      "source_polycount": 1762064,
+      "source_has_lods": true,
+      "gltf_dependency_check": {
+        "status": "passed",
+        "references_checked": 10
+      },
+      "inspection_path": "island_tree_02/inspection.json"
+    },
+    {
+      "id": "painted_wooden_bench",
+      "name": "Painted Wooden Bench",
+      "kind": "model",
+      "asset_url": "https://polyhaven.com/a/painted_wooden_bench",
+      "metadata_url": "https://api.polyhaven.com/info/painted_wooden_bench",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=models",
+      "files_api_url": "https://api.polyhaven.com/files/painted_wooden_bench",
+      "authors": {
+        "Kirill Sannikov": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "6784218e3b57df8750c5aa76ece84edfdd53b797",
+      "source_dimensions_mm": [
+        1164.9435758590698,
+        496.5430945158005,
+        889.2914750613272
+      ],
+      "files": [
+        {
+          "path": "painted_wooden_bench/painted_wooden_bench_2k.gltf",
+          "role": "gltf_scene",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/painted_wooden_bench/painted_wooden_bench_2k.gltf",
+          "expected_size": 2835,
+          "upstream_md5": "2977ba5644963b449ad3372c3e5e7dc5",
+          "size": 2835,
+          "md5": "2977ba5644963b449ad3372c3e5e7dc5",
+          "sha256": "0321bf315d23f82d925353728632e32dad4d7fee8b75f58c3cc3a249635e96a3",
+          "md5_verified": true
+        },
+        {
+          "path": "painted_wooden_bench/painted_wooden_bench.bin",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/painted_wooden_bench/painted_wooden_bench.bin",
+          "expected_size": 25444,
+          "upstream_md5": "ed331b50f955852f007313c1a75c2e2d",
+          "size": 25444,
+          "md5": "ed331b50f955852f007313c1a75c2e2d",
+          "sha256": "5799bcb20924105cccd6424de8cdb8e67eb57fddc19c395befeac634a7b2e013",
+          "md5_verified": true
+        },
+        {
+          "path": "painted_wooden_bench/textures/painted_wooden_bench_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/painted_wooden_bench/painted_wooden_bench_arm_2k.jpg",
+          "expected_size": 2232819,
+          "upstream_md5": "85abb03024e970c08fcc2163a38b564c",
+          "size": 2232819,
+          "md5": "85abb03024e970c08fcc2163a38b564c",
+          "sha256": "fb51834034b251cba6b37387ca962fbf4181a0d63a5c747a3aa7460903582ed8",
+          "md5_verified": true
+        },
+        {
+          "path": "painted_wooden_bench/textures/painted_wooden_bench_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/painted_wooden_bench/painted_wooden_bench_diff_2k.jpg",
+          "expected_size": 2210706,
+          "upstream_md5": "2b497deb0d615cae13454400672b724f",
+          "size": 2210706,
+          "md5": "2b497deb0d615cae13454400672b724f",
+          "sha256": "1a0d4439212e01daad3437511defd9551db16f4d076129a73d5d6b2028b9cc57",
+          "md5_verified": true
+        },
+        {
+          "path": "painted_wooden_bench/textures/painted_wooden_bench_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/painted_wooden_bench/painted_wooden_bench_nor_gl_2k.jpg",
+          "expected_size": 3522953,
+          "upstream_md5": "02fe51467ced6a748de37c8563d3d543",
+          "size": 3522953,
+          "md5": "02fe51467ced6a748de37c8563d3d543",
+          "sha256": "bb1992b136c436feb585fca9731d9e8f26e7397ed45a7e93efd1e5f6f68e3d36",
+          "md5_verified": true
+        }
+      ],
+      "entry_point": "painted_wooden_bench/painted_wooden_bench_2k.gltf",
+      "source_polycount": 630,
+      "source_has_lods": false,
+      "gltf_dependency_check": {
+        "status": "passed",
+        "references_checked": 4
+      },
+      "inspection_path": "painted_wooden_bench/inspection.json"
+    },
+    {
+      "id": "street_lamp_01",
+      "name": "Street Lamp 01",
+      "kind": "model",
+      "asset_url": "https://polyhaven.com/a/street_lamp_01",
+      "metadata_url": "https://api.polyhaven.com/info/street_lamp_01",
+      "catalogue_source_url": "https://api.polyhaven.com/assets?t=models",
+      "files_api_url": "https://api.polyhaven.com/files/street_lamp_01",
+      "authors": {
+        "Josh Dean": "All"
+      },
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "source_license_url": "https://polyhaven.com/license",
+      "resolution": "2k",
+      "source_files_hash": "002d697fa195d73f627e82804612208853212519",
+      "source_dimensions_mm": [
+        704.3362259864807,
+        386.49316132068634,
+        3870.5554008483887
+      ],
+      "files": [
+        {
+          "path": "street_lamp_01/street_lamp_01_2k.gltf",
+          "role": "gltf_scene",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/street_lamp_01/street_lamp_01_2k.gltf",
+          "expected_size": 6419,
+          "upstream_md5": "c3f9bdf69e98a0dc325aef79f9aca17c",
+          "size": 6419,
+          "md5": "c3f9bdf69e98a0dc325aef79f9aca17c",
+          "sha256": "d4f1c69cc433a5ee4b51035d6df3a0f1aaa2584ca6305bd2c02c93505e707f3e",
+          "md5_verified": true
+        },
+        {
+          "path": "street_lamp_01/street_lamp_01.bin",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/street_lamp_01/street_lamp_01.bin",
+          "expected_size": 748908,
+          "upstream_md5": "324bc6295e3962322514ddcfc7037b23",
+          "size": 748908,
+          "md5": "324bc6295e3962322514ddcfc7037b23",
+          "sha256": "c283db9b6d95835d9e8fc1692829acadcb21a0623b2daaa7231cec1440488401",
+          "md5_verified": true
+        },
+        {
+          "path": "street_lamp_01/textures/street_lamp_01_arm_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/street_lamp_01/street_lamp_01_arm_2k.jpg",
+          "expected_size": 2332682,
+          "upstream_md5": "f13fca31be6fda9b1444e36a866c0860",
+          "size": 2332682,
+          "md5": "f13fca31be6fda9b1444e36a866c0860",
+          "sha256": "dadbbf2c75473587e6023d3555f81ea4fcb899976405c61aada539c6078e24e2",
+          "md5_verified": true
+        },
+        {
+          "path": "street_lamp_01/textures/street_lamp_01_diff_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/street_lamp_01/street_lamp_01_diff_2k.jpg",
+          "expected_size": 993834,
+          "upstream_md5": "7487f2ca1deee8f1fcaaaaadaa6dade0",
+          "size": 993834,
+          "md5": "7487f2ca1deee8f1fcaaaaadaa6dade0",
+          "sha256": "c50a25bb68902c9e5909160924f615b4c58f31600e175c6aa976cc7b623ce41c",
+          "md5_verified": true
+        },
+        {
+          "path": "street_lamp_01/textures/street_lamp_01_nor_gl_2k.jpg",
+          "role": "gltf_dependency",
+          "download_url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/street_lamp_01/street_lamp_01_nor_gl_2k.jpg",
+          "expected_size": 1827395,
+          "upstream_md5": "b847bb892a00d30f516176fcfef54cb6",
+          "size": 1827395,
+          "md5": "b847bb892a00d30f516176fcfef54cb6",
+          "sha256": "b63b40563939f3f1b2bb2bd45525f184c9d71d124020414d2f6dd0e8671e7611",
+          "md5_verified": true
+        }
+      ],
+      "entry_point": "street_lamp_01/street_lamp_01_2k.gltf",
+      "source_polycount": 30610,
+      "source_has_lods": false,
+      "gltf_dependency_check": {
+        "status": "passed",
+        "references_checked": 5
+      },
+      "inspection_path": "street_lamp_01/inspection.json"
+    }
+  ],
+  "planned_bytes": 165503508,
+  "completed_at": "2026-10-21T16:26:31.126531+00:00",
+  "total_bytes": 165503508,
+  "file_count": 54
+}

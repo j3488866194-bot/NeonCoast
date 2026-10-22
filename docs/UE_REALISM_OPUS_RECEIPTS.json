@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-22",
+  "invocation": "Actual authenticated local Claude Code CLI, claude-opus-5-5, high effort",
+  "receipts": [
+    {
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "9553628e-792c-4a04-87e9-a9525ec81aea",
+      "is_error": false,
+      "duration_ms": 240269,
+      "duration_api_ms": 238486,
+      "num_turns": 19,
+      "files": [
+        {
+          "path": "docs/UE_REALISM_ART_DIRECTION.json",
+          "sha256": "0516afcd71da95d0ffb32acbb06532a7a653978d6665838bdda225f6a04ff534"
+        }
+      ],
+      "validation": "Authorship receipt only; UE execution and visual verification are separate.",
+      "phase": "direction",
+      "hash_scope": "Original Opus output before technical integration fixes; not final build hashes."
+    },
+    {
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "02854ecc-df3d-4337-a23c-ff0522bd7afc",
+      "is_error": false,
+      "duration_ms": 557391,
+      "duration_api_ms": 552578,
+      "num_turns": 34,
+      "files": [
+        {
+          "path": "Unreal/Content/Python/build_realism_materials.py",
+          "sha256": "14120b234cec7cb8208ef6e885688df548c67bb0101db93188ac395ccad119d8"
+        },
+        {
+          "path": "Unreal/Content/Python/build_scan_materials.py",
+          "sha256": "54b934668124c151da6ac3aab531f682a891f383b2aa02bdd7fec74cb47528b6"
+        }
+      ],
+      "validation": "Authorship receipt only; UE execution and visual verification are separate.",
+      "phase": "materials",
+      "hash_scope": "Original Opus output before technical integration fixes; not final build hashes."
+    },
+    {
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "d29125c9-458f-4abb-b76d-f603132d95b4",
+      "is_error": false,
+      "duration_ms": 1157252,
+      "num_turns": 64,
+      "files": [
+        {
+          "path": "Unreal/Source/NeonCoast/NCCityVisual.cpp",
+          "sha256": "684ba458a3725ab6164a55a9e2c7b0d60a428260487aeb20b8d50af1d8e0c1bc"
+        },
+        {
+          "path": "Unreal/Source/NeonCoast/NCCityVisual.h",
+          "sha256": "cf891868d35a010a5855a181f0974d6a83578cc3f3fe2cc45c7640ef1e04dc7e"
+        },
+        {
+          "path": "Unreal/Source/NeonCoast/NCWorldMarkers.cpp",
+          "sha256": "0b8b567f32148b4cd3eda076c89a7821d730acb1c8ab6bb4de9c3d288283b66c"
+        }
+      ],
+      "validation": "Authorship only; compile and visual checks are separate.",
+      "phase": "city",
+      "hash_scope": "Original Opus output before technical integration fixes; not final build hashes."
+    },
+    {
+      "phase": "render_review",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "b28f0bb7-c141-4969-80fc-e9743707c2c4",
+      "is_error": false,
+      "duration_ms": 86004,
+      "num_turns": 5,
+      "files": [
+        {
+          "path": "docs/UE_REALISM_VISUAL_REVIEW.json",
+          "sha256": "f15db661153042ccd4d55de23900bf3a18e1654ce989cb1739e9f6e275bbd436"
+        }
+      ],
+      "validation": "Read-only visual review of the editor game preview; final packaged checks recorded separately."
+    },
+    {
+      "phase": "resume_review",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "c7e5bc21-bf0c-40d5-93ac-1702958cc845",
+      "is_error": false,
+      "duration_ms": 123987,
+      "num_turns": 8,
+      "files": [
+        {
+          "path": "docs/UE_REALISM_RESUME_REVIEW.json",
+          "sha256": "456a7a2a6b6f2349164433330342beefc597b69a188ce5c42e4110f5ef4d5c38"
+        }
+      ],
+      "validation": "Actual local CLI output; final packaged checks recorded separately."
+    },
+    {
+      "phase": "marker_finish",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "session_id": "7584034c-77c9-418a-98de-dda10a20d083",
+      "is_error": false,
+      "duration_ms": 34382,
+      "num_turns": 7,
+      "files": [
+        {
+          "path": "Unreal/Source/NeonCoast/NCWorldMarkers.cpp",
+          "sha256": "56eda3ad72b58074ce022e7991b9160fb70498b9b72da528630a0f870167dc64"
+        }
+      ],
+      "validation": "Actual local CLI output; final packaged checks recorded separately."
+    }
+  ],
+  "integration": "Codex adapted UE APIs, imported licensed assets, retargeted animations, corrected source model pivots and collision clearance, implemented world-space V3 normal output, and segmented long noncolliding ground overlays after native render comparison. The segmentation removed the observed dark pavement; the exact engine/GPU cause is unproven. Codex also hardened muzzle surface endpoints and aligned the combat fixture with the firing camera, then built and validated the packaged game.",
+  "review_note": "The Opus review mentions measure-ue-render.py for exposure conformance. That script measures timing only; no exact sRGB exposure-target conformance is claimed."
+}

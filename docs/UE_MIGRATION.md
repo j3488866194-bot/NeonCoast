@@ -1,6 +1,6 @@
 # Unreal Engine 工作流与操作
 
-更新：2026-10-21。UE 5.8.4 Windows 独立包完成打包，23:16:08 的最终检查为 117 项全部通过（95 项玩法、22 项警方集成），另有 2 项存档自动化测试通过。独立 DX12 游戏正常关闭，退出码 0、无引擎错误；同包 1600 × 900 原生截图和 720 帧渲染检查通过。Kenney 人物、车轮、Opus 世界标记/金币与黄昏光照已目视确认，MCP 的 E/F/M/F12 操作也已实测。音频已初始化，混音未试听。证据见 [UE_VERIFICATION.md](UE_VERIFICATION.md)。
+更新：2026-10-22，**v0.3.0-dev / UE 5.8.4**。本轮使用 Renderpeople Eric/Carla 扫描人物、Epic 独立步行/跑步动画、Poly Haven 公共模型与 PBR 贴图；城市和材质视觉继续由 Claude Opus 5.5 high 参与。导入、编译与真实渲染已验证，最终发行包的检查结果、退出状态、截图和性能样本统一见 [UE_VERIFICATION.md](UE_VERIFICATION.md)。此处不沿用 v0.2 的检查时间或帧率；混音试听与物理手柄仍需单独验收。
 
 ## 位置与工具链
 
@@ -8,13 +8,25 @@
 - 原 Godot 工程：`D:\百度招新作业`，保留原版本和历史。旧版测试、截图与四段故事不作为 UE 版的完成证据。
 - 引擎：Epic 官方 UE 5.8.4，`D:\Work_software\UnrealEngine\UE_5.8`。
 - 编译器：VS 2022 Build Tools 17.14.42，`D:\Work_software\VSBuildTools2022`。当前构建使用 MSVC 14.44 与 Windows SDK 10.0.26100.0。
+- 模型准备：Blender 4.5.14 LTS CLI；下载与音频脚本使用本机 Python，贴图均值测量需要 Pillow，音频生成需要 NumPy。
 - 原生 MCP：`ModelContextProtocol`、`AllToolsets` 仅在 Editor 目标启用，端口默认为 `http://127.0.0.1:8008/mcp`。客户端使用 `.venv-mcp` 中的官方 Python MCP SDK。
 
 ## 构建、运行与 MCP
 
-从 `D:\NeonCoastUE` 执行：
+从 `D:\NeonCoastUE` 执行。源码克隆不会自动包含本机下载的扫描人物和所有生成资产；第一次 Prepare/Package 前先完成素材准备。完整来源、校验与重建说明见 [UE_REALISM.md](UE_REALISM.md)。关闭本工程 UE 编辑器后运行：
 
 ```powershell
+# 下载/校验公共环境素材和官方扫描人物；复用匹配的现有文件。
+python tools/fetch-realism-assets.py
+python tools/fetch-scan-characters.py
+
+# Blender 后台准备 15 个公共模型派生副本，原始 glTF 保持不变。
+& 'D:\Work_software\Blender\blender-4.5.14-windows-x64\blender.exe' --background --factory-startup --python tools/prepare-public-models.py
+
+# 从本机 Epic 引擎安装复制动画依赖，并测量 PBR 颜色贴图。
+python Unreal/Content/Python/build_realistic_characters.py --prepare-template-only
+python tools/measure-realism-textures.py
+
 # 初次准备时生成原创 WAV；本机已经生成。需要 host Python 和 NumPy。
 python tools/generate-audio.py
 
@@ -23,7 +35,7 @@ powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Check
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Build
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Prepare
 
-# UE 的 -game 模式；也可双击 启动UE5.cmd
+# 开发用 UE -game 模式；启动UE5.cmd 则优先运行已有独立包
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Play
 
 # 隔离玩家存档的玩法、警方集成和两项存档自动化测试
@@ -42,11 +54,11 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-release.ps1
 powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 ```
 
-默认[启动游戏.cmd](../启动游戏.cmd)优先运行[已打包 Windows 程序](../builds/NeonCoast-UE-Windows/Windows/NeonCoast.exe)，无需打开编辑器；`打开工程.cmd` 指向 UE，`启动旧版Godot.cmd` 保留旧版入口。`Prepare` 及其后的行动会先增量编译，再生成材质、人物、音频与入口地图。引擎安装在其他位置时传 `-Engine '绝对引擎目录'`。日志位于 `artifacts/ue-*.log`，工具链检测为 `artifacts/ue-toolchain.json`，打包目录为 `builds/NeonCoast-UE-Windows`。复制游戏时需完整保留其中的 `Windows` 文件夹；开发用 `Play` 仍依赖本机 UE。当前最终包已通过独立运行的 117 项检查。
+默认[启动游戏.cmd](../启动游戏.cmd)优先运行[已打包 Windows 程序](../builds/NeonCoast-UE-Windows/Windows/NeonCoast.exe)，无需打开编辑器；`打开工程.cmd` 指向 UE，`启动旧版Godot.cmd` 保留旧版入口。`Prepare` 及其后的行动会先增量编译，再由 Bootstrap 导入公共模型、生成 PBR/扫描材质、重定向人物动画，并准备音频与入口地图。`Package` 已包含准备阶段，无需重复执行 Prepare。引擎安装在其他位置时传 `-Engine '绝对引擎目录'`，并同步修改人物准备脚本的 `ENGINE` 常量。日志位于 `artifacts/ue-*.log`，工具链检测为 `artifacts/ue-toolchain.json`，打包目录为 `builds/NeonCoast-UE-Windows`。复制游戏时需完整保留其中的 `Windows` 文件夹；开发用 `Play` 仍依赖本机 UE。
 
-`Package` 为每次运行创建 D: 工程下专用 UAT 日志目录，并在当前进程的 `NO_PROXY` 中补入 `[::1]`，避免 EFS 日志复制与 Zen 回环代理问题。仅编辑器所需的 `GameFeatureData` 扫描已设为 editor-only，普通包不再误扫不存在的运行时类。最终 `artifacts/ue-package.log` 记录 Cook 36.69 秒、0 errors / 0 warnings，BuildCookRun 83.82 秒、`BUILD SUCCESSFUL`、退出码 0。人物重复导入安全复用三个材质，见 `artifacts/ue-prepare.log`。
+`Package` 为每次运行创建工程内专用 UAT 日志目录，并在当前进程的 `NO_PROXY` 中补入 `[::1]`，避免 EFS 日志复制与 Zen 回环代理问题。仅编辑器所需的 `GameFeatureData` 扫描设为 editor-only。下载器与资产生成器校验并复用匹配资源；导入与打包结果分别见本轮 `artifacts/ue-prepare.log`、`artifacts/ue-package.log`，不以旧运行耗时判断新包是否完成。
 
-开发游戏与烟测启动使用 `-DisablePython`，避免运行游戏时初始化仅编辑器需要的 Python 工具类型。资产生成阶段仍启用 Python。`Test` 的自动化报告位于 `artifacts/ue-automation-时间戳/index.json`；最初已通过的报告另存于 `artifacts/ue-automation/index.json`。发行报告 `artifacts/ue-release-verification.json` 记录真正运行的 EXE 及 Pak/IoStore 内容文件大小、SHA-256 和检查数；`artifacts/ue-release-render-verification.json` 记录独立渲染的运行标识、截图/CSV 哈希及退出状态。
+开发游戏与烟测启动使用 `-DisablePython`，避免运行游戏时初始化仅编辑器需要的 Python 工具类型。资产生成阶段仍启用 Python。`Test` 的自动化报告位于 `artifacts/ue-automation-时间戳/index.json`。发行报告 `artifacts/ue-release-verification.json` 记录真正运行的 EXE 及 Pak/IoStore 内容文件大小、SHA-256 和检查数；`artifacts/ue-release-render-verification.json` 记录独立渲染的运行标识、截图/CSV 哈希及退出状态。应按当前发行文件与运行标识核对证据，不能用目录里保留的历史报告替代。
 
 编辑器启动后，使用实际工具 schema 操作：
 
@@ -56,7 +68,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 .\.venv-mcp\Scripts\python.exe tools/ue_mcp.py call describe_toolset --args-file artifacts/toolset-query.json
 ```
 
-先读取工具列表，再调用场景、Python 或测试工具；调用顺序执行。端口可通过 `-McpPort 8010` 更改，并同步客户端 URL。根目录 `.mcp.json` 可供 Claude Code 连接。原生 MCP 为实验性功能，本机已实际调用 `EditorToolset.EditorAppToolset.StartPIE`、`SlateInspectorToolset.SlateInspectorToolset.PressKey` 和 `EditorToolset.EditorAppToolset.CaptureEditorImage`。新版实际操作包括 E 接任务、F 上车、M 地图与 F12 截图；日志为 `artifacts/ue-characters-editor.log`、`artifacts/ue-final-editor.log`，当前图片为 `docs/images/ue/first-view.png`、`driving.png`、`map.png`。
+先读取工具列表，再调用场景、Python 或测试工具；调用顺序执行。端口可通过 `-McpPort 8010` 更改，并同步客户端 URL。根目录 `.mcp.json` 可供 Claude Code 连接。原生 MCP 为实验性功能，本机此前已实际调用 `EditorToolset.EditorAppToolset.StartPIE`、`SlateInspectorToolset.SlateInspectorToolset.PressKey` 和 `EditorToolset.EditorAppToolset.CaptureEditorImage`，并完成 E/F/M/F12 操作。`artifacts/ue-characters-editor.log`、`artifacts/ue-final-editor.log` 以及 `docs/images/ue/first-view.png`、`driving.png`、`map.png` 是 **v0.2 历史证据**。当前 v0.3 独立包主图使用 `docs/images/ue/packaged-game.png`，本轮证据见验证记录。
 
 ## UE 版操作
 
@@ -89,9 +101,9 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 
 ## 已实现的可玩循环
 
-**驾驶与城市。** 使用 Chaos 四轮车辆、Epic 官方 SportsCar 骨骼/物理/动画资产、转向与刹车、车损、灯光、喇叭和安全出口检测。高速跳车继承速度并产生伤害与短暂恢复。主街区约 500 米宽，包含海滨道路、海滩、酒店、棕榈、招牌和远景；场景按批次生成，支持昼夜变化。初始生成 64 名行人、8 辆行驶交通车和 1 辆玩家附近车辆；警方响应另外生成车辆。
+**驾驶与城市。** 使用 Chaos 四轮车辆、Epic 官方 SportsCar 骨骼/物理/动画资产、转向与刹车、车损、灯光、喇叭和安全出口检测。高速跳车继承速度并产生伤害与短暂恢复。主街区约 500 米宽，包含海滨道路、海滩、酒店、招牌和远景；本轮增加真实立面模块、海岸阔叶树、长椅和路灯，地面与墙面使用 PBR 贴图，保持既有道路、碰撞布局和随机生成顺序。场景按批次生成，支持昼夜变化。初始生成 64 名行人、8 辆行驶交通车和 1 辆玩家附近车辆；警方响应另外生成车辆。
 
-**行动与追捕。** 步行、奔跑、跳跃、肩部瞄准、带枪口遮挡检测的射击、12 发弹匣与有限备弹、换弹、伤害和死亡恢复。行人可问候、受惊逃离和受伤。犯罪提高 0–3 级通缉；警车根据目击和最后报告位置追逐/搜索，持续目击或新犯罪阻止热度衰减。22 项警方集成检查实测正常导演派车、真实物理移动、视线更新、遮挡后搜索、废车替补和真实时间消退；完整城市追逐的手感仍需连续游玩调校。
+**行动与追捕。** 步行、奔跑、跳跃、肩部瞄准、带枪口遮挡检测的射击、12 发弹匣与有限备弹、换弹、伤害和死亡恢复。行人可问候、受惊逃离和受伤。犯罪提高 0–3 级通缉；警车根据目击和最后报告位置追逐/搜索，持续目击或新犯罪阻止热度衰减。警方集成检查覆盖正常导演派车、真实物理移动、视线更新、遮挡后搜索、废车替补和真实时间消退；本轮实测结果见验证记录，完整城市追逐的手感仍需连续游玩调校。
 
 **NIGHT COURIER。** 出生点附近海岸仓库接受任务，开车到内陆交付点并停下交互，摆脱搜索后返回领取 $750。任务可重复。当前 UE 版是一项三阶段任务，没有宣称迁移完旧 Godot 的四段故事。
 
@@ -107,14 +119,18 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-render.ps1
 
 `-NeonCoastSmokeTest` 禁止读取和写入正式进度，并禁用音频。存档自动测试使用内存序列化；真实磁盘上的损坏主档/备用档恢复、跨进程重开和用户机器权限仍需单独验收。
 
-Kenney CC0 人物骨骼、三种人类服装和 Idle/Run/Jump 动画已实际运行；当前画面确认主角面向、待机和脚底对齐正常，日志确认主角加 64 名行人共 65 个骨骼人物。源模型实测高 376.468611 cm，缩放约 0.472815 对应 178 cm；没有单独步行、瞄准、换弹或死亡动画，行走暂由较慢 Run 表现。行人和交通规则较简单。没有联机、完整室内系统、船舶/飞机、完整伙伴剧情、GTA VI 原作地图/角色/音乐、完整 City Sample 或 AAA 动画资产。通缉、任务、比赛和城市规模均为本工程原创原型实现，不代表 GTA VI 的具体机制。
+当前人物为 Renderpeople Eric/Carla 扫描模型，导入高度分别约 186.35/173.07 cm，行人只做少量统一比例变化。Epic 的 Idle、Walk、Jog、Jump 已重定向到两套骨架；Walk 是独立动作，Run 槽使用 Jog，动画原地锁定并按实际速度与角色比例调整步频。首帧日志确认主角加 64 名行人共 65 个扫描角色、无 fallback；最终运行与性能以本轮发行验证为准。当前没有完整瞄准、换弹、死亡和上下车动画，行人和交通规则较简单。没有联机、完整室内系统、船舶/飞机、完整伙伴剧情、GTA VI 原作地图/角色/音乐、完整 City Sample 或 AAA 动画资产。通缉、任务、比赛和城市规模均为本工程原创原型实现，不代表 GTA VI 的具体机制。
+
+扫描人物 FBX、贴图与未烘焙人物 `.uasset` 保持本地，排除在源码提交之外；重新克隆时先运行官方素材下载和生成流程。公共环境源图与衍生模型、Epic 模板依赖也应按 [UE_REALISM.md](UE_REALISM.md) 核对和重建，不能假设本机忽略目录随仓库复制。缺失扫描资产会记录 fallback，不能把回退人物当作写实升级已成功加载。
 
 ## 参考、视觉贡献与许可
 
 - 本次资讯依据与未证实内容边界：[GTA_REFERENCE_NOTES.md](GTA_REFERENCE_NOTES.md)。
+- **v0.3 写实升级：** Opus 5.5 high 完成视觉方案、PBR/扫描材质和城市视觉代码，并审阅实际渲染；Codex 完成下载核验、模型准备、重定向、技术整合与验收。见 [UE_REALISM.md](UE_REALISM.md)、[本轮调用回执](UE_REALISM_OPUS_RECEIPTS.json)和[视觉方案](UE_REALISM_ART_DIRECTION.json)。作者回执不替代最终运行测试。
+- Poly Haven 环境资产采用 CC0，来源与作者见 [PUBLIC_ASSETS.md](licenses/PUBLIC_ASSETS.md)。Renderpeople 扫描模型采用专有免费许可，**不是 CC0/MIT**；Epic 人体动画保留 Epic 条款，来源与原始资产分发限制见 [RENDERPEOPLE.md](licenses/RENDERPEOPLE.md)。统一声明见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。
 - Opus 5.5 high 第一轮城市、HUD、材质：[UE_OPUS_RECEIPT.json](UE_OPUS_RECEIPT.json)。
 - 第二轮改进城市、昼夜、招牌、地图与 HUD；五个文件写入后会话达到限额：[UE_OPUS_SECOND_PASS_RECEIPT.json](UE_OPUS_SECOND_PASS_RECEIPT.json)。不能把限额退出描述为模型完整验收成功。Codex 负责 API 适配、Chaos 与玩法整合、编译和行为验证。
-- 第三轮 Opus 5.5 high 实际查看人物素材和游戏截图，选定服装、身高及材质：[视觉方案](UE_CHARACTER_ART_DIRECTION.json)、[成功回执](UE_CHARACTER_OPUS_RECEIPT.json)。人物模型和动画由 Kenney 创作，素材采用 CC0；来源、导入结果及警告见 [KENNEY_CHARACTERS.md](licenses/KENNEY_CHARACTERS.md)。
+- **v0.2 历史人物：** 第三轮 Opus 5.5 high 查看 Kenney 人物素材和游戏截图，选定服装、身高及材质：[旧视觉方案](UE_CHARACTER_ART_DIRECTION.json)、[旧回执](UE_CHARACTER_OPUS_RECEIPT.json)。旧模型与动画由 Kenney 创作，采用 CC0；保留来源及导入记录见 [KENNEY_CHARACTERS.md](licenses/KENNEY_CHARACTERS.md)，不是当前扫描人物来源。
 - 后续 Opus 5.5 high 完成世界标记与金币，并查看实拍画面调整黄昏阴影可读性：[标记回执](UE_MARKERS_OPUS_RECEIPT.json)、[光照回执](UE_DUSK_OPUS_RECEIPT.json)。
 - Epic 车辆资产和参考代码保留第三方许可：[EPIC_VEHICLES_PROVENANCE.md](licenses/EPIC_VEHICLES_PROVENANCE.md)。
 - 原创音频与精确资产路径：[AUDIO_PROVENANCE.md](AUDIO_PROVENANCE.md)。

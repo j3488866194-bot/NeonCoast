@@ -1,0 +1,848 @@
+{
+  "status": "passed",
+  "version": 1,
+  "started_at": "2026-10-21T15:45:14.898622+00:00",
+  "blender_version": "4.5.14 LTS",
+  "origin_contract": "UE centimeters; X=horizontal width, Y=depth, Z=up. Facade front faces -Y; X-centered, lowest Z=0, mounting plane Y=0. Props use horizontal bounds center and lowest Z=0. Composite window/door panels preserve shared local source coordinates before origin normalization.",
+  "assets": [
+    {
+      "name": "SM_FacadeWall",
+      "file": "Prepared/SM_FacadeWall.glb",
+      "sha256": "afb1f5752619280caf46ef06e856ea2ae923c1f131d6269697d5985dd49b1086",
+      "bytes": 9631204,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_standard_standard_01"
+      ],
+      "input_triangles": 4608,
+      "triangles": 4608,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -0.0,
+          0
+        ],
+        "max": [
+          150.0,
+          0.0,
+          300.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        0.0,
+        300.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWall",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeWindowPanel",
+      "file": "Prepared/SM_FacadeWindowPanel.glb",
+      "sha256": "cfb2b2b7163a7337a6c1323024fc9993adf9c1a50396a8bd2dc25130e6c9469b",
+      "bytes": 21587280,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_window_centered_large_01",
+        "window_centered_large_01"
+      ],
+      "input_triangles": 4352,
+      "triangles": 4352,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        -3.427267074584961e-07
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster",
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -15.0008,
+          0
+        ],
+        "max": [
+          150.0,
+          24.0,
+          300.0001
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        39.0008,
+        300.0001
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWindowPanel",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeWindow",
+      "file": "Prepared/SM_FacadeWindow.glb",
+      "sha256": "f611aae69938eaf521d05bd5c448e6460f6b0488a2d89b450c3d3759e4d85de3",
+      "bytes": 12001944,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "window_centered_large_01"
+      ],
+      "input_triangles": 1408,
+      "triangles": 1408,
+      "source_pivot_blender_m": [
+        -1.5,
+        0.0,
+        -3.427267074584961e-07
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -106.0009,
+          -15.0008,
+          0
+        ],
+        "max": [
+          106.0009,
+          24.0,
+          230.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        212.0019,
+        39.0008,
+        230.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWindow",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeDoorPanel",
+      "file": "Prepared/SM_FacadeDoorPanel.glb",
+      "sha256": "8fedd40035c15051890fa83b5e9b138f992e8ab4ee85f4105cee2c1faabe09d6",
+      "bytes": 21572800,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_door_centered_large_01",
+        "door_centered_large_01"
+      ],
+      "input_triangles": 3967,
+      "triangles": 3967,
+      "source_pivot_blender_m": [
+        -1.4999982118606567,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster",
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -149.9999,
+          -20.0,
+          0
+        ],
+        "max": [
+          149.9999,
+          24.0,
+          300.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        299.9998,
+        44.0,
+        300.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeDoorPanel",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeDoor",
+      "file": "Prepared/SM_FacadeDoor.glb",
+      "sha256": "aa1f2a87bf9dca79617c917e3549335c59c3ab68702f448e8bb0fa4bb8635074",
+      "bytes": 12010000,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "door_centered_large_01"
+      ],
+      "input_triangles": 1711,
+      "triangles": 1711,
+      "source_pivot_blender_m": [
+        -1.4999980926513672,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -104.0003,
+          -20.0,
+          0
+        ],
+        "max": [
+          104.0003,
+          24.0,
+          281.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        208.0006,
+        44.0,
+        281.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeDoor",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeCornice",
+      "file": "Prepared/SM_FacadeCornice.glb",
+      "sha256": "8fd7467d51e3b527c9cb3a966bf7c4ba4e5d44e7a102883fc5d9241ef3409c8d",
+      "bytes": 8372300,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "cornice_standard_standard_01"
+      ],
+      "input_triangles": 18,
+      "triangles": 18,
+      "source_pivot_blender_m": [
+        -1.5,
+        0.0,
+        -4.76837158203125e-07
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_trim_01"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_trim_01",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -4.0,
+          0
+        ],
+        "max": [
+          150.0,
+          0.0,
+          20.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        4.0,
+        20.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeCornice",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeCrown",
+      "file": "Prepared/SM_FacadeCrown.glb",
+      "sha256": "25f75ce04af78de7124f3c457b7bf4ae5848aca1b1dad381b4f39ce5edb5b6a1",
+      "bytes": 8360404,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "crown_standard_standard_01"
+      ],
+      "input_triangles": 684,
+      "triangles": 684,
+      "source_pivot_blender_m": [
+        -1.500001072883606,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_trim_02"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_trim_02",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0001,
+          -33.0,
+          0
+        ],
+        "max": [
+          150.0001,
+          10.0,
+          75.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0002,
+        43.0,
+        75.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeCrown",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadePier",
+      "file": "Prepared/SM_FacadePier.glb",
+      "sha256": "f2461a5c8b322398edd53df95255b34e1d716b571b8f0123e9148ecf8e371eef",
+      "bytes": 9514824,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_pier_standard_01"
+      ],
+      "input_triangles": 384,
+      "triangles": 384,
+      "source_pivot_blender_m": [
+        2.3469328880310059e-07,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -12.5,
+          -5.0,
+          0
+        ],
+        "max": [
+          12.5,
+          0.0,
+          300
+        ]
+      },
+      "expected_ue_size_cm": [
+        25.0,
+        5.0,
+        300
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadePier",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeWindowPanelSmall",
+      "file": "Prepared/SM_FacadeWindowPanelSmall.glb",
+      "sha256": "e1faf4628f9130a0e05fdf3bbb0a983c843a592a9106f1ec2df40b646d20f71e",
+      "bytes": 21556136,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_window_centered_small_01",
+        "window_centered_small_01"
+      ],
+      "input_triangles": 4623,
+      "triangles": 4623,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        -3.427267074584961e-07
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster",
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -15.0008,
+          0
+        ],
+        "max": [
+          150.0,
+          24.0,
+          300.0001
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        39.0008,
+        300.0001
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWindowPanelSmall",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeWindowPanelDouble",
+      "file": "Prepared/SM_FacadeWindowPanelDouble.glb",
+      "sha256": "114d491f4c27e01cd94da8c340b77849b13f8a050d3e9f596439fe60ede2209c",
+      "bytes": 21608448,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_window_centered_double_01",
+        "window_centered_double_01"
+      ],
+      "input_triangles": 4638,
+      "triangles": 4638,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        -3.427267074584961e-07
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster",
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -15.0008,
+          0
+        ],
+        "max": [
+          150.0,
+          24.0,
+          300.0001
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        39.0008,
+        300.0001
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWindowPanelDouble",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeDoorPanelSmall",
+      "file": "Prepared/SM_FacadeDoorPanelSmall.glb",
+      "sha256": "8378daa2e8a26f76b379c3b08dfd1d375631d638ef003cb21915fd4a93a3ba2c",
+      "bytes": 21573920,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_door_centered_small_01",
+        "door_centered_small_01"
+      ],
+      "input_triangles": 4624,
+      "triangles": 4624,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster",
+        "modular_urban_apartments_facade_objects",
+        "modular_urban_apartments_facade_glass"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_objects",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "modular_urban_apartments_facade_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -20.0,
+          0
+        ],
+        "max": [
+          150.0,
+          24.0,
+          300.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        44.0,
+        300.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeDoorPanelSmall",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_FacadeWallCorner",
+      "file": "Prepared/SM_FacadeWallCorner.glb",
+      "sha256": "dd1e5b5a4d8b9b628761eb8886f6dd8c12a23c61d676cd157848f56b06cf4d97",
+      "bytes": 9774108,
+      "source_asset": "modular_urban_apartments_facade",
+      "source_nodes": [
+        "wall_standard_corner_large_01"
+      ],
+      "input_triangles": 9216,
+      "triangles": 9216,
+      "source_pivot_blender_m": [
+        -1.500000238418579,
+        0.0,
+        0.0
+      ],
+      "material_slots": [
+        "modular_urban_apartments_facade_plaster"
+      ],
+      "materials": [
+        {
+          "name": "modular_urban_apartments_facade_plaster",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -150.0,
+          -0.0,
+          0
+        ],
+        "max": [
+          150.0,
+          300.0,
+          300.0
+        ]
+      },
+      "expected_ue_size_cm": [
+        300.0,
+        300.0001,
+        300.0
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_FacadeWallCorner",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_CoastalTree",
+      "file": "Prepared/SM_CoastalTree.glb",
+      "sha256": "93aa420b12620d6514785de9c692205a5e78cacdb17b8dbd3215352496f81a85",
+      "bytes": 28379636,
+      "source_asset": "island_tree_02",
+      "source_nodes": [
+        "island_tree_02_LOD0"
+      ],
+      "input_triangles": 1072212,
+      "triangles": 90000,
+      "source_pivot_blender_m": [
+        0.049065470695495605,
+        -0.9213676452636719,
+        -0.017267651855945587
+      ],
+      "material_slots": [
+        "island_tree_02",
+        "island_tree_02_leaves",
+        "island_tree_02_branches"
+      ],
+      "materials": [
+        {
+          "name": "island_tree_02",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "island_tree_02_leaves",
+          "alpha_mode": "MASK",
+          "alpha_cutoff": 0.35,
+          "double_sided": true
+        },
+        {
+          "name": "island_tree_02_branches",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -206.1932,
+          -203.5574,
+          0
+        ],
+        "max": [
+          206.1932,
+          203.5574,
+          340.6996
+        ]
+      },
+      "expected_ue_size_cm": [
+        412.3864,
+        407.1148,
+        340.6996
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_CoastalTree",
+      "nanite": true,
+      "lod_policy": "Nanite + fallback"
+    },
+    {
+      "name": "SM_Bench",
+      "file": "Prepared/SM_Bench.glb",
+      "sha256": "81a396c65ff0575a8d87af401b17711baa7c6d29f3cdffaafa158c19f6e24ea7",
+      "bytes": 8006384,
+      "source_asset": "painted_wooden_bench",
+      "source_nodes": [
+        "painted_wooden_bench"
+      ],
+      "input_triangles": 630,
+      "triangles": 630,
+      "source_pivot_blender_m": [
+        0.006410717964172363,
+        0.005427248775959015,
+        -0.0004994967021048069
+      ],
+      "material_slots": [
+        "painted_wooden_bench"
+      ],
+      "materials": [
+        {
+          "name": "painted_wooden_bench",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -58.2472,
+          -24.8272,
+          0
+        ],
+        "max": [
+          58.2472,
+          24.8272,
+          88.9291
+        ]
+      },
+      "expected_ue_size_cm": [
+        116.4944,
+        49.6543,
+        88.9291
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_Bench",
+      "nanite": false,
+      "lod_policy": "single low-poly source LOD"
+    },
+    {
+      "name": "SM_StreetLamp",
+      "file": "Prepared/SM_StreetLamp.glb",
+      "sha256": "01ebdefbc384f3fc860d6d4d9cde8d5ccc346121c4c5f4cf09a751cff3006d8b",
+      "bytes": 8840920,
+      "source_asset": "street_lamp_01",
+      "source_nodes": [
+        "street_lamp_01"
+      ],
+      "input_triangles": 30610,
+      "triangles": 30610,
+      "source_pivot_blender_m": [
+        0.0,
+        -7.450580596923828e-09,
+        0.0
+      ],
+      "material_slots": [
+        "street_lamp_01",
+        "street_lamp_01_glass",
+        "street_lamp_01_bulb"
+      ],
+      "materials": [
+        {
+          "name": "street_lamp_01",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "street_lamp_01_glass",
+          "alpha_mode": "BLEND",
+          "alpha_cutoff": null,
+          "double_sided": true
+        },
+        {
+          "name": "street_lamp_01_bulb",
+          "alpha_mode": "OPAQUE",
+          "alpha_cutoff": null,
+          "double_sided": true
+        }
+      ],
+      "expected_ue_bounds_cm": {
+        "min": [
+          -35.2168,
+          -19.3247,
+          0
+        ],
+        "max": [
+          35.2168,
+          19.3247,
+          387.0555
+        ]
+      },
+      "expected_ue_size_cm": [
+        70.4336,
+        38.6493,
+        387.0555
+      ],
+      "destination": "/Game/PublicAssets/Models/SM_StreetLamp",
+      "nanite": false,
+      "lod_policy": "3 LODs"
+    }
+  ],
+  "completed_at": "2026-10-21T15:45:38.221633+00:00",
+  "total_bytes": 222790308
+}

@@ -27,7 +27,7 @@ $log=Join-Path $repo 'artifacts/ue-release-smoke.log'
 $console=Join-Path $repo 'artifacts/ue-release-smoke-console.log'
 $phase='smoke'
 $smokeStartedUtc=[DateTime]::UtcNow
-$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$log+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -RedirectStandardOutput $console -RedirectStandardError ($console+'.stderr') -PassThru
+$process=Start-Process -FilePath $game -ArgumentList @('-NeonCoastSmokeTest','-unattended','-nosplash','-NullRHI','"-ExecCmds=t.MaxFPS 60"','"-LogCmds=LogTemp Verbose"',('"-abslog='+$log+'"')) -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -RedirectStandardOutput $console -RedirectStandardError ($console+'.stderr') -PassThru
 if(-not $process.WaitForExit(180000)){
     Stop-Process -Id $process.Id
     throw "Packaged gameplay check timed out. See $log"
@@ -42,6 +42,8 @@ if($code -ne 0 -or -not $sentinel){throw "Packaged gameplay check failed ($code)
 if(Select-String -LiteralPath $log -Pattern 'Ensure condition failed|Fatal error:|Assertion failed:' -Quiet){throw "Packaged gameplay logged an engine failure. See $log"}
 $characters=@(Select-String -LiteralPath $log -SimpleMatch 'NEON_COAST_CHARACTER_VISUAL').Count
 if($characters -lt 65 -or (Select-String -LiteralPath $log -SimpleMatch 'NEON_COAST_CHARACTER_FALLBACK' -Quiet)){throw "Packaged skeletal characters did not load for every actor. See $log"}
+$scannedCharacters=@(Select-String -LiteralPath $log -Pattern 'NEON_COAST_CHARACTER_VISUAL.*mesh=SK_(Eric|Carla)').Count
+if($scannedCharacters -lt 65 -or -not (Select-String -LiteralPath $log -SimpleMatch '9/9 public models loaded' -Quiet) -or -not (Select-String -LiteralPath $log -SimpleMatch '16/16 palettes use MI_CoastPBR' -Quiet)){throw "Packaged realism assets are incomplete. See $log"}
 $policeLog=Join-Path $repo 'artifacts/ue-release-police.log'
 $policeConsole=Join-Path $repo 'artifacts/ue-release-police-console.log'
 $phase='police'
@@ -73,6 +75,9 @@ $result=[ordered]@{
     checks=[int]$sentinel.Matches[0].Groups[1].Value
     police_checks=[int]$policeSentinel.Matches[0].Groups[1].Value
     total_checks=([int]$sentinel.Matches[0].Groups[1].Value+[int]$policeSentinel.Matches[0].Groups[1].Value)
+    scanned_character_instances=$scannedCharacters
+    public_models_loaded=9
+    pbr_palettes_loaded=16
     skeletal_characters=$characters
     failures=0
     engine_failures=0

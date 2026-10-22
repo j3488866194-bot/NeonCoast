@@ -47,6 +47,9 @@ if($process.ExitCode -ne 0){throw "Packaged render check failed ($($process.Exit
 if(-not (Test-Path -LiteralPath $log)){throw 'Packaged render log missing.'}
 if((Get-Item -LiteralPath $log).LastWriteTimeUtc -lt $renderStartedUtc){throw "Packaged render log was not updated by this run: $log"}
 if(Select-String -LiteralPath $log -Pattern 'Ensure condition failed|Fatal error:|Assertion failed:' -Quiet){throw "Packaged rendering logged an engine failure. See $log"}
+$scannedCharacters=@(Select-String -LiteralPath $log -Pattern 'NEON_COAST_CHARACTER_VISUAL.*mesh=SK_(Eric|Carla)').Count
+if($scannedCharacters -lt 65 -or (Select-String -LiteralPath $log -Pattern 'NEON_COAST_CHARACTER_FALLBACK|Failed to compile Material|Default Material will be used' -Quiet)){throw "Packaged realism render fell back or a material failed. See $log"}
+if(-not (Select-String -LiteralPath $log -SimpleMatch '9/9 public models loaded' -Quiet) -or -not (Select-String -LiteralPath $log -SimpleMatch '16/16 palettes use MI_CoastPBR' -Quiet)){throw "Packaged realism models/materials are missing. See $log"}
 if(-not (Select-String -LiteralPath $log -SimpleMatch $runId -Quiet)){throw 'Render log does not contain this verification run marker.'}
 $screens=@(Get-ChildItem -LiteralPath (Join-Path $savedRoot 'Screenshots') -Filter ($shotName+'.png') -File -Recurse | Where-Object {$_.LastWriteTimeUtc -ge $renderStartedUtc})
 if($screens.Count -ne 1 -or $screens[0].Length -lt 10000){throw "This run's uniquely named packaged-game screenshot is missing or ambiguous. See $log"}
@@ -88,6 +91,9 @@ $result=[ordered]@{
     audio_ready=[bool](Select-String -LiteralPath $log -SimpleMatch 'NC_AUDIO_READY radioTracks=2 loops=4' -Quiet)
     exit_code=$process.ExitCode
     engine_failures=0
+    scanned_character_instances=$scannedCharacters
+    public_models_loaded=9
+    pbr_palettes_loaded=16
     method='Packaged DX12 game; synchronous CSV (-csvNoProcessingThread); native frame command at frame 600; 720-frame capture; no editor or NullRHI'
     visual_inspection='Required separately; producing a PNG alone does not verify its contents'
 }

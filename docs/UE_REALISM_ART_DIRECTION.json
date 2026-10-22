@@ -1,0 +1,109 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "date": "2026-10-21",
+  "scope": "Realism art direction for the next code pass. Direction only; no code edited in this pass.",
+  "reviewed": ["docs/images/ue/packaged-game.png", "Unreal/Source/NeonCoast/NCCityVisual.h", "Unreal/Source/NeonCoast/NCCityVisual.cpp", "Unreal/Source/NeonCoast/NCCharacterVisual.cpp", "Unreal/Source/NeonCoast/NCWorldMarkers.cpp"],
+  "screenshot_diagnosis": [
+    "18:07 start puts the whole coast road in building shadow; image is flat and grey-blue, with nothing in sun except the beach.",
+    "Asphalt is untextured albedo 0.045 (near black); no aggregate, wear, tyre polish or normal response.",
+    "Coast street fronts are bare boxes with black window slabs; no reveals, sills, balconies or plaster texture.",
+    "Palms are cylinders plus flattened ellipsoid fronds; they read as toy props.",
+    "Kenney chibi humans (oversized heads) break scale against the Epic car; they cannot be relabelled as realistic.",
+    "Objective ring dashes (emissive 1.6) bloom like light bars on the road and are the brightest thing on screen."
+  ],
+  "invariants": [
+    "Keep NCCityVisual.h:50-62 layout constants, Seed 1985, all road/sidewalk/beach slabs, mission/service/token coordinates and every bCollide=true instance at its current transform.",
+    "New meshes are visual-only (NoCollision, no nav). Gameplay collision stays on the existing massing boxes, palm trunk cylinders and lamp poles; hide those visuals, keep their collision.",
+    "Keep the RNG draw count/order in BuildBlock, BuildDecoHotel, AddPalm, BuildWaterfront and BuildDistant. A replaced primitive still consumes its Rng calls; new variation uses its own hashed stream like NCSignStream.",
+    "Imported Poly Haven and Renderpeople meshes keep their original material assets, UVs, slot count and slot order. No SetMaterial on their slots, no texture swaps, no slot collapse.",
+    "No UI/HUD/minimap change. No colour-grading LUT or cosmetic filter. Realism must come from geometry, PBR textures and light."
+  ],
+  "time_of_day": {
+    "StartHour": 15.5,
+    "reason": "With the current arc (NCCityVisual.cpp:1015-1030) 15.5 puts the sun at about 49 deg from the WSW. West-side frontage shadows stop around X 21000-21700, so the east lane, promenade and beach are in sun, the long shadows show off the new geometry, and the facades are lit by sky plus bounce instead of being black.",
+    "SecondsPerGameHour": "Suggest 240 (was 80) so the first 10 minutes stay in afternoon. This is gameplay pacing; Codex must confirm that no job or HUD logic depends on the clock rate.",
+    "do_not": "Do not move the sun azimuth to light east-facing facades in the afternoon; that would be physically wrong."
+  },
+  "lighting": {
+    "sun": "Keep intensity scale (10 at day). Use bUseTemperature: 5600K at >=45 deg elevation, 5000K at 30, 4000K at 12, 3200K at 4. Keep LightColor white so warmth is physical. LightSourceAngle 0.53, ContactShadowLength 0.02, CastShadows on. Use VSM if the project already enables them.",
+    "sky_light": "Real-time captured; intensity 1.0 by day. Remove the dusk lift (+1.5*Dusk) from the afternoon look; keep the night value.",
+    "atmosphere": "MieScatteringScale 0.0055 for humid coastal haze, MieAnisotropy 0.8, default Rayleigh, AerialPerspectiveViewDistanceScale 1.0.",
+    "height_fog": "Day density 0.006, HeightFalloff 0.2, StartDistance 6000, FogMaxOpacity 0.7, inscattering (0.55,0.66,0.80); directional inscattering (1.0,0.82,0.62) x0.4, exponent 8, start 8000. Keep volumetric fog off for the 8 GB laptop budget.",
+    "exposure": "Keep fixed exposure. Day bias 0 to +0.3 EV. Check: sunlit white plaster at about sRGB 215-230 with no clipping, sunlit asphalt about sRGB 75-95, shaded asphalt 40-55.",
+    "post": "Day WhiteTemp 6500 (drop +1100*Golden; warmth comes from the sun temperature), ColorSaturation 1.0, ColorContrast 1.0, BloomIntensity 0.35 day and 0.6 night, VignetteIntensity 0.2, film grain off, default ACES/Filmic tonemapper."
+  },
+  "pbr_material": {
+    "new_master": "/Game/Materials/M_CoastPBR: BaseColorTex, NormalTex (normalDX, TC_Normalmap, sRGB off; DX is already UE's convention, so no green flip), RoughnessTex (linear, TC_Masks), TileCm, AlbedoTint (= target mean / measured texture mean), RoughnessScale. Static switch TopPlanar (ground: one world-XY sample) vs BoxProjected (walls: WorldAlignedTexture), because HISM primitives have stretched UVs.",
+    "anti_tiling": "Ground sets multiply in a low-frequency luminance variation (0.88-1.08) from the same diffuse sampled at TileCm x 7.9; there is no extra texture.",
+    "tile_note": "Tile sizes below are starting values. Codex should match them to the real-world dimensions in each Poly Haven asset's metadata if they differ by more than 25%.",
+    "sets": [
+      { "palette": "Asphalt", "texture": "asphalt_02", "TileCm": 300, "albedo_mean": 0.10, "roughness": "texture x1.0 (about 0.8)", "note": "Worn sun-bleached coastal asphalt, not new black asphalt." },
+      { "palette": "Sidewalk", "texture": "concrete_pavement", "TileCm": 200, "albedo_mean": 0.32, "roughness": "x1.0" },
+      { "palette": "Concrete", "texture": "concrete_pavement", "TileCm": 260, "albedo_mean": 0.28, "roughness": "x1.05" },
+      { "palette": "Promenade", "texture": "concrete_pavement", "TileCm": 200, "albedo_mean": [0.42, 0.33, 0.27], "note": "Warm tinted pavers replace the flat coral." },
+      { "palette": "Lawn", "texture": "grass_path_2", "TileCm": 300, "albedo_mean": [0.09, 0.13, 0.05] },
+      { "palette": "Sand", "texture": "coast_sand_02", "TileCm": 300, "albedo_mean": 0.42, "roughness": "x1.0" },
+      { "palette": "WetSand", "texture": "coast_sand_02", "TileCm": 300, "albedo_mean": 0.20, "roughness": "x0.45" },
+      { "palette": "Stucco/Deco*", "texture": "white_plaster_02", "TileCm": 250, "BoxProjected": true,
+        "albedo_targets_linear": { "DecoWhite": [0.66, 0.64, 0.60], "DecoMint": [0.50, 0.60, 0.53], "DecoPink": [0.68, 0.52, 0.50], "DecoLemon": [0.70, 0.63, 0.45], "DecoLavender": [0.55, 0.52, 0.62], "DecoPeach": [0.70, 0.55, 0.44], "DecoAqua": [0.46, 0.58, 0.60], "Stucco": [0.56, 0.50, 0.42] },
+        "note": "Pastels are desaturated to real painted-render values; nothing is above 0.72." },
+      { "palette": "Terracotta", "texture": "red_brick_plaster_patch_02", "TileCm": 300, "BoxProjected": true, "albedo_mean": [0.34, 0.20, 0.14] }
+    ],
+    "untextured_fixes": {
+      "LineWhite": "Thermoplastic: albedo 0.62, roughness 0.55, asphalt normal at 0.5 strength so lines follow the road grain.",
+      "LineYellow": "[0.60, 0.40, 0.06], roughness 0.55.",
+      "GlassDark": "Albedo 0.03, metallic 0, specular 0.5, roughness 0.05; reflections give the depth.",
+      "Metal": "Painted street metal: albedo 0.18, metallic 0, roughness 0.5. No bare chrome.",
+      "Water": "Roughness 0.08; keep the colour."
+    }
+  },
+  "architecture": {
+    "asset": "modular_urban_apartments_facade (Poly Haven CC0, 2K glTF)",
+    "where_P1": "Coast-block street fronts: BuildBlock bHotelFront lots (bx == GridRoadCount-2, Side 0, facade X 20000), from Y -24000 to 24000.",
+    "where_P2": "BuildDistant coast strip (X 20000, |Y| 25600-62000) using the same modules. The first lot on each cross-street return (Side 2/3 of coast blocks) is optional.",
+    "fit": "Measure module bounds after import. Cols = round(Lot.Width / ModuleW); scale along the facade by Lot.Width / (Cols*ModuleW) only within 0.92-1.08, otherwise drop a column and centre it with plain plaster piers. Stack one module row per floor above Z 420 (floor pitch 330); scale Z within 0.92-1.08. The face sits at Out +2 cm in front of the colliding massing box. Uniform scale per lot only; no per-axis squash beyond those limits.",
+    "replaces": "Inside covered lots, skip the upper-floor punched windows and eyebrow ledges (cpp:627-645). Their Rng.FRand() calls must still run.",
+    "keeps": "Ground floor (lobby glazing, pilasters, canopy), the massing box as the side/rear walls in M_CoastPBR plaster, roof parapet, fins and blade signs.",
+    "variation": "The facade's own material is not tinted. Pastel identity comes from the plaster massing, ground-floor trims and canopies, so the strip reads as real painted buildings with real window modules.",
+    "render": "Enable Nanite at import; HISM per module mesh; cast shadows on."
+  },
+  "vegetation": {
+    "asset": "island_tree_02 (CC0)",
+    "rule": "Replace every primitive palm in view (AddPalm call sites cpp:550-555, 792, 809, 835-836) with island_tree_02 at measured height 650-900 cm, random yaw, uniform scale 0.9-1.1. Keep each palm's trunk cylinder as hidden collision at its current transform.",
+    "palms": "Primitive ellipsoid-frond palms are retired. Bring back tall palm silhouettes only from a real palm mesh with cut-out frond cards and translucent leaf material; never from scaled spheres or triangles.",
+    "render": "Nanite if the leaf material imports opaque/masked with no WPO; otherwise imported LODs, cull 25000, leaf shadows on."
+  },
+  "street_furniture": {
+    "street_lamp_01": "Replaces AddLamp visuals (cpp:768-773, call sites 795, 822); head height 600-650 cm and collision pole unchanged. No per-lamp dynamic lights. A small hidden emissive disc under the head drives the night glow (LampGlow day mult 0, night 0.7). Cull 15000.",
+    "painted_wooden_bench": "Replaces the cube benches (cpp:839-853) at the same positions, seat facing +X (sea), seat height about 45 cm. Cull 8000.",
+    "deferred": "Umbrellas, lifeguard huts, sailboats and towels stay primitives this pass but get M_CoastPBR roughness; replace them when real assets arrive."
+  },
+  "emission_restraint": {
+    "neon_palettes": "NeonPink/Aqua/Amber day mult 0.15 (was 1.4), night 0.6. Unlit glass tubes by day is the realistic read. GlassWarm: day 0, night 0.6. SignMID Glow: day 0.4, night 1.8.",
+    "world_markers": "NCWorldMarkers.cpp: objective ring 1.6->0.7 (line 124), chevron 2.0->1.0 (133), service rings 1.2->0.6 (144), token coin/inset 0.35/0.5->0.1/0.15 (157/161; gold should read through sun specular). Ring roughness 0.4->0.6, like road paint. Keep the colours and readability."
+  },
+  "characters": {
+    "assets": "Renderpeople Eric Rigged001 (hero and male civilians); Carla/Claudia (female civilians) when ingested. Locally licensed, not CC0: record them separately in THIRD_PARTY_NOTICES.",
+    "height": "Render scanned humans at their true scan height: male 172-185 cm, female 160-172 cm. If the imported bounds fall outside 150-200 cm, fix the import unit; do not rescale to a fixed 178. NPC variation is uniform scale 0.97-1.03 only. Measure from the reference-pose imported bounds, not inflated component bounds.",
+    "materials": "Keep the imported per-slot materials (NCCharacterVisual.cpp:67 currently overwrites every slot with one skin, which must not run for scanned meshes). Response targets within those materials: skin Subsurface Profile, roughness 0.45-0.55, specular 0.35; cloth roughness 0.75-0.9, specular 0.4; hair masked, roughness 0.6; no emissive.",
+    "animation": "Retarget Epic mannequin Idle, Walk, Jog and Jump. A real Walk clip is required; slowing the run to 0.24 rate (line 98) slides the feet and must go. Foot slide target under 5 cm per cycle.",
+    "lod_perf": "LOD1 50% at screen size 0.3, LOD2 25% at 0.12; 64 NPCs must stay within budget.",
+    "fallback": "If the scanned assets are missing, log failure and use the primitive fallback. Never present Kenney meshes as the realistic cast."
+  },
+  "performance_budget": "RTX 5060 Laptop 8 GB: 1600x900 output, TSR at 67%, GPU at or under 16.7 ms on the packaged-game.png camera. 2K BC7/BC5 textures, about 120 MB added streaming. Nanite on static imports, HISM batching kept, no volumetric fog, no per-lamp lights.",
+  "implementation_priorities": [
+    { "p": 1, "what": "Afternoon light and neutral grade", "slots": ["NCCityVisual.h:77 StartHour", "NCCityVisual.cpp:141-148 sun ctor", "cpp:157-183 atmosphere/fog/PP ctor", "cpp:1049-1089 UpdateLighting sun/sky/fog/grade"] },
+    { "p": 2, "what": "Textured PBR ground and walls", "slots": ["NCCityVisual.h:101-115 add GroundMaterial/WallMaterial and per-set texture soft refs", "cpp:31-71 NCPal::Defs albedo/roughness", "cpp:83-105 SurfaceFor (Grain superseded by textures)", "cpp:246-273 BuildPalettes"] },
+    { "p": 3, "what": "Real facade modules on the coast street fronts", "slots": ["cpp:499-525 bHotelFront path", "cpp:560-658 BuildDecoHotel (627-645 replaced)", "cpp:927-942 BuildDistant strip", "cpp:308-348 FlushBatches: mesh-keyed batches that skip SetMaterial (323-326) for imported meshes"] },
+    { "p": 4, "what": "Island trees replace primitive palms", "slots": ["cpp:747-766 AddPalm", "call sites cpp:550-555, 792, 809, 835-836"] },
+    { "p": 5, "what": "Lamps and benches", "slots": ["cpp:768-773 AddLamp", "cpp:839-853 benches"] },
+    { "p": 6, "what": "Emission restraint", "slots": ["cpp:1091-1118 emissive palettes", "NCWorldMarkers.cpp:124,133,144,157,161"] },
+    { "p": 7, "what": "Scanned humans", "slots": ["NCCharacterVisual.cpp:16-29 asset paths", "cpp:47-55 height", "cpp:64 yaw (verify in frame)", "cpp:67 per-slot overwrite", "cpp:87-98 walk/run selection"] }
+  ],
+  "acceptance": [
+    "Re-shoot the packaged-game.png camera at 15:30. Right side shows repeated window and balcony modules with plaster texture. Asphalt shows aggregate and wear. No ellipsoid fronds. A scanned adult at true scale beside the car. Marker dashes have no bloom halo.",
+    "All 117 packaged world checks plus the save tests still pass, with collision and coordinates unchanged.",
+    "GPU frame time stays within the performance budget on the target laptop."
+  ]
+}

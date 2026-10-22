@@ -20,15 +20,28 @@ public:
     void UpdateAnimation(float Speed, bool bFalling, bool bIncapacitated = false);
 
 private:
-    enum class EPose : uint8 { None, Idle, Run, Jump };
+    enum class EPose : uint8 { None, Idle, Walk, Run, Jump };
     UPROPERTY() TObjectPtr<ACharacter> Character;
+    UPROPERTY() TObjectPtr<USkeletalMesh> EricMesh;
+    UPROPERTY() TObjectPtr<USkeletalMesh> CarlaMesh;
+    UPROPERTY() TObjectPtr<UAnimSequence> EricIdle;
+    UPROPERTY() TObjectPtr<UAnimSequence> EricWalk;
+    UPROPERTY() TObjectPtr<UAnimSequence> EricRun;
+    UPROPERTY() TObjectPtr<UAnimSequence> EricJump;
+    UPROPERTY() TObjectPtr<UAnimSequence> CarlaIdle;
+    UPROPERTY() TObjectPtr<UAnimSequence> CarlaWalk;
+    UPROPERTY() TObjectPtr<UAnimSequence> CarlaRun;
+    UPROPERTY() TObjectPtr<UAnimSequence> CarlaJump;
+    UPROPERTY() TObjectPtr<UMaterialInterface> EricMaterial;
+    UPROPERTY() TObjectPtr<UMaterialInterface> CarlaMaterial;
     UPROPERTY() TObjectPtr<USkeletalMesh> HumanMesh;
     UPROPERTY() TObjectPtr<UAnimSequence> IdleAnimation;
+    UPROPERTY() TObjectPtr<UAnimSequence> WalkAnimation;
     UPROPERTY() TObjectPtr<UAnimSequence> RunAnimation;
     UPROPERTY() TObjectPtr<UAnimSequence> JumpAnimation;
-    UPROPERTY() TObjectPtr<UMaterialInterface> HeroMaterial;
-    UPROPERTY() TObjectPtr<UMaterialInterface> MaleMaterial;
-    UPROPERTY() TObjectPtr<UMaterialInterface> FemaleMaterial;
     EPose Pose = EPose::None;
+    float VisualScale = 1.f;
+    float WalkCycleSpeed = 0.f;
+    float RunCycleSpeed = 0.f;
     bool bConfigured = false;
 };

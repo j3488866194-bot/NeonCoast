@@ -1,0 +1,28 @@
+续接状态：已完成 2026-10-22 这一轮写实升级、打包和验收并保存。本文件保留后续接续信息。
+
+工程 D:\NeonCoastUE，分支 ue5-migration，UE 5.8.4。
+源码、资产、下载文件均保存在本机；无需重新安装 UE、SDK 或 Blender，也无需重复下载已校验素材。
+最终发行包结果统一见 docs/UE_VERIFICATION.md；只有对应当前 EXE 及全部 Pak/IoStore 哈希的报告，才可作为本轮验收依据。
+
+已实现与已有证据：
+1. Poly Haven 4 套公共环境模型、6 组 2K PBR，54 源文件校验；15 个导入模型，城市使用其中 9 种。
+2. Renderpeople Eric/Carla 扫描人物（专有免费许可，非 CC0），主角与 64 名行人加载；8 段重定向动画、原地 root 锁定、3 级 LOD。
+3. 实际 Claude Opus 5.5 high 完成六轮：方案、材质、城市/光照、首次复查、恢复复查、目标标记收尾。回执 docs/UE_REALISM_OPUS_RECEIPTS.json。两次复查的静态目测与假设不冒充最终包验收。
+4. build_realism_materials.py 默认 build() 现使用生产版 GroundV3/WallV3，16 个实例指向对应生产父材质。V3 世界空间法线、水平地面固定朝上基底及 WorldXY 投影已进入常规 Prepare/Package；不再默认恢复 v1。
+5. 单独修正法线后，海边长条仍偏棕。因此进一步只将无碰撞、厚度不超过 4 cm 的长条地面视觉覆盖层沿较长轴拆成不超过 20 m 的段，保持覆盖范围、高度、世界坐标贴图和原碰撞地面。
+6. 最新原生正常光照诊断帧中，步道为浅米色铺地、草带为绿色，人物和建筑阴影正常保留。证据 artifacts/realism/diagnostics.json，run 263b759a8c2b46459a599f5c306426db，退出 0；fullres 图 SHA256 4fb30303fbe0cf146639e9ce99c357d7486e97e4651fcb2551f2544a2cbbadf9。此诊断不代表最终发行包测试已完成。
+
+本轮最终状态（2026-10-22 11:01 后完成验收）：
+1. Windows 独立包已重新构建：95 项玩法、22 项警方检查全部通过，0 失败；普通窗口 WM_CLOSE 退出码 0。
+2. 独立 DX12 渲染 720 帧及最终截图已检查；1600×900、High、60 FPS 上限，出生点短时平均 60.00 FPS。不是全城驾驶或长时间性能承诺。
+3. 当前实际 EXE SHA256：e4bf2dd86ef770d63916c833a64fecd056cc4a9675d84ecedd5e266c17c9cd41；报告通过当前 EXE 和全部 Pak/IoStore 哈希一致性校验，完整记录见 docs/UE_VERIFICATION.md。
+4. 地面 V3/分段、贴地琥珀标记、扫描角色与公共模型已进入该包。射击有过一次偶发检查失败，旧包复跑通过；已增加端点容错并统一夹具视角，最终命中及遮挡检查通过，原失败根因未证实。
+5. 无关 AndroidFileServer 自动配置已从源码移除；Renderpeople 原始/可编辑资源继续保持忽略，未推送或公开发布。
+6. 后续从当前 ue5-migration 代码继续，不需重复本轮导入。下一步可针对角色服装/交互动画、城市细节和完整驾驶路线做扩展与验收。
+
+历史证据说明：
+暂停前已成功生成首个写实包并完成一次独立 DX12 捕获，但其旧运行编号、EXE 哈希和 59.05 FPS 静止样本不能用于含 V3/地面分段的最终包。
+artifacts/realism/preview.png 是首次 Opus 复查的历史输入；preview-xy.png 是 Sidewalk-only V2 中途诊断。sidewalk_xy_diagnostic / restore_sidewalk_v1 仅为历史诊断入口，不能作为当前发行构建配置，也不要删除已被 root 的旧材质节点。
+
+用户偏好仍有效：MCP/命令行优先，视觉使用真实 Opus 5.5。
+启动入口 D:\NeonCoastUE\启动游戏.cmd；具体发行验收状态查看 docs/UE_VERIFICATION.md。

@@ -54,7 +54,12 @@ bool ANCValidationRunner::SetUpCombat(APlayerController* PC)
 void ANCValidationRunner::AimAtTarget(APlayerController* PC)
 {
     if(IsValid(Target) && IsValid(Hero) && PC)
-        PC->SetControlRotation((Target->GetActorLocation()-Hero->Camera->GetComponentLocation()).Rotation());
+    {
+        // Aim using the same player-camera view that FireShot reads.
+        FVector ViewLocation; FRotator ViewRotation;
+        PC->GetPlayerViewPoint(ViewLocation,ViewRotation);
+        PC->SetControlRotation((Target->GetActorLocation()-ViewLocation).Rotation());
+    }
 }
 bool ANCValidationRunner::SetUpMuzzleWall(APlayerController* PC)
 {
@@ -266,6 +271,12 @@ void ANCValidationRunner::Tick(float Dt)
         if(PhaseClock<1.5f) break;
         Check(Hero->IsAiming(),TEXT("aim input enters shoulder aim state"));
         AmmoBefore=Hero->GetAmmo(); TargetHealthBefore=Target->GetHealth();
+        {
+            FVector ViewLocation; FRotator ViewRotation;
+            PC->GetPlayerViewPoint(ViewLocation,ViewRotation);
+            const float AimError=FMath::PointDistToLine(Target->GetActorLocation(),ViewRotation.Vector(),ViewLocation);
+            UE_LOG(LogTemp,Display,TEXT("NC_METRIC combatAimErrorCm=%.3f targetHealthBefore=%.1f"),AimError,TargetHealthBefore);
+        }
         Hero->BeginFire(); Hero->EndFire();
         Advance(7);
         break;

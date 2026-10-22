@@ -1,0 +1,131 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "role": "visual lead, read-only resume review",
+  "date": "2026-10-22",
+  "inputs": [
+    "artifacts/realism/preview.png (1600x900 UE render, v1 box projection, HUD 15:34 DAY)",
+    "artifacts/realism/preview-xy.png (1600x900 UE render, Sidewalk material only switched to direct WorldXY with normal.Z corrected, HUD 15:33 DAY)",
+    "Unreal/ArtSource/PublicAssets/concrete_pavement/textures/concrete_pavement_diff_2k.jpg",
+    "docs/UE_REALISM_ART_DIRECTION.json",
+    "docs/UE_REALISM_VISUAL_REVIEW.json"
+  ],
+  "method": "Visual judgement of the two stills and the source texture only. Pixel values are eyeballed estimates, not measurements. No code, UE or CLI was run.",
+  "constraints_given": "Codex's read-only audit verified the texture binding, Wrap sampling, TileCm 180 and tint 1.7384, a valid source graph, and no missing-texture fallback. This review takes those as given and does not reopen them.",
+
+  "answers": {
+    "is_xy_materially_better": "No. In the left strip (x 0-700, y 280-600) the two captures look the same: the same dark, saturated brown, no paver joints, no aggregate speckle. The only differences in that region are NPC positions and shadows. As a technique, direct WorldXY is still the right choice for flat ground (it is what the art direction specifies), so keep it. It did not change this defect.",
+    "is_dark_pavement_a_blocker": "Not a blocker for a useful more-realistic prototype. Gameplay readability is fine, and the rest of the frame (scans, asphalt, facades, trees, lamps, light) carries the realism step. It is the top visual defect, though. The strip covers roughly 15% of the frame and reads as wet mud or dark tarmac, not pale coastal pavers. It blocks sign-off of the P2 'textured PBR ground' item. It does not block continued prototype use.",
+    "reduce_dash_thickness_now": "Yes. The change is cheap, independent of the pavement issue, and the defect is plainly visible in both captures. Target below."
+  },
+
+  "visible_findings": [
+    {
+      "id": "V1",
+      "finding": "The left strip renders darker than the sunlit asphalt beside it.",
+      "evidence": "The sunlit asphalt next to the white edge line (around x 450-650, y 450-600) reads mid grey, about sRGB 115-130. The strip just left of the edge line (around x 100-400, y 420-600) reads about sRGB 50-70 R, 38-50 G, 28-40 B. The strip is in direct sun: civilians cast hard, sun-direction shadows on it (preview-xy x 200-330, y 400-420).",
+      "why_it_matters": "The art direction sets the Promenade albedo to [0.42, 0.33, 0.27] (Sidewalk 0.32) against asphalt 0.10. Correctly bound and tinted, the strip should be about 3x brighter than the asphalt in sun. The brightness order on screen is inverted."
+    },
+    {
+      "id": "V2",
+      "finding": "The strip's hue is more saturated and redder than the source texture.",
+      "evidence": "The source diffuse is a low-saturation warm grey (pavers roughly sRGB 115-125 / 108-115 / 98-105, R-B about 15-20). The rendered strip is chocolate brown with R-B of about 25-30 on a much lower value, so it is visibly more chromatic than the source.",
+      "why_it_matters": "A scalar tint of 1.7384 on a correctly bound texture brightens it and keeps its hue. A strip that is both darker and browner points to an extra colour multiply or a different material on that slab, not to a texture-sampling problem."
+    },
+    {
+      "id": "V3",
+      "finding": "No paver joints or aggregate are visible anywhere on the strip, even in the nearest area.",
+      "evidence": "The source has clear dark grout lines on a running-bond grid of about 3 pavers per tile width and 6 rows per tile height. Nothing like that grid shows in the bottom-left foreground (x 0-250, y 450-620) in either capture.",
+      "why_it_matters": "Part of this is expected at any brightness (see H3). At sRGB 40-70, though, the texture's roughly ±10-15% albedo variation becomes only a few code values, so the darkness flattens the surface in its own right."
+    },
+    {
+      "id": "V4",
+      "finding": "The right-hand sidewalk is a light warm grey, unlike the left strip.",
+      "evidence": "The sunlit right sidewalk (around x 1250-1600, y 330-410) reads about sRGB 165-180 / 155-170 / 140-155, which is the expected relationship to the asphalt. The minimap draws the left strip as a separate reddish-brown band (minimap x 133-163) between the road and the sand.",
+      "why_it_matters": "This suggests the left strip may not be the same palette or material instance as the right sidewalk. Hypothesis only; see H1."
+    },
+    {
+      "id": "V5",
+      "finding": "The objective dashes still read as thick cream boards.",
+      "evidence": "preview-xy: near dashes at x 250-415, y 757-860 and x 410-548, y 648-718 show a distinct lit side face several pixels tall under a pale cream top of about sRGB 245-255 / 225-235 / 130-150. In the same frame the road's double yellow line (x 900-1150, y 300-540) is a deeper amber, so the dashes look like a different, chalkier object, not paint.",
+      "why_it_matters": "The raised-plank look is the dashes' last obvious toy-like cue now that the bloom is gone."
+    }
+  ],
+
+  "technical_hypotheses": [
+    {
+      "id": "H1",
+      "rank": 1,
+      "hypothesis": "The left strip is drawn with a different palette or material instance (likely the art direction's 'Promenade' entry, or a legacy coral/brown slab material) than the 'Sidewalk' instance that was audited and switched to WorldXY.",
+      "supporting_evidence": "V1, V2, V4. The Sidewalk-only WorldXY change made no visible difference on this strip, while the right sidewalk looks plausibly correct.",
+      "confidence": "medium. This is not established; the audit may already have checked the slab-to-palette mapping."
+    },
+    {
+      "id": "H2",
+      "rank": 2,
+      "hypothesis": "The material is the right one, but a palette base colour is multiplied in on top of the tint (for example texture x 1.7384 x [0.42, 0.33, 0.27], or the anti-tiling term applied on an already-darkened value). That would give an effective albedo of roughly 0.09-0.14 with a warmer hue.",
+      "supporting_evidence": "V2 (hue pushed warm and saturated) together with V1 (luminance near or below the asphalt's).",
+      "confidence": "medium-low"
+    },
+    {
+      "id": "H3",
+      "rank": 3,
+      "hypothesis": "Even when the strip is correct, the grout will be faint at this camera. At TileCm 180 the source joints are about 5 px of 2048, roughly 0.4-0.5 cm in the world. From this camera that is under 1 screen pixel beyond about 4-5 m, and at grazing angles mip filtering averages it away. Paver-to-paver tone differences and the normal map would carry the pattern more than the grout line.",
+      "supporting_evidence": "Source texture geometry, plus the near-camera distances implied by the civilians' scale.",
+      "confidence": "high that joints will be subtle; this is not a defect in itself"
+    },
+    {
+      "id": "ruled_out_per_audit",
+      "items": ["missing-texture fallback", "Clamp instead of Wrap sampling", "wrong TileCm", "wrong tint scalar", "invalid source graph"]
+    }
+  ],
+
+  "appearance_target_left_strip": {
+    "sunlit_value": "Clearly lighter than the sunlit asphalt and slightly darker than the dry sand. Near the camera (x 0-400, y 420-600) about sRGB 185-205 R, 170-190 G, 155-175 B.",
+    "shaded_value": "About sRGB 95-120 in building or character shadow.",
+    "hue": "Warm grey-beige with low saturation: R-B about 25-40 at those values and no red-brown cast. It should look like the source jpg brightened and slightly warmed, not recoloured.",
+    "detail": "Within about 8 m of the camera (bottom-left third of the strip), the paver rhythm should be readable as faint darker joint lines or tonal steps between adjacent pavers, with aggregate speckle visible in the closest 3-4 m. Beyond about 10 m a near-uniform tone is acceptable.",
+    "relationship_check": "In one frame: sand > strip > asphalt in sunlit brightness, and the white edge line stays the brightest ground element."
+  },
+
+  "smallest_next_test": {
+    "name": "Material identity probe on the left strip",
+    "steps": [
+      "1. Temporarily set the BaseColor tint of the edited Sidewalk material instance to pure magenta (1, 0, 1), changing no other parameter, and re-shoot the same 1600x900 camera at 15:33-15:34.",
+      "2a. If the left strip turns magenta: the binding is confirmed and H1 is falsified. Restore the tint, then take one more capture with that instance's palette base colour forced to white (1, 1, 1), tint 1.7384 and anti-tiling off. A strip that comes out light grey-beige confirms H2, and the fix is to drop the extra palette colour multiply for textured sets.",
+      "2b. If the left strip does not turn magenta: H1 is confirmed. Find the palette or material that slab actually uses (likely Promenade), and apply the same WorldXY setup and the tint = target mean / texture mean rule to that entry only."
+    ],
+    "cost": "One or two captures, one parameter changed at a time, reverted afterwards. No geometry, collision, coordinate or asset change.",
+    "pass_criterion": "The strip meets appearance_target_left_strip on the same camera."
+  },
+
+  "objective_dash_decision": {
+    "decision": "Reduce now.",
+    "target_visual_thickness_cm": 1.5,
+    "allowed_range_cm": "1.0-2.0. Keep the top face at least about 0.5 cm above the asphalt surface so it does not z-fight.",
+    "keep_unchanged": "Dash length, width, spacing, placement, emissive restraint (ring 0.7), roughness 0.6, and any collision or trigger volumes. This is a visual-only Z scale.",
+    "target_hue": {
+      "base_colour_linear": [0.85, 0.45, 0.06],
+      "approx_srgb_hex": "#EDB445",
+      "hsv": "hue about 40 deg, saturation about 0.7",
+      "emissive_colour": "Same hue as the base colour, at the existing restrained intensity.",
+      "rationale": "This returns the dashes to the original amber instead of cream. It sits slightly more orange and more saturated than the LineYellow road paint ([0.60, 0.40, 0.06], hue about 45 deg) so the objective path stays distinct from the centre line."
+    },
+    "acceptance": "In the same camera, the near dashes show no separately readable side face, read as painted or decal-like markings, and stay clearly distinguishable from the double yellow centre line."
+  },
+
+  "prioritization": [
+    { "p": 1, "item": "Left strip identity probe and brightness/hue fix (smallest_next_test)", "blocking": "P2 ground sign-off only" },
+    { "p": 2, "item": "Dash thickness 1.5 cm and amber hue", "blocking": "none; can run in parallel with p1" },
+    { "p": 3, "item": "Only after p1 meets the target: if joints are still unreadable in the near 8 m, raise the strip's normal strength moderately before changing TileCm. Do not enlarge the pavers beyond real-world size just to expose the grout.", "blocking": "none" }
+  ],
+
+  "out_of_scope": ["HUD and minimap", "city layout", "lighting and grade", "characters", "facades", "new assets"],
+
+  "not_verifiable_from_these_stills": [
+    "Which palette or material instance the left strip slab actually uses",
+    "Exact sRGB and luminance values (eyeballed only; tools/measure-ue-render.py can confirm)",
+    "The current dash thickness in centimetres",
+    "Whether the joint pattern shimmers or aliases in motion once the strip is brightened"
+  ]
+}

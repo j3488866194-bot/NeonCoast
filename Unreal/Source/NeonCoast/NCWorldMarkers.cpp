@@ -12,7 +12,8 @@
 namespace
 {
     // Palette: warm amber objective, aqua garage, mint clinic, violet race, brushed gold tokens.
-    const FLinearColor ObjectiveColor(1.f, .52f, .12f);
+    // Objective amber sits slightly more orange and saturated than the LineYellow centre line.
+    const FLinearColor ObjectiveColor(.85f, .45f, .06f);
     const FLinearColor ServiceColors[] = { FLinearColor(.12f, .78f, .86f), FLinearColor(.32f, .94f, .58f), FLinearColor(.6f, .32f, .98f) };
     const FLinearColor GoldColor(1.f, .7f, .24f);
     const FLinearColor GoldInsetColor(.82f, .46f, .1f);
@@ -22,9 +23,10 @@ namespace
     constexpr float ServiceRadius = 300.f;
     constexpr float ServiceShowDistance = 15000.f;
     constexpr float TokenShowDistance = 10000.f;
-    // Thin slabs float a few centimetres above the marker point to avoid z-fighting with the road.
-    constexpr float RingLift = 6.f;
-    constexpr float RingThickness = 4.5f;
+    // Marker points sit 12 cm above the road top, so the centred cube dash is lowered to read as paint:
+    // centre 1.75 cm, bottom 1.0 cm, top 2.5 cm above the road - clear of z-fighting, no visible side face.
+    constexpr float RingLift = -10.25f;
+    constexpr float RingThickness = 1.5f;
 }
 
 ANCWorldMarkers::ANCWorldMarkers()
@@ -104,7 +106,8 @@ void ANCWorldMarkers::BuildRing(USceneComponent* Pivot, const FString& Prefix, i
     {
         const FString Name = FString::Printf(TEXT("%s_Seg%d"), *Prefix, Index);
         UStaticMeshComponent* Segment = NCPrimitives::Part(this, Pivot, *Name, TEXT("Cube"), FVector::ZeroVector, FVector::OneVector, Color);
-        Finish(Segment, Emissive, 0.f, .4f);
+        // Road-paint roughness so the dashes read as markings, not light bars.
+        Finish(Segment, Emissive, 0.f, .6f);
         OutSegments.Add(Segment);
     }
     LayoutRing(OutSegments, Radius, Width);
@@ -121,7 +124,7 @@ void ANCWorldMarkers::BeginPlay()
     // Objective: dashed amber ring plus a small crossed chevron pointing down, slowly turning.
     ObjectiveRadius = Gameplay->IsRaceActive() ? RaceRadius : ObjectiveRadiusDefault;
     ObjectivePivot = MakePivot(TEXT("ObjectivePivot"), Gameplay->GetObjectiveLocation());
-    BuildRing(ObjectivePivot, TEXT("Objective"), 24, ObjectiveRadius, ObjectiveWidth, ObjectiveColor, 1.6f, ObjectiveSegments);
+    BuildRing(ObjectivePivot, TEXT("Objective"), 24, ObjectiveRadius, ObjectiveWidth, ObjectiveColor, .7f, ObjectiveSegments);
     for (int32 Index = 0; Index < 4; ++Index)
     {
         const float Side = (Index % 2) ? 1.f : -1.f;
@@ -130,7 +133,7 @@ void ANCWorldMarkers::BeginPlay()
         UStaticMeshComponent* Bar = NCPrimitives::Part(this, ObjectivePivot, *FString::Printf(TEXT("ObjectiveChevron%d"), Index),
             TEXT("Cube"), Offset, FVector(.6f, .09f, .09f), ObjectiveColor);
         Bar->SetRelativeRotation(FRotator(45.f * Side, bCross ? 90.f : 0.f, 0.f));
-        Finish(Bar, 2.f, 0.f, .35f);
+        Finish(Bar, 1.f, 0.f, .35f);
     }
     MakeSpinner(TEXT("ObjectiveSpinner"), ObjectivePivot, 10.f);
 
@@ -141,7 +144,7 @@ void ANCWorldMarkers::BeginPlay()
     {
         USceneComponent* Pivot = MakePivot(FString::Printf(TEXT("%sPivot"), ServiceNames[Index]), ServiceLocations[Index]);
         TArray<TObjectPtr<UStaticMeshComponent>> Segments;
-        BuildRing(Pivot, ServiceNames[Index], 14, ServiceRadius, 22.f, ServiceColors[Index], 1.2f, Segments);
+        BuildRing(Pivot, ServiceNames[Index], 14, ServiceRadius, 22.f, ServiceColors[Index], .6f, Segments);
         ServicePivots.Add(Pivot);
         ServiceShown.Add(true);
     }
@@ -154,11 +157,12 @@ void ANCWorldMarkers::BeginPlay()
         UStaticMeshComponent* Coin = NCPrimitives::Part(this, Pivot, *FString::Printf(TEXT("TokenCoin%d"), Index),
             TEXT("Cylinder"), FVector::ZeroVector, FVector(.8f, .8f, .1f), GoldColor);
         Coin->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
-        Finish(Coin, .35f, 1.f, .22f);
+        // Gold reads through sun specular; only a trace of emission keeps it findable in shade.
+        Finish(Coin, .1f, 1.f, .22f);
         UStaticMeshComponent* Inset = NCPrimitives::Part(this, Pivot, *FString::Printf(TEXT("TokenInset%d"), Index),
             TEXT("Cylinder"), FVector::ZeroVector, FVector(.5f, .5f, .14f), GoldInsetColor);
         Inset->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
-        Finish(Inset, .5f, 1.f, .35f);
+        Finish(Inset, .15f, 1.f, .35f);
         TokenPivots.Add(Pivot);
         TokenSpinners.Add(MakeSpinner(FString::Printf(TEXT("TokenSpinner%d"), Index), Pivot, 90.f));
         TokenShown.Add(true);

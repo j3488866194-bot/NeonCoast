@@ -23,3 +23,13 @@ Unreal/Content/Python/__pycache__/
 .venv-mcp/
 tools/__pycache__/
 
+# Licensed scan characters are downloaded locally, never redistributed as raw assets.
+Unreal/Content/RealisticCharacters/
+Unreal/ArtSource/Renderpeople/
+
+# Public originals and derived GLBs are reproducible caches; retain manifests.
+Unreal/ArtSource/PublicAssets/*/
+!Unreal/ArtSource/PublicAssets/Prepared/
+Unreal/ArtSource/PublicAssets/Prepared/*
+!Unreal/ArtSource/PublicAssets/Prepared/prepare_report.json
+

@@ -264,8 +264,12 @@ void ANCHero::FireShot()
     // An obstruction behind the shoulder cannot turn a shot back through the hero.
     if(FVector::DotProduct(AimPoint-Muzzle,ViewDirection)<10.f)
         AimPoint=Muzzle+ShotDirection*100.f;
+    // The camera hit is on a surface. Trace slightly through it so rounding
+    // from the different muzzle origin cannot stop the ray just outside it.
+    // The muzzle query still returns the nearest obstruction, including cover.
+    const FVector TraceEnd=CameraHit.bBlockingHit ? AimPoint+(AimPoint-Muzzle).GetSafeNormal()*2.f : AimPoint;
     FHitResult Hit;
-    const bool bHit=GetWorld()->LineTraceSingleByChannel(Hit,Muzzle,AimPoint,ECC_Visibility,Params);
+    const bool bHit=GetWorld()->LineTraceSingleByChannel(Hit,Muzzle,TraceEnd,ECC_Visibility,Params);
     if(bHit && Hit.GetActor())
         UGameplayStatics::ApplyPointDamage(Hit.GetActor(),35.f,(AimPoint-Muzzle).GetSafeNormal(),Hit,Controller,this,UDamageType::StaticClass());
     const FVector End=bHit?Hit.ImpactPoint:AimPoint;
@@ -274,7 +278,8 @@ void ANCHero::FireShot()
     for(TActorIterator<ANCPedestrian> It(GetWorld());It;++It)
         if(FVector::DistSquared(It->GetActorLocation(),Muzzle)<FMath::Square(2500.f)) It->PanicFrom(Muzzle,5.f);
     if(auto* Gameplay=GetWorld()->GetSubsystem<UNCGameplaySubsystem>()) Gameplay->ReportCrime(.45f,GetActorLocation());
-    UE_LOG(LogTemp,Verbose,TEXT("NEON_COAST_SHOT ammo=%d actor=%s"),Ammo,*GetNameSafe(Hit.GetActor()));
+    UE_LOG(LogTemp,Verbose,TEXT("NEON_COAST_SHOT ammo=%d cameraActor=%s actor=%s impact=%s muzzle=%s"),
+        Ammo,*GetNameSafe(CameraHit.GetActor()),*GetNameSafe(Hit.GetActor()),*AimPoint.ToString(),*Muzzle.ToString());
 }
 float ANCHero::TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser)
 {

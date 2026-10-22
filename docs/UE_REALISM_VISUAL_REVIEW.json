@@ -1,0 +1,47 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "role": "visual lead, read-only review",
+  "date": "2026-10-22",
+  "inputs": ["artifacts/realism/preview.png (1600x900, DX12, frame 780, HUD 15:34 DAY)", "docs/images/ue/before-realism.png (HUD 18:07 DUSK)", "docs/UE_REALISM_ART_DIRECTION.json"],
+  "verdict": "pass",
+  "verdict_scope": "Pass for this more-realistic prototype pass, judged from one still against the before image. This is not a claim of AAA parity, and it does not replace the separate source/asset integration tests.",
+  "summary": "A clear step up from the before image. The chibi cast is replaced by adult human scans, the asphalt is textured, the right street front uses real window modules, the primitive palms and lamps are replaced by real meshes, the afternoon sun lights the scene, and the marker bloom is gone. No defect in the frame blocks the pass. Two non-blocking follow-ups are listed below.",
+  "checks": {
+    "human_proportions": "Pass. The hero (Eric scan) has adult proportions, a normal head-to-body ratio and plausible height next to the car. The civilians on the promenade and the two dark-clad figures on the right sidewalk (likely Carla) read as adults at a consistent scale.",
+    "feet_contact": "Pass. The hero's shoes rest on the asphalt with a connected shadow (around x 680-780, y 780-830). The promenade civilians' shadows meet their feet (around x 320-370, y 375-385). No visible floating or sinking.",
+    "facing": "Pass for the hero: back to the camera, facing down the road, consistent with the third-person camera. Whether civilians face their direction of travel cannot be verified from a still.",
+    "texture_detail": "Pass. The asphalt shows aggregate, crack networks and tonal variation, and the road lines follow the surface. The car paint and the brick and window frames on the right facades show real material response.",
+    "facade_scale": "Pass. The near right buildings (x 1080-1540, y 0-200) show repeated brick window modules with frames and reveals at a believable floor pitch above a glazed ground floor and a canopy. The mid-distance pastel strip (x 830-1010) is still simple massing, which is acceptable as P2.",
+    "trees": "Pass. The island_tree_02 meshes have twisted trunks rooted on the sand and believable canopy density and height. No ellipsoid fronds remain.",
+    "lamps": "Pass. The street_lamp_01 heads stand at about 5 m relative to nearby civilians, slightly under the 600-650 cm direction but plausible. The poles are grounded and evenly spaced down the promenade.",
+    "exposure": "Pass. The sky, the hero's white shirt and the sand are unclipped, and shaded asphalt on the right is lifted but not crushed. The sunlit asphalt looks lighter than the art direction's sRGB 75-95 target. This is not measured here (no tools run); confirm with tools/measure-ue-render.py if strict conformance matters.",
+    "emission": "Pass. The objective dashes no longer bloom. The pink neon tube (around x 1060) stays saturated without a halo."
+  },
+  "non_blocking_followups": [
+    {
+      "item": "Promenade surface reads too dark and flat",
+      "evidence": "The sunlit promenade strip between the road edge and the beach (left third, roughly x 0-700, y 280-600) shows near-uniform dark brown with no discernible paver joints. Civilians cast hard shadows on it, so it is in sun, not in shade. The art direction sets the Promenade albedo to [0.42, 0.33, 0.27] using concrete_pavement.",
+      "small_correction": "Check that the Promenade palette binds concrete_pavement and that its AlbedoTint is target mean / measured texture mean. If the tint or texture binding is off, correct only that palette entry. No geometry or collision change."
+    },
+    {
+      "item": "Objective dashes read as thick cream boards",
+      "evidence": "The dashes near the camera (for example x 365-510, y 675-750 and x 220-380, y 800-900) show a visible side face and a pale cream top, so they look like raised planks rather than marking paint.",
+      "small_correction": "Optional: reduce the dash visual thickness to about 1-2 cm and move the base colour back toward the original amber hue. Keep the current emissive restraint and readability."
+    }
+  ],
+  "observations_not_defects": [
+    "Most male civilians share the same Eric outfit. The two at about x 330 and x 365 walk side by side in a near-identical stride pose. This is expected with two scans. Whether their animation phases are synchronised cannot be confirmed from one frame."
+  ],
+  "not_verifiable_from_single_still": [
+    "Foot sliding, walk/jog clip selection and animation phase offsets",
+    "Whether civilians face their direction of travel",
+    "LOD transitions, popping and cull distances",
+    "Tree/lamp collision alignment with the hidden physics proxies (the measured placement socket is accepted as stated)",
+    "Night look: lamp glow, neon night multipliers and the time-of-day progression",
+    "GPU frame time against the 16.7 ms budget",
+    "Exact sRGB values of asphalt and plaster (judged visually only)",
+    "Facade module coverage outside this camera (P2 strip and cross-street returns)",
+    "Imported material-slot integrity (left to Codex integration tests)"
+  ]
+}

@@ -14,6 +14,13 @@ def main():
     runpy.run_path(str(audio_source), run_name="neon_coast_audio_builder")["build"]()
     character_source = Path(__file__).with_name("build_character_assets.py")
     runpy.run_path(str(character_source), run_name="neon_coast_character_builder")["build"]()
+    # Import and validate the public geometry before the Opus PBR material pass.
+    # These builders reuse matching assets, so Prepare remains repeatable.
+    for name in ("import_public_models", "finalize_public_materials", "build_realism_materials",
+                 "build_realistic_characters", "build_scan_materials",
+                 "finalize_realistic_characters"):
+        builder = Path(__file__).with_name(name + ".py")
+        runpy.run_path(str(builder), run_name="neon_coast_" + name)["build"]()
     level_path = "/Game/Maps/NeonCoast"
     editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     if unreal.EditorAssetLibrary.does_asset_exist(level_path):

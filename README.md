@@ -1,25 +1,23 @@
 # NEON COAST · 霓虹海岸
 
-## UE 5.8.4 游戏原型
+## v0.3.0-dev · UE 5.8.4 写实升级
 
 当前新工程位于 `D:\NeonCoastUE\Unreal\NeonCoast.uproject`，Git 分支为 `ue5-migration`。
 原 Godot 工程保留在 `D:\百度招新作业`；下方旧版截图、功能列表与 213 项测试记录只适用于 Godot 版。
 
-Windows 独立版已可启动游玩，普通 DX12 游戏正常关闭、退出码 0，未出现引擎错误。最终独立包通过 **117 项真实世界检查：95 项玩法、22 项警方集成，0 项失败**；另有 2 项存档自动化测试通过。1600 × 900 独立 DX12 截图、720 帧渲染检查和正常退出均已验证。声音混音仍待听觉验收。
+本轮接入 **Renderpeople Eric/Carla 真实比例扫描人物、Epic Idle/Walk/Jog/Jump 动画、Poly Haven 建筑立面/海岸树/长椅/路灯，以及 16 套 PBR 材质**。主角和 64 名行人使用扫描人物，步行与跑步采用独立动画并按实际移动速度调整节奏。当前独立包已通过 117 项玩法/警方检查，正常窗口关闭退出码为 0；本机 1600×900、High、60 帧上限下，出生点短时采样约 60 FPS。测试范围、截图和同包文件哈希见[本轮验证记录](docs/UE_VERIFICATION.md)。
 
 双击[启动游戏.cmd](启动游戏.cmd)，或直接运行[Windows 独立版](builds/NeonCoast-UE-Windows/Windows/NeonCoast.exe)。启动脚本优先使用已打包程序，无需打开 UE 编辑器。复制给其他电脑时需保留完整 `Windows` 文件夹；运行结果、发行文件哈希与验收范围见[验证记录](docs/UE_VERIFICATION.md)。
 
-当前 UE 版包括 Chaos 四轮车辆物理、行驶中跳车、64 名行人、8 辆基础交通车、警车追捕、瞄准射击与换弹、三阶段原创快递任务、8 门街道赛、8 枚探索代币、现金/维修/医疗、进度存档、昼夜、地图与原创音频。城市、HUD 与材质视觉工作继续使用 **Claude Opus 5.5 high**；[第二轮回执](docs/UE_OPUS_SECOND_PASS_RECEIPT.json)记录其写入文件后触发会话额度限制，代码整合和运行验证由 Codex 完成。
+当前 UE 版保留 Chaos 四轮车辆物理、行驶中跳车、8 辆基础交通车、警车追捕、瞄准射击与换弹、三阶段原创快递任务、8 门街道赛、8 枚探索代币、现金/维修/医疗、进度存档、昼夜、地图与原创音频。
 
-这是原创的海滨开放世界原型。车辆使用 Epic 官方模板的骨骼与物理资产；角色采用 Kenney CC0 人类模型，包含三种服装和 Idle/Run/Jump 动画。**Opus 5.5 high** 实际查看素材预览与游戏截图，确定人物选择、178 cm 身高和材质参数，又完成世界标记、金币与黄昏可读性改进，见 [人物方案](docs/UE_CHARACTER_ART_DIRECTION.json)、[人物回执](docs/UE_CHARACTER_OPUS_RECEIPT.json)、[标记回执](docs/UE_MARKERS_OPUS_RECEIPT.json)与[光照回执](docs/UE_DUSK_OPUS_RECEIPT.json)。当前规模、动画、剧情和 AI 不等于 GTA VI。实际参考范围见 [官方资讯研究记录](docs/GTA_REFERENCE_NOTES.md)。
+视觉部分继续由 **Claude Opus 5.5 high** 实际参与：本轮完成写实方案、PBR/扫描人物材质和城市视觉代码，并查看真实渲染进行审阅；Codex 负责素材核验、导入、动画重定向、技术修正和运行验证。见[写实升级与重建说明](docs/UE_REALISM.md)、[本轮 Opus 回执](docs/UE_REALISM_OPUS_RECEIPTS.json)。这是原创海滨开放世界原型，规模、动画、剧情与 AI 不等于 GTA VI；实际参考范围见[官方资讯研究记录](docs/GTA_REFERENCE_NOTES.md)。
 
-以下主图来自已打包的独立 DX12 游戏；驾驶与地图图来自同版编辑器交互验证：
+当前独立游戏画面；对应版本、截图哈希与采样条件见[验证记录](docs/UE_VERIFICATION.md)：
 
-![Windows 独立版实际游戏画面](docs/images/ue/packaged-game.png)
-![编辑器交互验证：驾驶视角](docs/images/ue/driving.png)
-![编辑器交互验证：城市地图](docs/images/ue/map.png)
+![v0.3.0-dev Windows 独立版实际游戏画面](docs/images/ue/packaged-game.png)
 
-默认入口 `启动游戏.cmd` / `打开工程.cmd` 已切换到 UE，`启动UE5.cmd` / `打开UE5工程.cmd` 仍可使用。也可以从工程目录执行：
+默认入口 `启动游戏.cmd` / `打开工程.cmd` 指向 UE，`启动UE5.cmd` / `打开UE5工程.cmd` 仍可使用。素材准备完成后，也可以从工程目录执行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Play
@@ -27,13 +25,15 @@ powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Play
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Test
 # 编辑器与本机原生 MCP
 powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Editor
+# 生成 Windows 独立包
+powershell -ExecutionPolicy Bypass -File tools/unreal.ps1 -Action Package
 ```
 
-首次开发构建需要先用 `python tools/generate-audio.py` 生成原创音频源文件；本机已生成。`Test` 包括玩法、警方集成和存档自动化测试。开发模式仍需要本机 UE；EXE 与 Pak/IoStore 内容文件哈希见 `artifacts/ue-release-verification.json`。
+**源码克隆需要重新获取并生成本地素材。** `tools/fetch-realism-assets.py` 获取公共环境素材，`tools/fetch-scan-characters.py` 获取并校验官方人物 ZIP；随后用 Blender CLI 准备模型、复制本机 Epic 动画依赖并测量贴图，再运行 UE Prepare/Package。完整命令与依赖见[UE_REALISM.md](docs/UE_REALISM.md)。扫描原始文件和生成的人物资产不随源码公开分发。首次基础构建还需 `python tools/generate-audio.py`；开发模式需要本机 UE，独立包运行不需要 Python 或编辑器。
 
 WASD 移动/驾驶，F 上下车或高速跳车，E 交互，鼠标右键瞄准、左键射击、R 换弹；M 地图，F1 帮助，Esc 暂停。完整键鼠/手柄操作、任务和存档说明见 [UE 工作流](docs/UE_MIGRATION.md)，实测证据与未验收项目见 [UE 验证记录](docs/UE_VERIFICATION.md)。
 
-引擎与 Epic 车辆模板保留各自许可，不受项目 MIT 许可覆盖；Kenney 人物素材采用 CC0。见 [素材与许可说明](THIRD_PARTY_NOTICES.md)、[Epic 车辆来源](docs/licenses/EPIC_VEHICLES_PROVENANCE.md)、[人物来源](docs/licenses/KENNEY_CHARACTERS.md)和[原创音频来源](docs/AUDIO_PROVENANCE.md)。
+公共环境资产使用 CC0；Renderpeople 扫描人物采用专有免费许可，**不是 CC0/MIT**；Epic 引擎、车辆与人体动画保留各自许可。见[统一素材声明](THIRD_PARTY_NOTICES.md)、[公共环境来源](docs/licenses/PUBLIC_ASSETS.md)、[扫描人物与 Epic 动画来源](docs/licenses/RENDERPEOPLE.md)、[车辆来源](docs/licenses/EPIC_VEHICLES_PROVENANCE.md)及[原创音频来源](docs/AUDIO_PROVENANCE.md)。
 
 ## 旧 Godot 版本记录
 

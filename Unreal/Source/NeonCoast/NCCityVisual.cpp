@@ -8,6 +8,7 @@
 #include "Components/PostProcessComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/World.h"
 #include "Materials/MaterialInterface.h"
@@ -27,36 +28,37 @@ namespace NCPal
 
 	struct FDef { FLinearColor Color; float Roughness; float Metallic; float Emissive; };
 
-	// Linear-space colours; pastel deco stucco, warm sand, deep teal sea, restrained neon.
+	// Linear-space colours at real painted-render / paving albedos. Palettes with an MI_CoastPBR set only use
+	// these when that set is missing; nothing non-emissive is above 0.72.
 	static const FDef Defs[Count] =
 	{
-		{ FLinearColor(0.045f, 0.047f, 0.052f), 0.85f, 0.f, 0.f },   // Asphalt
-		{ FLinearColor(0.42f, 0.40f, 0.37f), 0.80f, 0.f, 0.f },      // Sidewalk
-		{ FLinearColor(0.62f, 0.42f, 0.34f), 0.75f, 0.f, 0.f },      // Promenade (coral pavers)
-		{ FLinearColor(0.10f, 0.20f, 0.06f), 0.90f, 0.f, 0.f },      // Lawn
-		{ FLinearColor(0.78f, 0.64f, 0.44f), 0.92f, 0.f, 0.f },      // Sand
-		{ FLinearColor(0.46f, 0.37f, 0.25f), 0.45f, 0.f, 0.f },      // WetSand
-		{ FLinearColor(0.010f, 0.075f, 0.095f), 0.04f, 0.1f, 0.f },  // Water
+		{ FLinearColor(0.100f, 0.100f, 0.105f), 0.80f, 0.f, 0.f },   // Asphalt (worn, sun-bleached)
+		{ FLinearColor(0.33f, 0.32f, 0.30f), 0.80f, 0.f, 0.f },      // Sidewalk
+		{ FLinearColor(0.42f, 0.33f, 0.27f), 0.75f, 0.f, 0.f },      // Promenade (warm pavers)
+		{ FLinearColor(0.09f, 0.13f, 0.05f), 0.90f, 0.f, 0.f },      // Lawn
+		{ FLinearColor(0.52f, 0.43f, 0.31f), 0.92f, 0.f, 0.f },      // Sand
+		{ FLinearColor(0.25f, 0.20f, 0.14f), 0.45f, 0.f, 0.f },      // WetSand
+		{ FLinearColor(0.010f, 0.075f, 0.095f), 0.08f, 0.1f, 0.f },  // Water
 		{ FLinearColor(0.85f, 0.88f, 0.86f), 0.60f, 0.f, 0.15f },    // Foam
-		{ FLinearColor(0.80f, 0.80f, 0.76f), 0.70f, 0.f, 0.f },      // LineWhite
-		{ FLinearColor(0.85f, 0.55f, 0.08f), 0.70f, 0.f, 0.f },      // LineYellow
-		{ FLinearColor(0.88f, 0.86f, 0.80f), 0.65f, 0.f, 0.f },      // DecoWhite
-		{ FLinearColor(0.45f, 0.78f, 0.64f), 0.65f, 0.f, 0.f },      // DecoMint
-		{ FLinearColor(0.92f, 0.52f, 0.55f), 0.65f, 0.f, 0.f },      // DecoPink
-		{ FLinearColor(0.95f, 0.82f, 0.42f), 0.65f, 0.f, 0.f },      // DecoLemon
-		{ FLinearColor(0.62f, 0.55f, 0.85f), 0.65f, 0.f, 0.f },      // DecoLavender
-		{ FLinearColor(0.96f, 0.64f, 0.45f), 0.65f, 0.f, 0.f },      // DecoPeach
-		{ FLinearColor(0.40f, 0.74f, 0.82f), 0.65f, 0.f, 0.f },      // DecoAqua
-		{ FLinearColor(0.70f, 0.64f, 0.55f), 0.80f, 0.f, 0.f },      // Stucco
-		{ FLinearColor(0.55f, 0.22f, 0.12f), 0.75f, 0.f, 0.f },      // Terracotta
-		{ FLinearColor(0.020f, 0.040f, 0.050f), 0.08f, 0.2f, 0.f },  // GlassDark
+		{ FLinearColor(0.62f, 0.62f, 0.60f), 0.55f, 0.f, 0.f },      // LineWhite (thermoplastic)
+		{ FLinearColor(0.60f, 0.40f, 0.06f), 0.55f, 0.f, 0.f },      // LineYellow
+		{ FLinearColor(0.66f, 0.64f, 0.60f), 0.75f, 0.f, 0.f },      // DecoWhite
+		{ FLinearColor(0.50f, 0.60f, 0.53f), 0.75f, 0.f, 0.f },      // DecoMint
+		{ FLinearColor(0.68f, 0.52f, 0.50f), 0.75f, 0.f, 0.f },      // DecoPink
+		{ FLinearColor(0.70f, 0.63f, 0.45f), 0.75f, 0.f, 0.f },      // DecoLemon
+		{ FLinearColor(0.55f, 0.52f, 0.62f), 0.75f, 0.f, 0.f },      // DecoLavender
+		{ FLinearColor(0.70f, 0.55f, 0.44f), 0.75f, 0.f, 0.f },      // DecoPeach
+		{ FLinearColor(0.46f, 0.58f, 0.60f), 0.75f, 0.f, 0.f },      // DecoAqua
+		{ FLinearColor(0.56f, 0.50f, 0.42f), 0.80f, 0.f, 0.f },      // Stucco
+		{ FLinearColor(0.34f, 0.20f, 0.14f), 0.75f, 0.f, 0.f },      // Terracotta
+		{ FLinearColor(0.030f, 0.030f, 0.030f), 0.05f, 0.f, 0.f },   // GlassDark (reflections give the depth)
 		{ FLinearColor(0.30f, 0.18f, 0.08f), 0.15f, 0.f, 0.6f },     // GlassWarm (lit interiors)
 		{ FLinearColor(0.05f, 0.11f, 0.14f), 0.06f, 0.5f, 0.f },     // GlassTower
-		{ FLinearColor(0.32f, 0.31f, 0.30f), 0.85f, 0.f, 0.f },      // Concrete
+		{ FLinearColor(0.28f, 0.27f, 0.26f), 0.85f, 0.f, 0.f },      // Concrete
 		{ FLinearColor(0.30f, 0.22f, 0.15f), 0.90f, 0.f, 0.f },      // Trunk
 		{ FLinearColor(0.08f, 0.22f, 0.05f), 0.70f, 0.f, 0.f },      // Frond
 		{ FLinearColor(0.05f, 0.14f, 0.04f), 0.70f, 0.f, 0.f },      // FrondDark
-		{ FLinearColor(0.55f, 0.56f, 0.58f), 0.35f, 1.f, 0.f },      // Metal
+		{ FLinearColor(0.18f, 0.18f, 0.18f), 0.50f, 0.f, 0.f },      // Metal (painted street metal)
 		{ FLinearColor(0.36f, 0.22f, 0.12f), 0.70f, 0.f, 0.f },      // Wood
 		{ FLinearColor(1.00f, 0.18f, 0.45f), 0.40f, 0.f, 6.f },      // NeonPink
 		{ FLinearColor(0.15f, 0.95f, 0.80f), 0.40f, 0.f, 5.f },      // NeonAqua
@@ -106,6 +108,36 @@ namespace NCPal
 
 	static float Smooth01(float X) { X = FMath::Clamp(X, 0.f, 1.f); return X * X * (3.f - 2.f * X); }
 
+	/** Palettes with a real PBR set at /Game/Materials/Realism/MI_CoastPBR_<Name>. */
+	struct FRealismSet { int32 Palette; const TCHAR* Name; };
+	static const FRealismSet RealismSets[] =
+	{
+		{ Asphalt, TEXT("Asphalt") }, { Sidewalk, TEXT("Sidewalk") }, { Concrete, TEXT("Concrete") }, { Promenade, TEXT("Promenade") },
+		{ Lawn, TEXT("Lawn") }, { Sand, TEXT("Sand") }, { WetSand, TEXT("WetSand") },
+		{ DecoWhite, TEXT("DecoWhite") }, { DecoMint, TEXT("DecoMint") }, { DecoPink, TEXT("DecoPink") }, { DecoLemon, TEXT("DecoLemon") },
+		{ DecoLavender, TEXT("DecoLavender") }, { DecoPeach, TEXT("DecoPeach") }, { DecoAqua, TEXT("DecoAqua") },
+		{ Stucco, TEXT("Stucco") }, { Terracotta, TEXT("Terracotta") },
+	};
+
+	/** Blackbody sun temperature by elevation: 5600K high, 5000K at 30deg, 4000K at 12deg, 3200K at 4deg and below. */
+	static float SunKelvin(float ElevDeg)
+	{
+		static const float Elev[] = { 4.f, 12.f, 30.f, 45.f };
+		static const float Kelvin[] = { 3200.f, 4000.f, 5000.f, 5600.f };
+		if (ElevDeg <= Elev[0])
+		{
+			return Kelvin[0];
+		}
+		for (int32 i = 1; i < 4; ++i)
+		{
+			if (ElevDeg <= Elev[i])
+			{
+				return FMath::Lerp(Kelvin[i - 1], Kelvin[i], (ElevDeg - Elev[i - 1]) / (Elev[i] - Elev[i - 1]));
+			}
+		}
+		return Kelvin[3];
+	}
+
 	// Original names only; sRGB sign colours tuned to read against dark enamel boards.
 	static const TCHAR* HotelNames[] = { TEXT("AZURINE"), TEXT("MARISOL"), TEXT("SOLANA"), TEXT("BELLAMAR"), TEXT("LUNA"), TEXT("PALOMA"),
 		TEXT("TIDEWELL"), TEXT("SEAGLASS"), TEXT("ORCHIDEE"), TEXT("CASA ROSA"), TEXT("VERANO"), TEXT("LAGUNA") };
@@ -127,6 +159,21 @@ namespace
 		const uint32 H = static_cast<uint32>(Seed) * 92821u ^ static_cast<uint32>(FMath::RoundToInt(P.X)) * 73856093u ^ static_cast<uint32>(FMath::RoundToInt(P.Y)) * 19349663u;
 		return FRandomStream(static_cast<int32>(H & 0x7fffffff));
 	}
+
+	/** Asset names under /Game/PublicAssets/Models, in ENCModel order. */
+	const TCHAR* const NCModelNames[] = { TEXT("SM_FacadeWindowPanel"), TEXT("SM_FacadeDoorPanel"), TEXT("SM_FacadeWall"), TEXT("SM_FacadeCornice"),
+		TEXT("SM_FacadeCrown"), TEXT("SM_FacadePier"), TEXT("SM_CoastalTree"), TEXT("SM_Bench"), TEXT("SM_StreetLamp") };
+	static_assert(UE_ARRAY_COUNT(NCModelNames) == static_cast<int32>(ENCModel::Count), "One asset per ENCModel");
+
+	/** Per-mesh draw distance (cm): facades stay up across the city and the near strip, furniture drops out early. */
+	constexpr float NCModelCullDistance[] = { 60000.f, 60000.f, 60000.f, 60000.f, 60000.f, 60000.f, 30000.f, 8000.f, 15000.f };
+	static_assert(UE_ARRAY_COUNT(NCModelCullDistance) == static_cast<int32>(ENCModel::Count), "One cull distance per ENCModel");
+
+	/** Yaw that turns a model's front (local -Y) towards Dir. */
+	float NCYawToFace(const FVector2D& Dir)
+	{
+		return static_cast<float>(FMath::RadiansToDegrees(FMath::Atan2(Dir.X, -Dir.Y)));
+	}
 }
 
 ANCCityVisual::ANCCityVisual()
@@ -136,14 +183,19 @@ ANCCityVisual::ANCCityVisual()
 	SceneRoot->Mobility = EComponentMobility::Static;
 	SetRootComponent(SceneRoot);
 
-	// Early-morning golden hour: low sun rising over the Atlantic from the south-east,
-	// lighting the street-facing deco facades on the west side of the coast road.
+	// Warm afternoon: at the 15:30 start the sun is ~49deg up in the west-south-west (UpdateLighting snaps it at BeginPlay).
+	// Light colour stays white; warmth comes from the blackbody temperature.
 	Sun = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("Sun"));
 	Sun->SetupAttachment(SceneRoot);
 	Sun->Mobility = EComponentMobility::Movable;
-	Sun->SetRelativeRotation(FRotator(-11.f, 158.f, 0.f));
-	Sun->Intensity = 9.f;
-	Sun->LightColor = FColor(255, 222, 186);
+	Sun->SetRelativeRotation(FRotator(-49.f, 33.f, 0.f));
+	Sun->Intensity = 10.f;
+	Sun->LightColor = FColor::White;
+	Sun->bUseTemperature = true;
+	Sun->Temperature = 5600.f;
+	Sun->LightSourceAngle = 0.53f;
+	Sun->ContactShadowLength = 0.02f;
+	Sun->CastShadows = true;
 	Sun->DynamicShadowDistanceMovableLight = 24000.f;
 	Sun->SetAtmosphereSunLight(true);
 
@@ -154,17 +206,22 @@ ANCCityVisual::ANCCityVisual()
 	SkyLight->SourceType = ESkyLightSourceType::SLS_CapturedScene;
 	SkyLight->Intensity = 1.f;
 
+	// Humid coastal Mie haze; default Rayleigh and aerial perspective scale.
 	Atmosphere = CreateDefaultSubobject<USkyAtmosphereComponent>(TEXT("Atmosphere"));
 	Atmosphere->SetupAttachment(SceneRoot);
+	Atmosphere->SetMieScatteringScale(0.0055f);
+	Atmosphere->SetMieAnisotropy(0.8f);
 
-	// Light coastal haze only; aerial perspective from the atmosphere does most of the depth work.
+	// Light coastal haze starting past the street; volumetric fog stays off for the 8 GB laptop budget.
 	HeightFog = CreateDefaultSubobject<UExponentialHeightFogComponent>(TEXT("HeightFog"));
 	HeightFog->SetupAttachment(SceneRoot);
 	HeightFog->SetRelativeLocation(FVector(0.f, 0.f, -100.f));
-	HeightFog->FogDensity = 0.0035f;
-	HeightFog->FogHeightFalloff = 0.12f;
-	HeightFog->StartDistance = 3000.f;
-	HeightFog->FogMaxOpacity = 0.8f;
+	HeightFog->FogDensity = 0.006f;
+	HeightFog->FogHeightFalloff = 0.2f;
+	HeightFog->StartDistance = 6000.f;
+	HeightFog->FogMaxOpacity = 0.7f;
+	HeightFog->DirectionalInscatteringExponent = 8.f;
+	HeightFog->DirectionalInscatteringStartDistance = 8000.f;
 
 	// Grade: fixed exposure in this project (auto exposure is off), so UpdateLighting drives exposure bias,
 	// white balance and bloom with the clock to keep night readable rather than black.
@@ -179,8 +236,11 @@ ANCCityVisual::ANCCityVisual()
 	PP.bOverride_ColorContrast = true;
 	PP.bOverride_BloomIntensity = true;
 	PP.bOverride_VignetteIntensity = true;
-	PP.ColorContrast = FVector4(1.04f, 1.04f, 1.04f, 1.f);
-	PP.VignetteIntensity = 0.32f;
+	PP.bOverride_FilmGrainIntensity = true;
+	// Neutral grade: realism comes from geometry, PBR and light, not a filter.
+	PP.ColorContrast = FVector4(1.f, 1.f, 1.f, 1.f);
+	PP.VignetteIntensity = 0.2f;
+	PP.FilmGrainIntensity = 0.f;
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 0.25f;
@@ -193,6 +253,17 @@ ANCCityVisual::ANCCityVisual()
 	ShapeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Sphere.Sphere"))));
 	ShapeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cone.Cone"))));
 	ShapeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Plane.Plane"))));
+
+	for (const TCHAR* Name : NCModelNames)
+	{
+		ModelMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(FString::Printf(TEXT("/Game/PublicAssets/Models/%s.%s"), Name, Name))));
+	}
+	RealismMaterials.SetNum(NCPal::Count);
+	for (const NCPal::FRealismSet& Set : NCPal::RealismSets)
+	{
+		const FString Name = FString::Printf(TEXT("MI_CoastPBR_%s"), Set.Name);
+		RealismMaterials[Set.Palette] = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(FString::Printf(TEXT("/Game/Materials/Realism/%s.%s"), *Name, *Name)));
+	}
 }
 
 void ANCCityVisual::BeginPlay()
@@ -241,6 +312,40 @@ void ANCCityVisual::LoadAssets()
 	{
 		LoadedMeshes.Add(nullptr);
 	}
+
+	// Imported models: keep the mesh only if its measured bounds are usable; a missing model keeps the primitive path.
+	const int32 NumModels = static_cast<int32>(ENCModel::Count);
+	LoadedModels.Reset();
+	ModelBounds.Reset();
+	PendingModels.Reset();
+	PendingModels.SetNum(NumModels);
+	int32 Found = 0;
+	for (int32 i = 0; i < NumModels; ++i)
+	{
+		UStaticMesh* Mesh = ModelMeshes.IsValidIndex(i) && !ModelMeshes[i].IsNull() ? ModelMeshes[i].LoadSynchronous() : nullptr;
+		const FBox Box = Mesh ? Mesh->GetBoundingBox() : FBox(ForceInit);
+		if (Mesh && !(Box.IsValid && Box.GetSize().X > 1.f && Box.GetSize().Z > 1.f))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NCCityVisual: %s has unusable bounds %s; using primitives."), NCModelNames[i], *Box.ToString());
+			Mesh = nullptr;
+		}
+		LoadedModels.Add(Mesh);
+		ModelBounds.Add(Box);
+		Found += Mesh ? 1 : 0;
+	}
+	UE_LOG(LogTemp, Log, TEXT("NCCityVisual: %d/%d public models loaded."), Found, NumModels);
+}
+
+bool ANCCityVisual::HasModel(ENCModel Model) const
+{
+	const int32 Index = static_cast<int32>(Model);
+	return LoadedModels.IsValidIndex(Index) && LoadedModels[Index] != nullptr;
+}
+
+FVector3f ANCCityVisual::ModelSize(ENCModel Model) const
+{
+	const int32 Index = static_cast<int32>(Model);
+	return ModelBounds.IsValidIndex(Index) ? FVector3f(ModelBounds[Index].GetSize()) : FVector3f::ZeroVector;
 }
 
 void ANCCityVisual::BuildPalettes()
@@ -252,8 +357,19 @@ void ANCCityVisual::BuildPalettes()
 	}
 
 	PaletteMaterials.Reset();
+	int32 PBRSets = 0;
 	for (int32 i = 0; i < NCPal::Count; ++i)
 	{
+		// Real PBR set first. It already carries its tint, maps, physical tiling, normal strength and roughness,
+		// so no parameter is touched; untextured palettes keep M_Coast below.
+		UMaterialInterface* PBR = RealismMaterials.IsValidIndex(i) && !RealismMaterials[i].IsNull() ? RealismMaterials[i].LoadSynchronous() : nullptr;
+		if (PBR)
+		{
+			PaletteMaterials.Add(UMaterialInstanceDynamic::Create(PBR, this));
+			++PBRSets;
+			continue;
+		}
+
 		const NCPal::FDef& Def = NCPal::Defs[i];
 		UMaterialInstanceDynamic* MID = Base ? UMaterialInstanceDynamic::Create(Base, this) : nullptr;
 		if (MID)
@@ -270,6 +386,7 @@ void ANCCityVisual::BuildPalettes()
 		}
 		PaletteMaterials.Add(MID);
 	}
+	UE_LOG(LogTemp, Log, TEXT("NCCityVisual: %d/%d palettes use MI_CoastPBR sets."), PBRSets, static_cast<int32>(UE_ARRAY_COUNT(NCPal::RealismSets)));
 }
 
 bool ANCCityVisual::IsNearRoadCenter(float V, float Margin) const
@@ -285,9 +402,30 @@ bool ANCCityVisual::IsNearRoadCenter(float V, float Margin) const
 }
 
 void ANCCityVisual::Add(ENCShape Shape, int32 Palette, const FVector& Center, const FVector& Size, const FRotator& Rot,
-	bool bCollide, bool bShadow, bool bProp)
+	bool bCollide, bool bShadow, bool bProp, bool bHideVisual)
 {
-	const FBatchKey Key{ Shape, Palette, bCollide, bShadow, bProp };
+	const FBatchKey Key{ Shape, Palette, bCollide, bShadow, bProp, bHideVisual };
+	// Keep thin visual ground overlays in bounded pieces. Physics stays on the
+	// original floor; every piece retains the same height and world-projected UVs.
+	const bool bGroundOverlay = Palette == NCPal::Sidewalk || Palette == NCPal::Promenade ||
+		Palette == NCPal::Lawn || Palette == NCPal::Asphalt;
+	if (Shape == ENCShape::Cube && !bCollide && bGroundOverlay && Size.Z <= 4.f &&
+		FMath::Max(Size.X, Size.Y) > 2000.f)
+	{
+		const bool bAlongX = Size.X >= Size.Y;
+		const double Length = bAlongX ? Size.X : Size.Y;
+		const int32 Count = FMath::CeilToInt(Length / 2000.0);
+		const double Span = Length / Count;
+		FVector PieceSize = Size;
+		(bAlongX ? PieceSize.X : PieceSize.Y) = Span;
+		for (int32 Index = 0; Index < Count; ++Index)
+		{
+			FVector Offset = FVector::ZeroVector;
+			(bAlongX ? Offset.X : Offset.Y) = -Length * 0.5 + Span * (Index + 0.5);
+			PendingInstances.FindOrAdd(Key).Add(FTransform(Rot, Center + Rot.RotateVector(Offset), PieceSize / 100.f));
+		}
+		return;
+	}
 	FVector Scale = Size / 100.f;
 	if (Shape == ENCShape::Plane)
 	{
@@ -303,6 +441,226 @@ void ANCCityVisual::AddLotBox(const FLot& Lot, int32 Palette, float Along, float
 	const bool bFacesX = FMath::Abs(Lot.Normal.X) > 0.5f;
 	const FVector Size = bFacesX ? FVector(SizeOut, SizeAlong, SizeZ) : FVector(SizeAlong, SizeOut, SizeZ);
 	Add(Shape, Palette, FVector(P.X, P.Y, CenterZ), Size, FRotator::ZeroRotator, bCollide, bShadow, false);
+}
+
+FVector ANCCityVisual::ModelPivot(ENCModel Model) const
+{
+	const int32 Index = static_cast<int32>(Model);
+	if (const UStaticMeshSocket* Socket = LoadedModels[Index]->FindSocket(TEXT("NCPlacementBase")))
+	{
+		return Socket->RelativeLocation;
+	}
+	// Models without a measured foot socket use the import's base origin.
+	const FBox& Box = ModelBounds[Index];
+	const FVector Center = Box.GetCenter();
+	const FVector Extent = Box.GetExtent();
+	FVector Pivot(0.f, 0.f, Box.Min.Z);
+	if (FMath::Abs(Center.X) > Extent.X * 0.5f || FMath::Abs(Center.Y) > Extent.Y * 0.5f)
+	{
+		Pivot.X = Center.X;
+		Pivot.Y = Center.Y;
+	}
+	return Pivot;
+}
+
+void ANCCityVisual::AddModel(ENCModel Model, const FVector& Base, const FQuat& Rot, float Scale)
+{
+	const int32 Index = static_cast<int32>(Model);
+	if (!HasModel(Model) || !PendingModels.IsValidIndex(Index)) return;
+	const FVector Pivot = ModelPivot(Model);
+	const FVector S(Scale);
+	PendingModels[Index].Add(FTransform(Rot, Base - Rot.RotateVector(Pivot * S), S));
+}
+
+bool ANCCityVisual::AddFacadeModule(ENCModel Model, const FLot& Wall, float Along, float Z0, float CellW, float CellH)
+{
+	const int32 Index = static_cast<int32>(Model);
+	if (!HasModel(Model) || !PendingModels.IsValidIndex(Index))
+	{
+		return false;
+	}
+	const FBox& Box = ModelBounds[Index];
+	const FVector3f Size = ModelSize(Model);
+	const float Sx = CellW / Size.X;
+	const float Sz = CellH / Size.Z;
+	// Modules keep their proportions: at most ~12% anisotropy and 25% overall scale, otherwise the caller falls back.
+	const float Aspect = Sx / Sz;
+	if (Aspect < 0.88f || Aspect > 1.14f || Sx < 0.75f || Sx > 1.3f)
+	{
+		return false;
+	}
+	const FVector Scale(Sx, 0.5f * (Sx + Sz), Sz);
+	const FQuat Rot(FRotator(0.f, NCYawToFace(Wall.Normal), 0.f));
+	// Back face (local +Y) bottom centre sits 1cm proud of the wall, so the colliding massing never covers a recessed window.
+	const FVector Anchor(Box.GetCenter().X, Box.Max.Y, Box.Min.Z);
+	const FVector2D P = Wall.Facade + Wall.Tangent * Along + Wall.Normal * 1.f;
+	PendingModels[Index].Add(FTransform(Rot, FVector(P.X, P.Y, Z0) - Rot.RotateVector(Anchor * Scale), Scale));
+	return true;
+}
+
+float ANCCityVisual::TileFacadeRow(ENCModel Model, const FLot& Wall, float Mid, float Span, float Z, float ScaleHint, float MaxH, bool bHang)
+{
+	if (!HasModel(Model) || Span < 1.f)
+	{
+		return 0.f;
+	}
+	const FVector3f M = ModelSize(Model);
+	const int32 Count = FMath::Max(1, FMath::RoundToInt(Span / (M.X * ScaleHint)));
+	const float Cell = Span / Count;
+	const float S = Cell / M.X;
+	const float H = M.Z * S;
+	if (S < 0.75f || S > 1.3f || H > MaxH)
+	{
+		return 0.f;
+	}
+	const float Z0 = bHang ? Z - H : Z;
+	for (int32 i = 0; i < Count; ++i)
+	{
+		AddFacadeModule(Model, Wall, Mid - Span * 0.5f + Cell * (i + 0.5f), Z0, Cell, H);
+	}
+	return H;
+}
+
+bool ANCCityVisual::CladWall(const FLot& Wall, float RunMin, float RunMax, float UpperZ, int32 Floors, float Pitch, int32 BandPalette,
+	EGround Ground, bool bFinGap, bool bCrown)
+{
+	if (!HasModel(ENCModel::FacadeWindow) || (Floors < 1 && Ground == EGround::None))
+	{
+		return false;
+	}
+	const FVector3f M = ModelSize(ENCModel::FacadeWindow);
+	const float RunW = RunMax - RunMin;
+	if (M.X < 50.f || M.Z < 50.f || Pitch / M.Z < 0.85f)
+	{
+		return false;
+	}
+
+	// One scale per wall: module height fitted to the floor pitch within +-8% (never taller than the pitch),
+	// width within +-6% of that; whatever the columns leave over stays plaster, framed by piers when they fit.
+	const float Sz = FMath::Min(FMath::Clamp(Pitch / M.Z, 0.92f, 1.08f), Pitch / M.Z);
+	const int32 Cols = FMath::FloorToInt(RunW / (M.X * FMath::Max(0.92f, Sz * 0.94f)));
+	if (Cols < 1)
+	{
+		return false;
+	}
+	const float Sx = FMath::Min3(RunW / (Cols * M.X), Sz * 1.06f, 1.08f);
+	const float Cell = M.X * Sx;
+	const float RowH = M.Z * Sz;
+	const float Gap = Pitch - RowH;
+	const float Proud = M.Y * 0.5f * (Sx + Sz) + 1.f;
+	const float Mid = 0.5f * (RunMin + RunMax);
+	const float Used = Cell * Cols;
+
+	float PierW = 0.f;
+	if (HasModel(ENCModel::FacadePier))
+	{
+		const float W = ModelSize(ENCModel::FacadePier).X * Sx;
+		if (W > 1.f && (RunW - Used) * 0.5f >= W - 1.f)
+		{
+			PierW = W;
+		}
+	}
+	const float Span = Used + 2.f * PierW;
+
+	auto PlaceRow = [&](float Z0, bool bGround)
+	{
+		for (int32 c = 0; c < Cols; ++c)
+		{
+			const float A = Mid - Used * 0.5f + Cell * (c + 0.5f);
+			ENCModel Model = ENCModel::FacadeWindow;
+			if (bGround && Ground == EGround::Door && c == Cols / 2)
+			{
+				Model = ENCModel::FacadeDoor;
+			}
+			else if (!bGround && bFinGap && FMath::Abs(A) < Cell * 0.5f)
+			{
+				Model = ENCModel::FacadeWall;	// the blade-sign fin covers this column
+			}
+			if (Model == ENCModel::FacadeWindow || !AddFacadeModule(Model, Wall, A, Z0, Cell, RowH))
+			{
+				AddFacadeModule(ENCModel::FacadeWindow, Wall, A, Z0, Cell, RowH);
+			}
+		}
+		if (PierW > 0.f)
+		{
+			for (float S : { -1.f, 1.f })
+			{
+				AddFacadeModule(ENCModel::FacadePier, Wall, Mid + S * (Used + PierW) * 0.5f, Z0, PierW, RowH);
+			}
+		}
+	};
+
+	if (Ground != EGround::None)
+	{
+		PlaceRow(0.f, true);
+		// First-floor string course: cornice modules hung under UpperZ, plain plaster for any remaining spandrel.
+		const float Top = UpperZ - TileFacadeRow(ENCModel::FacadeCornice, Wall, Mid, Span, UpperZ, Sx, UpperZ - RowH, true);
+		if (Top - RowH > 2.f)
+		{
+			AddLotBox(Wall, BandPalette, Mid, Proud * 0.5f, 0.5f * (RowH + Top), Span, Proud, Top - RowH);
+		}
+	}
+	for (int32 f = 0; f < Floors; ++f)
+	{
+		const float Z0 = UpperZ + f * Pitch;
+		if (Gap > 2.f)
+		{
+			// Floor-line band where the scaled module is shorter than the pitch.
+			AddLotBox(Wall, BandPalette, Mid, Proud * 0.5f, Z0 + Gap * 0.5f, Span, Proud, Gap);
+		}
+		PlaceRow(Z0 + Gap, false);
+	}
+	if (bCrown)
+	{
+		TileFacadeRow(ENCModel::FacadeCrown, Wall, Mid, Span, UpperZ + Floors * Pitch, Sx, 160.f, false);
+	}
+	return true;
+}
+
+void ANCCityVisual::CladEndWall(const FLot& Lot, float StreetMargin, float UpperZ, int32 Floors, float Pitch, int32 BandPalette)
+{
+	if (LotCladEnd == 0)
+	{
+		return;
+	}
+	// The massing's end face as its own wall; Along = +Depth/2 is the street corner.
+	FLot End;
+	End.Normal = Lot.Tangent * static_cast<float>(LotCladEnd);
+	End.Tangent = Lot.Normal;
+	End.Facade = Lot.Facade + Lot.Tangent * (LotCladEnd * Lot.Width * 0.5f) - Lot.Normal * (Lot.Depth * 0.5f);
+	End.Width = Lot.Depth;
+	End.Depth = Lot.Width;
+	End.Height = Lot.Height;
+	CladWall(End, -Lot.Depth * 0.5f + 40.f, Lot.Depth * 0.5f - StreetMargin, UpperZ, Floors, Pitch, BandPalette, EGround::Windows, false, true);
+}
+
+void ANCCityVisual::AddTree(const FVector& Base, const FRotator& Lean, float PalmHeight, float MaxCanopyRadius)
+{
+	const FVector3f Size = ModelSize(ENCModel::CoastalTree);
+	// Own stream keyed on the spot, so the layout stream is untouched.
+	FRandomStream Var = NCSignStream(FVector2D(Base.X, Base.Y), Seed + 4271);
+	const float Yaw = Var.FRandRange(0.f, 360.f);
+	// Modest natural street trees: 540-700cm from the old palm heights, +-8% per tree, uniform scale only (<= 2x source).
+	const float Target = FMath::Clamp(PalmHeight * 0.62f, 540.f, 700.f) * Var.FRandRange(0.92f, 1.08f);
+	float S = FMath::Clamp(FMath::Max(Target, 420.f) / Size.Z, 0.25f, 2.f);
+	const FQuat TreeRotation = FQuat(Lean) * FQuat(FRotator(0.f, Yaw, 0.f));
+	if (MaxCanopyRadius > 0.f)
+	{
+		// Measure from the actual trunk foot, including rotation/lean. Clearance
+		// takes precedence over target height so crowns cannot grow back into walls.
+		const FBox& Box = ModelBounds[static_cast<int32>(ENCModel::CoastalTree)];
+		const FVector Pivot = ModelPivot(ENCModel::CoastalTree);
+		float Radius = 1.f;
+		for (int32 Corner = 0; Corner < 8; ++Corner)
+		{
+			const FVector Point(Corner & 1 ? Box.Max.X : Box.Min.X,
+				Corner & 2 ? Box.Max.Y : Box.Min.Y, Corner & 4 ? Box.Max.Z : Box.Min.Z);
+			Radius = FMath::Max(Radius, static_cast<float>(TreeRotation.RotateVector(Point - Pivot).Size2D()));
+		}
+		S = FMath::Min(S, MaxCanopyRadius / Radius);
+	}
+	// Same lean as the hidden collision trunk, so the visible trunk follows it.
+	AddModel(ENCModel::CoastalTree, Base, TreeRotation, S);
 }
 
 void ANCCityVisual::FlushBatches()
@@ -339,12 +697,46 @@ void ANCCityVisual::FlushBatches()
 		{
 			HISM->SetCullDistances(0, 20000);
 		}
+		if (Key.bHidden)
+		{
+			// Collision-only: the imported model draws in its place; collision transform is unchanged.
+			HISM->SetVisibility(false);
+			HISM->SetHiddenInGame(true);
+		}
 		HISM->RegisterComponent();
 		HISM->AddInstances(Pair.Value, false);
 		AddInstanceComponent(HISM);
 		Batches.Add(HISM);
 	}
 	PendingInstances.Reset();
+
+	// One HISM per imported mesh. Its slots and materials stay exactly as imported (no SetMaterial), visual only.
+	for (int32 i = 0; i < PendingModels.Num(); ++i)
+	{
+		UStaticMesh* Mesh = HasModel(static_cast<ENCModel>(i)) ? LoadedModels[i].Get() : nullptr;
+		if (!Mesh || PendingModels[i].Num() == 0)
+		{
+			continue;
+		}
+		UHierarchicalInstancedStaticMeshComponent* HISM = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+		HISM->SetupAttachment(SceneRoot);
+		HISM->SetMobility(EComponentMobility::Static);
+		HISM->SetStaticMesh(Mesh);
+		HISM->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+		HISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		HISM->SetGenerateOverlapEvents(false);
+		HISM->SetCanEverAffectNavigation(false);
+		HISM->SetCastShadow(true);
+		HISM->SetCullDistances(0, static_cast<int32>(NCModelCullDistance[i]));
+		HISM->RegisterComponent();
+		HISM->AddInstances(PendingModels[i], false);
+		AddInstanceComponent(HISM);
+		Batches.Add(HISM);
+	}
+	for (TArray<FTransform>& Pending : PendingModels)
+	{
+		Pending.Reset();
+	}
 }
 
 void ANCCityVisual::BuildGround()
@@ -516,6 +908,10 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 			Lot.Depth = bHotelFront ? 2.f * B - StripDepth - 900.f : StripDepth;
 
 			LotSignChance = !bBuildSigns ? 0.f : bHotelFront ? 0.85f : bDecoDistrict ? 0.13f : 0.06f;
+			// Coast blocks wear imported facade modules on the coast front and the cross-street returns; the
+			// corner lot of each return also gets its end wall, which faces the coast road.
+			bLotCladFront = bCoast && Side != 1;
+			LotCladEnd = bCoast && Side >= 2 && Pos + W >= SpanMax - 1.f ? 1 : 0;
 			const bool bDeco = bHotelFront || (bDecoDistrict && Rng.FRand() < 0.55f);
 			if (bDeco)
 			{
@@ -532,6 +928,8 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 			Pos += W;
 		}
 	}
+	bLotCladFront = false;
+	LotCladEnd = 0;
 
 	// Courtyard: towers downtown / inland, pool decks behind the coastal hotels.
 	const FVector2D Center(CX, CY);
@@ -547,8 +945,9 @@ void ANCCityVisual::BuildBlock(int32 BlockX, int32 BlockY)
 	else if (bCoast)
 	{
 		const float GapX = CX - B + StripDepth + 450.f;
-		AddPalm(FVector(GapX, CY - 700.f, 0.f), 800.f, Rng, true);
-		AddPalm(FVector(GapX, CY + 700.f, 0.f), 900.f, Rng, true);
+		// Centred in the 900cm garden gap, so the crowns stay clear of both walls.
+		AddPalm(FVector(GapX, CY - 700.f, 0.f), 800.f, Rng, true, 430.f);
+		AddPalm(FVector(GapX, CY + 700.f, 0.f), 900.f, Rng, true, 430.f);
 	}
 	else
 	{
@@ -578,8 +977,7 @@ void ANCCityVisual::BuildDecoHotel(const FLot& Lot, FRandomStream& Rng)
 		}
 	}
 
-	// Ground floor: lit lobby glazing between pilasters, a deep canopy with a neon edge.
-	AddLotBox(Lot, NCPal::GlassWarm, 0.f, 3.f, 200.f, W - 160.f, 8.f, 300.f, false, false);
+	// Ground floor: pilasters and a deep canopy with a neon edge (lobby glazing below unless the lot is clad).
 	for (float S : { -1.f, 1.f })
 	{
 		AddLotBox(Lot, Trim, S * (W * 0.5f - 40.f), 7.f, 210.f, 80.f, 14.f, 420.f, false, false);
@@ -624,14 +1022,30 @@ void ANCCityVisual::BuildDecoHotel(const FLot& Lot, FRandomStream& Rng)
 		}
 	}
 
-	// Upper floors: eyebrow ledges and punched windows.
+	// Clad lots: imported window modules (door panel in the middle at street level) between the pilasters or
+	// rounded corners, on the massing that stays as the plaster wall. Otherwise lobby glazing, eyebrow ledges
+	// and punched windows. The window draws below run either way so the layout stream never shifts.
 	const int32 Floors = FMath::Max(0, FMath::RoundToInt((H - 420.f) / 330.f));
+	const float Edge = bRounded ? 345.f : 85.f;
+	const bool bClad = bLotCladFront && CladWall(Lot, -W * 0.5f + Edge, W * 0.5f - Edge, 420.f, Floors, 330.f, Trim, EGround::Door, bFin, true);
+	if (bLotCladFront)
+	{
+		CladEndWall(Lot, bRounded ? 345.f : 40.f, 420.f, Floors, 330.f, Trim);
+	}
+	if (!bClad)
+	{
+		AddLotBox(Lot, NCPal::GlassWarm, 0.f, 3.f, 200.f, W - 160.f, 8.f, 300.f, false, false);
+	}
+
 	const int32 Cols = FMath::Max(2, FMath::FloorToInt(W / 280.f));
 	const float Step = (W - 200.f) / Cols;
 	for (int32 f = 0; f < Floors; ++f)
 	{
 		const float Z0 = 420.f + f * 330.f;
-		AddLotBox(Lot, Trim, 0.f, 28.f, Z0 + 305.f, W - 30.f, 56.f, 14.f);
+		if (!bClad)
+		{
+			AddLotBox(Lot, Trim, 0.f, 28.f, Z0 + 305.f, W - 30.f, 56.f, 14.f);
+		}
 		for (int32 c = 0; c < Cols; ++c)
 		{
 			const float A = -W * 0.5f + 100.f + Step * (c + 0.5f);
@@ -640,7 +1054,10 @@ void ANCCityVisual::BuildDecoHotel(const FLot& Lot, FRandomStream& Rng)
 				continue;
 			}
 			const int32 Glass = Rng.FRand() < 0.12f ? NCPal::GlassWarm : NCPal::GlassDark;
-			AddLotBox(Lot, Glass, A, 3.f, Z0 + 150.f, FMath::Min(170.f, Step - 70.f), 8.f, 180.f, false, false);
+			if (!bClad)
+			{
+				AddLotBox(Lot, Glass, A, 3.f, Z0 + 150.f, FMath::Min(170.f, Step - 70.f), 8.f, 180.f, false, false);
+			}
 		}
 	}
 
@@ -694,7 +1111,14 @@ void ANCCityVisual::BuildStorefront(const FLot& Lot, FRandomStream& Rng)
 	}
 	AddLotBox(Lot, Sign, 0.f, 8.f, 405.f, SignW, 12.f, 70.f, false, false);
 
+	// Clad lots: imported window modules on the upper floors from 440cm, clear of the sign band and lettering,
+	// topping out under the parapet cap. The shop front stays primitive; the window draws still run.
 	const int32 Floors = FMath::Max(0, FMath::RoundToInt((H - 420.f) / 320.f));
+	const bool bClad = bLotCladFront && CladWall(Lot, -W * 0.5f + 40.f, W * 0.5f - 40.f, 440.f, Floors, 320.f, NCPal::DecoWhite, EGround::None, false, false);
+	if (bLotCladFront)
+	{
+		CladEndWall(Lot, 40.f, 440.f, Floors, 320.f, NCPal::DecoWhite);
+	}
 	const int32 Cols = FMath::Max(2, FMath::FloorToInt(W / 300.f));
 	const float Step = (W - 160.f) / Cols;
 	for (int32 f = 0; f < Floors; ++f)
@@ -704,7 +1128,10 @@ void ANCCityVisual::BuildStorefront(const FLot& Lot, FRandomStream& Rng)
 		{
 			const float A = -W * 0.5f + 80.f + Step * (c + 0.5f);
 			const int32 Glass = Rng.FRand() < 0.1f ? NCPal::GlassWarm : NCPal::GlassDark;
-			AddLotBox(Lot, Glass, A, 3.f, Z0 + 140.f, Step - 90.f, 8.f, 170.f, false, false);
+			if (!bClad)
+			{
+				AddLotBox(Lot, Glass, A, 3.f, Z0 + 140.f, Step - 90.f, 8.f, 170.f, false, false);
+			}
 		}
 	}
 
@@ -744,9 +1171,26 @@ void ANCCityVisual::BuildTower(const FVector2D& Center, float Size, float Height
 	}
 }
 
-void ANCCityVisual::AddPalm(const FVector& Base, float Height, FRandomStream& Rng, bool bCollide)
+void ANCCityVisual::AddPalm(const FVector& Base, float Height, FRandomStream& Rng, bool bCollide, float MaxCanopyRadius)
 {
 	const FRotator Lean(Rng.FRandRange(-6.f, 6.f), 0.f, Rng.FRandRange(-6.f, 6.f));
+	if (HasModel(ENCModel::CoastalTree))
+	{
+		// Real tree on the palm's spot; the trunk cylinder survives only as hidden collision at its exact transform.
+		if (bCollide)
+		{
+			Add(ENCShape::Cylinder, NCPal::Trunk, Base + Lean.RotateVector(FVector(0.f, 0.f, Height * 0.5f)), FVector(36.f, 36.f, Height), Lean, true, false, false, true);
+		}
+		// The retired fronds' draws (spin + 7 droops) still run so the layout stream is unchanged.
+		(void)Rng.FRandRange(0.f, 360.f);
+		for (int32 k = 0; k < 7; ++k)
+		{
+			(void)Rng.FRandRange(0.f, 10.f);
+		}
+		AddTree(Base, Lean, Height, MaxCanopyRadius);
+		return;
+	}
+
 	Add(ENCShape::Cylinder, NCPal::Trunk, Base + Lean.RotateVector(FVector(0.f, 0.f, Height * 0.5f)), FVector(36.f, 36.f, Height), Lean, bCollide, true);
 	const FVector Top = Base + Lean.RotateVector(FVector(0.f, 0.f, Height));
 	Add(ENCShape::Cylinder, NCPal::Trunk, Base + FVector(0.f, 0.f, 40.f), FVector(52.f, 52.f, 80.f), FRotator::ZeroRotator, false, true, true);
@@ -765,8 +1209,28 @@ void ANCCityVisual::AddPalm(const FVector& Base, float Height, FRandomStream& Rn
 	}
 }
 
-void ANCCityVisual::AddLamp(const FVector& Base, bool bCollide)
+void ANCCityVisual::AddLamp(const FVector& Base, bool bCollide, const FVector2D& ToRoad)
 {
+	if (HasModel(ENCModel::StreetLamp))
+	{
+		// Imported lamp with its head at ~625cm; the primitive pole stays only as hidden collision where it collided.
+		if (bCollide)
+		{
+			Add(ENCShape::Cylinder, NCPal::Metal, Base + FVector(0.f, 0.f, 300.f), FVector(14.f, 14.f, 600.f), FRotator::ZeroRotator, true, false, false, true);
+		}
+		const FVector3f Size = ModelSize(ENCModel::StreetLamp);
+		const float S = FMath::Clamp(625.f / Size.Z, 0.25f, 3.f);
+		const float Yaw = ToRoad.IsNearlyZero() ? 0.f : NCYawToFace(ToRoad);
+		AddModel(ENCModel::StreetLamp, Base, FQuat(FRotator(0.f, Yaw, 0.f)), S);
+		// Night glow: a small LampGlow disc tucked under a compact post-top head. Arm-style lamps get none
+		// (no per-lamp lights either way).
+		if (0.5f * FMath::Max(Size.X, Size.Y) * S <= 45.f)
+		{
+			Add(ENCShape::Cylinder, NCPal::LampGlow, Base + FVector(0.f, 0.f, Size.Z * S * 0.88f), FVector(24.f, 24.f, 2.f), FRotator::ZeroRotator, false, false, true);
+		}
+		return;
+	}
+
 	Add(ENCShape::Cylinder, NCPal::Metal, Base + FVector(0.f, 0.f, 300.f), FVector(14.f, 14.f, 600.f), FRotator::ZeroRotator, bCollide, true, true);
 	Add(ENCShape::Cylinder, NCPal::Metal, Base + FVector(0.f, 0.f, 560.f), FVector(26.f, 26.f, 30.f), FRotator::ZeroRotator, false, true, true);
 	Add(ENCShape::Sphere, NCPal::LampGlow, Base + FVector(0.f, 0.f, 610.f), FVector(48.f), FRotator::ZeroRotator, false, false, true);
@@ -789,10 +1253,11 @@ void ANCCityVisual::BuildStreetscape()
 				{
 					continue;
 				}
-				AddPalm(FVector(C - RoadWidth * 0.5f - 550.f, Y, 0.f), Rng.FRandRange(820.f, 1080.f), Rng, true);
+				// 250cm from the facade line: crowns are kept clear of the facade modules.
+				AddPalm(FVector(C - RoadWidth * 0.5f - 550.f, Y, 0.f), Rng.FRandRange(820.f, 1080.f), Rng, true, 240.f);
 				if (FMath::Abs(Y) < 40000.f)
 				{
-					AddLamp(FVector(CoastRoadX + RoadWidth * 0.5f + 70.f, Y + 900.f, 0.f), false);
+					AddLamp(FVector(CoastRoadX + RoadWidth * 0.5f + 70.f, Y + 900.f, 0.f), false, FVector2D(-1.f, 0.f));
 				}
 			}
 			continue;
@@ -806,7 +1271,7 @@ void ANCCityVisual::BuildStreetscape()
 			}
 			for (float S : { -1.f, 1.f })
 			{
-				AddPalm(FVector(C + S * Offset, Y, 0.f), Rng.FRandRange(700.f, 980.f), Rng, true);
+				AddPalm(FVector(C + S * Offset, Y, 0.f), Rng.FRandRange(700.f, 980.f), Rng, true, 330.f);
 			}
 		}
 
@@ -819,7 +1284,7 @@ void ANCCityVisual::BuildStreetscape()
 			}
 			for (float S : { -1.f, 1.f })
 			{
-				AddLamp(FVector(X, C + S * Offset, 0.f), true);
+				AddLamp(FVector(X, C + S * Offset, 0.f), true, FVector2D(0.f, -S));
 			}
 		}
 	}
@@ -836,7 +1301,18 @@ void ANCCityVisual::BuildWaterfront()
 		AddPalm(FVector(24650.f, Y + 750.f + Rng.FRandRange(-150.f, 150.f), 0.f), Rng.FRandRange(900.f, 1250.f), Rng, true);
 	}
 
-	// Benches facing the sea between the palm rows.
+	// The measured painted_wooden_bench backrest is at local -Y; its front is +Y.
+	// Rotate -90 degrees to face the sea (+X).
+	const bool bBenchModel = HasModel(ENCModel::Bench);
+	FQuat BenchRot = FQuat::Identity;
+	float BenchScale = 1.f;
+	if (bBenchModel)
+	{
+		const FVector3f Size = ModelSize(ENCModel::Bench);
+		const float Len = FMath::Max(Size.X, Size.Y);
+		BenchRot = FQuat(FRotator(0.f, -90.f, 0.f));
+		BenchScale = Len >= 100.f && Len <= 300.f ? 1.f : 180.f / Len;	// only correct an import-unit error
+	}
 	for (float Y = -29250.f; Y <= 29250.f; Y += 1500.f)
 	{
 		if (IsNearRoadCenter(Y, 2200.f))
@@ -844,6 +1320,11 @@ void ANCCityVisual::BuildWaterfront()
 			continue;
 		}
 		const float X = 24000.f;
+		if (bBenchModel)
+		{
+			AddModel(ENCModel::Bench, FVector(X, Y, 4.f), BenchRot, BenchScale);	// on the promenade top
+			continue;
+		}
 		Add(ENCShape::Cube, NCPal::Wood, FVector(X, Y, 45.f), FVector(60.f, 180.f, 10.f), FRotator::ZeroRotator, false, true, true);
 		Add(ENCShape::Cube, NCPal::Wood, FVector(X - 30.f, Y, 82.f), FVector(8.f, 180.f, 44.f), FRotator::ZeroRotator, false, true, true);
 		for (float S : { -1.f, 1.f })
@@ -923,9 +1404,12 @@ void ANCCityVisual::BuildDistant()
 	FRandomStream Rng(Seed * 13 + 11);
 	LotSignChance = 0.f;
 
-	// The deco strip continues north and south of the playable city along the coast road.
+	// The deco strip continues north and south of the playable city along the coast road, clad like the city front
+	// (its facade modules cull with distance).
+	LotCladEnd = 0;
 	for (float Sign : { -1.f, 1.f })
 	{
+		bLotCladFront = true;
 		float Y = 25600.f;
 		while (Y < 62000.f)
 		{
@@ -940,6 +1424,7 @@ void ANCCityVisual::BuildDistant()
 			BuildDecoHotel(Lot, Rng);
 			Y += W;
 		}
+		bLotCladFront = false;
 		// A few taller condo towers behind the strip.
 		for (int32 i = 0; i < 6; ++i)
 		{
@@ -1037,58 +1522,57 @@ void ANCCityVisual::UpdateLighting(float DeltaSeconds, bool bSnap)
 	const float Night = 1.f - NCPal::Smooth01((ElevDeg + 8.f) / 14.f);
 	const float MoonW = NCPal::Smooth01((-ElevDeg - 2.f) / 8.f);
 	const float LampsOn = 1.f - NCPal::Smooth01((ElevDeg - 1.f) / 7.f);
-	const float Warm = NCPal::Smooth01(1.f - (ElevDeg - 2.f) / 22.f);
-	// Dusk band (~sun 16deg .. -6deg, roughly 18:00-19:30): the low sun puts the whole street in building shadow
-	// while the captured sky dims, so lift sky fill and exposure here only; noon and deep night are untouched.
+	// Dusk band (~sun 16deg .. -6deg, roughly 18:00-19:30): the street is in building shadow while the captured
+	// sky dims, so a small exposure lift applies here only; the afternoon and deep night are untouched.
 	const float Dusk = NCPal::Smooth01((ElevDeg + 7.f) / 6.f) * (1.f - NCPal::Smooth01((ElevDeg - 12.f) / 10.f)) * (1.f - Night);
 
 	const float SunLux = 10.f * DayW;
 	const float MoonLux = 0.9f * MoonW;
 
 	// One directional light: the sun, handing over to a cool moon once both are near zero (no visible pop).
+	// The sun stays white and warms through its blackbody temperature as it drops.
 	if (Sun)
 	{
 		const bool bSun = ElevDeg > -3.5f;
 		Sun->SetRelativeRotation((bSun ? -SunDir : -MoonDir).Rotation());
 		Sun->SetIntensity(bSun ? SunLux : MoonLux);
-		const FLinearColor Noon(1.f, 0.96f, 0.90f);
-		const FLinearColor Low(1.f, 0.68f, 0.44f);
-		Sun->SetLightColor(bSun ? FLinearColor::LerpUsingHSV(Noon, Low, Warm) : FLinearColor(0.62f, 0.74f, 1.f));
+		Sun->SetTemperature(bSun ? NCPal::SunKelvin(ElevDeg) : 6500.f);
+		Sun->SetLightColor(bSun ? FLinearColor::White : FLinearColor(0.62f, 0.74f, 1.f));
 	}
 
 	if (SkyLight)
 	{
-		// Warm-lavender fill at dusk keeps shadowed streets, cars and pedestrians readable without flattening the sunset.
-		SkyLight->SetIntensity(FMath::Lerp(1.f, 1.7f, Night) + 1.5f * Dusk);
-		const FLinearColor DayFill = FMath::Lerp(FLinearColor::White, FLinearColor(1.f, 0.88f, 0.84f), Dusk);
-		SkyLight->SetLightColor(FMath::Lerp(DayFill, FLinearColor(0.72f, 0.80f, 1.f), Night));
+		// The real-time captured sky is the daylight fill; only night gets a lift so streets stay playable.
+		SkyLight->SetIntensity(FMath::Lerp(1.f, 1.7f, Night));
+		SkyLight->SetLightColor(FMath::Lerp(FLinearColor::White, FLinearColor(0.72f, 0.80f, 1.f), Night));
 	}
 
 	if (HeightFog)
 	{
-		const FLinearColor DayFog(0.42f, 0.58f, 0.82f);
-		const FLinearColor GoldFog(0.95f, 0.58f, 0.45f);
+		// Humid blue-grey coastal haze; the low sun's warmth comes mostly from its temperature, so gold stays light.
+		const FLinearColor DayFog(0.55f, 0.66f, 0.80f);
+		const FLinearColor GoldFog(0.80f, 0.62f, 0.50f);
 		const FLinearColor NightFog(0.05f, 0.07f, 0.13f);
-		HeightFog->SetFogDensity(0.0028f + 0.0018f * Golden + 0.0006f * Night);
-		HeightFog->SetFogInscatteringColor(FMath::Lerp(FMath::Lerp(DayFog, GoldFog, Golden), NightFog, Night));
-		HeightFog->SetDirectionalInscatteringColor(FLinearColor(0.9f, 0.45f, 0.2f) * Golden);
+		HeightFog->SetFogDensity(FMath::Lerp(0.006f, 0.0034f, Night));
+		HeightFog->SetFogInscatteringColor(FMath::Lerp(FMath::Lerp(DayFog, GoldFog, 0.5f * Golden), NightFog, Night));
+		HeightFog->SetDirectionalInscatteringColor(FLinearColor(1.f, 0.82f, 0.62f) * (0.4f * DayW));
 	}
 
-	// Fixed exposure: partially compensate for the light level so night reads moody but playable.
-	// +0.4 EV at dusk is modest enough that sun-facing white deco walls stay below noon-sand brightness after the warm tint.
-	const float TargetBias = FMath::Clamp(0.85f * FMath::Log2(10.f / (SunLux + 2.6f * MoonLux + 0.45f)) + 0.4f * Dusk, 0.f, 3.4f);
+	// Fixed exposure: +0.15 EV by day (sunlit plaster ~sRGB 215-230 without clipping), partial compensation at night
+	// so it reads moody but playable, and +0.3 EV through dusk.
+	const float TargetBias = FMath::Clamp(0.85f * FMath::Log2(10.f / (SunLux + 2.6f * MoonLux + 0.45f)) + 0.15f * DayW + 0.3f * Dusk, 0.f, 3.4f);
 	AppliedExposureBias = bSnap ? TargetBias : FMath::FInterpTo(AppliedExposureBias, TargetBias, DeltaSeconds, 0.8f);
 	if (Grade)
 	{
+		// Neutral: D65 white balance by day, unit saturation, default tonemapper; bloom stays restrained.
 		FPostProcessSettings& PP = Grade->Settings;
 		PP.AutoExposureBias = AppliedExposureBias;
-		PP.WhiteTemp = 6500.f + 1100.f * Golden - 900.f * Night;
-		const float Sat = 1.f + 0.10f * Golden + 0.05f * Night;
-		PP.ColorSaturation = FVector4(Sat, Sat, Sat, 1.f);
-		PP.BloomIntensity = 0.675f + 0.15f * Golden + 0.35f * Night;
+		PP.WhiteTemp = 6500.f - 900.f * Night;
+		PP.ColorSaturation = FVector4(1.f, 1.f, 1.f, 1.f);
+		PP.BloomIntensity = FMath::Lerp(0.35f, 0.6f, Night);
 	}
 
-	// Emissive palettes: neon readable by day without blooming out after dark; lamps and interiors switch on at dusk.
+	// Emissive palettes: unlit glass tubes by day is the realistic read; neon, lamps and interiors come up after dusk.
 	for (int32 i = 0; i < PaletteMaterials.Num() && i < NCPal::Count; ++i)
 	{
 		UMaterialInstanceDynamic* MID = PaletteMaterials[i];
@@ -1100,20 +1584,20 @@ void ANCCityVisual::UpdateLighting(float DeltaSeconds, bool bSnap)
 		float Mult = 1.f;
 		if (i == NCPal::NeonPink || i == NCPal::NeonAqua || i == NCPal::NeonAmber)
 		{
-			Mult = FMath::Lerp(1.4f, 0.55f, Night);
+			Mult = FMath::Lerp(0.15f, 0.6f, Night);
 		}
 		else if (i == NCPal::LampGlow)
 		{
-			Mult = FMath::Lerp(0.05f, 0.7f, LampsOn);
+			Mult = FMath::Lerp(0.f, 0.7f, LampsOn);
 		}
 		else if (i == NCPal::GlassWarm)
 		{
-			Mult = FMath::Lerp(0.35f, 1.f, LampsOn);
+			Mult = LampsOn;	// 0 by day, the full 0.6 at night
 		}
 		MID->SetScalarParameterValue(TEXT("EmissiveStrength"), Base * Mult);
 	}
 	if (SignMID)
 	{
-		SignMID->SetScalarParameterValue(TEXT("Glow"), FMath::Lerp(0.8f, 2.2f, LampsOn));
+		SignMID->SetScalarParameterValue(TEXT("Glow"), FMath::Lerp(0.4f, 1.8f, LampsOn));
 	}
 }

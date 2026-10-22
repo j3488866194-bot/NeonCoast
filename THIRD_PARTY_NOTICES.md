@@ -4,7 +4,8 @@
 
 The repository's MIT license applies to original project material that the project
 can license. It does not relicense Unreal Engine, Epic template content or adapted
-Epic example portions, Godot, fonts, or other third-party components. Each retains
+Epic example portions, Renderpeople scan characters, Godot, fonts, or other
+third-party components. Each retains
 its applicable license and ownership. The UE vehicle assets are not original
 procedural geometry covered by this project's MIT license.
 
@@ -32,9 +33,47 @@ The procedural city also uses meshes, materials and fonts supplied with Unreal
 Engine, including `/Engine/BasicShapes`. Such engine resources retain their own
 terms; generated placement code does not change their ownership.
 
-## Kenney human characters
+## Poly Haven public environment models and PBR textures
 
-The human mesh, idle/run/jump animations and three skins originate from Kenney's
+The realism pass uses four Poly Haven model sets (modular urban apartments facade,
+island_tree_02, painted wooden bench, street lamp) and six 2K PBR texture sets.
+These are third-party **CC0** assets under [Poly Haven's license](https://polyhaven.com/license).
+The source authors, exact official URLs, sizes, hashes, physical texture repeats,
+and derived model handling are recorded in
+[PUBLIC_ASSETS.md](docs/licenses/PUBLIC_ASSETS.md) and the retained source manifest.
+The tree is a coastal broadleaf tree, not a palm. Source originals and derived
+GLBs are reproducible local caches; imported game assets preserve the source UVs
+and material slots. No claim is made that AI authored these scans or models.
+
+## Renderpeople scan characters and Epic character animations
+
+The realistic character upgrade uses **Eric Rigged 001** and **Carla Rigged 001**,
+scanned character models and textures supplied by **Renderpeople GmbH** through
+its [official free-model page](https://renderpeople.com/free-3d-people/).
+They carry Renderpeople's proprietary free-model license, **not CC0 or MIT**.
+Its [terms](https://renderpeople.com/general-terms-and-conditions/), version
+13.12.2024, permit game use and restrict raw-model transfer and individual-file
+access. This project keeps the FBX, textures and imported uncooked character
+`.uasset` files private, and uses them only as integrated cooked game resources.
+The source directory under `artifacts/` and generated
+`Unreal/Content/RealisticCharacters/` are excluded by `.gitignore`.
+
+Idle, walk, forward jog (the runtime run slot) and jump motions for these scans
+come from Epic's installed **Manny/Quinn template assets**, retargeted using the
+Manny Simple mesh and shared mannequin skeleton. The source is Unreal Engine
+5.8.4's `Templates/TemplateResources/High/Characters/Content/Mannequins`, retained
+under `/Game/Characters/Mannequins`. These Epic assets retain the applicable
+[Unreal Engine EULA](https://www.unrealengine.com/eula/unreal); they are not
+Renderpeople motion captures or project-original animations. Their license does
+not replace the restrictions on the scan models.
+
+Direct official URLs, archive hashes, source clips and handling details are in
+[RENDERPEOPLE.md](docs/licenses/RENDERPEOPLE.md). This notice records provenance,
+not successful import, animation quality or final package acceptance.
+
+## Earlier Kenney human characters
+
+The earlier UE human mesh, idle/run/jump animations and three skins originate from Kenney's
 [Animated Characters Protagonists 1.1](https://kenney.nl/assets/animated-characters-protagonists),
 distributed under CC0 1.0. Original FBX/PNG sources and the unmodified license notice
 are preserved in `Unreal/ArtSource/Characters/`. Imported Unreal assets are under
@@ -98,6 +137,18 @@ Both passes completed successfully; their file hashes and scopes are recorded in
 runtime verification. Current rendered character, driving and map images are in
 `docs/images/ue/`; package acceptance is tracked separately in
 [UE_VERIFICATION.md](docs/UE_VERIFICATION.md).
+
+For the current realism pass, Opus 5.5 high supplied the visual direction, PBR and
+scan material builders, public-model city placement and lighting, an initial
+render review, a visual review after resuming work, and the final thin amber
+objective-marker changes. These six actual CLI calls are recorded in
+[UE_REALISM_OPUS_RECEIPTS.json](docs/UE_REALISM_OPUS_RECEIPTS.json). The two visual
+reviews identify their input stills; their estimated colours, technical hypotheses
+and proposed fixes are not evidence of final package acceptance. Codex handled
+asset preparation, API fixes, animation retargeting, geometric alignment,
+compilation and packaged testing. The earlier driving/map screenshots still show
+the previous character pass; the current packaged image is identified explicitly
+in [UE_VERIFICATION.md](docs/UE_VERIFICATION.md).
 
 Neon Coast is an independent prototype. It is not GTA VI, is not affiliated with
 Rockstar Games, and contains no Rockstar code, story characters, logos, music or
