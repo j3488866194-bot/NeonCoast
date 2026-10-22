@@ -27,7 +27,11 @@ public:
     bool IsVideoChangePending() const { return bVideoChangePending; }
     bool WasVideoModeRecovered() const { return bVideoModeRecovered; }
     bool WasLegacySettingsMigrated() const { return bLegacySettingsMigrated; }
+    bool WasStartupDisplayModeApplied() const { return bStartupDisplayModeApplied; }
     bool ImportLegacySettingsIfNeeded(FConfigFile& ConfigFile);
+    // Prepare once per process, preserving video recovery. No viewport or
+    // command-line changes occur here; the controller applies with overrides.
+    bool PrepareStartupDisplayMode(const FIntPoint& DesktopResolution);
     // State-only recovery is also used by the isolated config test. LoadSettings
     // persists the result; the controller applies it once a viewport exists.
     bool RestorePendingVideoMode();
@@ -40,6 +44,8 @@ public:
     float GetMasterVolume() const { return MasterVolume; }
     float GetMusicVolume() const { return MusicVolume; }
     float GetEffectsVolume() const { return EffectsVolume; }
+    bool GetHasCompletedOnboarding() const { return bHasCompletedOnboarding; }
+    bool GetStartInBorderless() const { return bStartInBorderless; }
 
     void SetMouseSensitivity(float Value);
     void SetGamepadSensitivity(float Value);
@@ -49,6 +55,8 @@ public:
     void SetMasterVolume(float Value);
     void SetMusicVolume(float Value);
     void SetEffectsVolume(float Value);
+    void SetHasCompletedOnboarding(bool bValue) { bHasCompletedOnboarding = bValue; }
+    void SetStartInBorderless(bool bValue) { bStartInBorderless = bValue; }
 
     // Inputs have already passed the DefaultInput.ini mappings: positive means
     // right/up. Gamepad_RightY's viewport inversion is cancelled by that mapping.
@@ -69,9 +77,13 @@ private:
     UPROPERTY(Config) float MusicVolume = .6f;
     UPROPERTY(Config) float EffectsVolume = 1.f;
     UPROPERTY(Config) bool bVideoChangePending = false;
+    UPROPERTY(Config) bool bStartInBorderless = true;
+    UPROPERTY(Config) bool bHasCompletedOnboarding = false;
     bool bLoadingSettings = false;
     bool bVideoModeRecovered = false;
     bool bLegacySettingsMigrated = false;
+    bool bStartupDisplayPrepared = false;
+    bool bStartupDisplayModeApplied = false;
 
     float FilterGamepadAxis(float Value) const;
     void SanitizeCustomSettings();

@@ -1,0 +1,32 @@
+{
+  "purpose": "v0.4.1 native onboarding UI and startup/audio settings increment",
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "session_id": "86befec2-fbd9-4574-ab72-4eea5438c42f",
+  "status": "success",
+  "is_error": false,
+  "duration_ms": 612649,
+  "authored_files": [
+    {
+      "file": "Unreal/Source/NeonCoast/SNCOnboarding.h",
+      "sha256": "c3c0407e771cdaba9375e9b5a64c93621716c08390c677b9b3d064bd53000151"
+    },
+    {
+      "file": "Unreal/Source/NeonCoast/SNCOnboarding.cpp",
+      "sha256": "006ce6f4d45788101109eee1a5dec5d362bb000c710d1e45d236fb7189b85cd3"
+    },
+    {
+      "file": "Unreal/Source/NeonCoast/SNCFrontEnd.h",
+      "sha256": "89f5c02b984a95ab21ecf48a38bb236ad58193d9f60bb67cc3cbfa852d89d00e"
+    },
+    {
+      "file": "Unreal/Source/NeonCoast/SNCFrontEnd.cpp",
+      "sha256": "06af42c007c6ea5889f8bcc608ca3b95f1bd0d4762a0ce682c12dcbeddaccd5d"
+    },
+    {
+      "file": "docs/UE_FRONTEND_ART_DIRECTION.json",
+      "sha256": "31ba4db3fe30a055c25f9343286eda83ede6880db97352a91f935140cd8753f4"
+    }
+  ],
+  "integration_note": "Actual Opus author snapshot; Codex integrates backend and validates native rendering, gameplay, audio and packaging separately."
+}

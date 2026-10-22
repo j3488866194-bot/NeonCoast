@@ -20,6 +20,7 @@ public:
     virtual void Deinitialize() override;
     virtual void Tick(float DeltaTime) override;
     virtual bool IsTickable() const override;
+    virtual bool IsTickableWhenPaused() const override { return true; }
     virtual TStatId GetStatId() const override;
 
     void CycleRadio();
@@ -29,6 +30,9 @@ public:
     FString GetRadioLabel() const;
     // Also callable while paused, so applying a menu volume immediately updates loops.
     void ApplyUserVolumeSettings();
+    // Menus have their own pause-independent music and coast ambience.
+    void SetFrontEndActive(bool bActive);
+    bool PlaySettingsPreview();
 
 protected:
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
@@ -46,14 +50,19 @@ private:
     UPROPERTY() TObjectPtr<UAudioComponent> EngineLoop;
     UPROPERTY() TObjectPtr<UAudioComponent> AmbienceLoop;
     UPROPERTY() TObjectPtr<UAudioComponent> SirenLoop;
+    UPROPERTY() TObjectPtr<UAudioComponent> MenuMusicLoop;
+    UPROPERTY() TObjectPtr<UAudioComponent> MenuAmbienceLoop;
+    UPROPERTY() TObjectPtr<UAudioComponent> PreviewSound;
     UPROPERTY() TObjectPtr<USoundAttenuation> EffectAttenuation;
     UPROPERTY() TObjectPtr<USoundAttenuation> SirenAttenuation;
 
     bool bEnabled = false;
     bool bStarted = false;
+    bool bAssetsLoaded = false;
+    bool bFrontEndActive = false;
     int32 Station = 0;
     float Clock = 0.f;
-    float RetryAt = 0.f;
+    double RetryAt = 0.0;
     float HornReadyAt = 0.f;
     float StepReadyAt = 0.f;
     float NextSirenScan = 0.f;
@@ -64,7 +73,8 @@ private:
     TWeakObjectPtr<AActor> NearestPolice;
 
     bool EnsureStarted();
-    UAudioComponent* StartLoop(USoundBase* Sound, float Volume);
+    UAudioComponent* StartLoop(USoundBase* Sound, float Volume, bool bUI = false);
+    void UpdateMenuAudio();
     void StopLoop(TObjectPtr<UAudioComponent>& Component);
     USoundBase* LoadSound(const TCHAR* Name);
     void UpdateSiren(float DeltaTime, APawn* Pawn);

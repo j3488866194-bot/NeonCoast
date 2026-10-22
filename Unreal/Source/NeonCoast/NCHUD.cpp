@@ -14,6 +14,7 @@
 #include "NCCityVisual.h"
 #include "NCGameplaySubsystem.h"
 #include "NCPlayerController.h"
+#include "NCOnboardingComponent.h"
 
 namespace NCHUDLayout
 {
@@ -86,7 +87,7 @@ void ANCHUD::DrawHUD()
 	UWorld* World = GetWorld();
 	APlayerController* PC = GetOwningPlayerController();
 	const ANCPlayerController* NCPC = Cast<ANCPlayerController>(PC);
-	if (NCPC && NCPC->IsFrontEndOpen()) return;
+	if (NCPC && (NCPC->IsFrontEndOpen() || (NCPC->GetOnboarding() && NCPC->GetOnboarding()->IsModal()))) return;
 	APawn* Pawn = PC ? PC->GetPawn() : nullptr;
 	const float SW = Canvas->ClipX;
 	const float SH = Canvas->ClipY;

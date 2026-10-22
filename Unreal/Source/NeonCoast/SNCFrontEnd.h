@@ -27,6 +27,7 @@ struct FNCSettingsDraft
 	int32 Quality = 2;				// 0 low .. 3 epic; -1 = custom scalability, left untouched on apply
 	float FrameRateLimit = 60.f;	// 0 = unlimited
 	bool bVSync = true;
+	bool bStartInBorderless = true;	// read at the next launch only, so never part of the display trial
 
 	float MouseSensitivity = 1.f;
 	float GamepadSensitivity = 1.f;
@@ -143,6 +144,7 @@ private:
 		TFunction<bool()> IsDirty, TAttribute<bool> bEnabled = true);
 	TSharedRef<SWidget> MakeToggleRow(FName WidgetTag, const FText& Label, const FText& Hint, bool FNCSettingsDraft::* Field);
 	TSharedRef<SWidget> MakeSliderRow(FName WidgetTag, const FText& Label, const FText& Hint, float FNCSettingsDraft::* Field, float Min, float Max, float Step);
+	TSharedRef<SWidget> MakeAudioPreviewRow();
 	TSharedRef<SWidget> MakeRowFrame(const FText& Label, const FText& Hint, TSharedRef<SWidget> Control, TSharedRef<TWeakPtr<SWidget>> Target,
 		TFunction<bool()> IsDirty, TFunction<void()> OnRowClick = nullptr);
 	TSharedRef<SWidget> MakeKeyCap(const FText& Key, bool bGamepad);
@@ -156,6 +158,9 @@ private:
 	FReply OnOpenControls();
 	FReply OnOpenControlSettings();
 	FReply OnControlsBack();
+	FReply OnRestartOnboarding();
+	FReply OnSkipOnboarding();
+	FReply OnAudioPreview();
 	FReply OnReturnToTitle();
 	FReply OnQuit();
 	FReply OnQuitConfirmed();

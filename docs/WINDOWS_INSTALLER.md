@@ -11,13 +11,13 @@
 先完成 UE cook/package 及该包的运行验证，再执行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/package-windows.ps1 -Version 0.4.0
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/package-windows.ps1 -Version 0.4.1
 ```
 
-输出位于 `builds/releases/0.4.0/`：
+输出位于 `builds/releases/0.4.1/`：
 
-- `NeonCoast-0.4.0-Windows-Setup.exe`：完整安装器。
-- `NeonCoast-0.4.0-Windows-Portable.zip`：完整解压后直接运行。
+- `NeonCoast-0.4.1-Windows-Setup.exe`：完整安装器。
+- `NeonCoast-0.4.1-Windows-Portable.zip`：完整解压后直接运行。
 - `SHA256SUMS.txt`：两个发行文件的 SHA-256。
 - `build-manifest.json`：主程序和 cooked 资源的 SHA-256，便于与测试报告核对。
 
@@ -111,7 +111,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/installer/Verify-Porta
 
 ```powershell
 # 使用绝对路径替换下面两个位置；此命令不会启动游戏
-Start-Process -FilePath '...\NeonCoast-0.4.0-Windows-Setup.exe' `
+Start-Process -FilePath '...\NeonCoast-0.4.1-Windows-Setup.exe' `
   -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR="...\installer-test" /TASKS=""' `
   -WindowStyle Hidden -Wait -PassThru
 ```
@@ -121,3 +121,41 @@ Start-Process -FilePath '...\NeonCoast-0.4.0-Windows-Setup.exe' `
 `unins000.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART`，确认程序文件移除、
 哨兵保留、仅测试安装的卸载注册表项移除。安装器的默认启动复选框应在
 静默模式下跳过。测试报告须记录安装/卸载退出码、程序与安装器哈希及验证范围。
+
+## 已安装版本的原位升级验证
+
+`Verify-Installer.ps1` 的隔离安装/卸载测试不适用于已经安装正式版的电脑。
+保留正式安装并验证升级时，先关闭游戏，再运行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/installer/Verify-Upgrade.ps1 `
+  -Installer 'D:\NeonCoastUE\builds\releases\0.4.1\NeonCoast-0.4.1-Windows-Setup.exe' `
+  -ExpectedManifest 'D:\NeonCoastUE\builds\releases\0.4.1\build-manifest.json'
+```
+
+该脚本会真正更新现有安装，不是只读预演。它只接受 HKCU 已注册且路径恰好是
+当前用户 `%LOCALAPPDATA%\Programs\NeonCoast` 的 Neon Coast，拒绝改装到其他
+位置和降级。安装前将以下数据完整备份至独立的
+`artifacts/upgrade-verification/<run-id>/backup/`，逐文件核对 SHA-256：
+
+- 安装目录内所有 `Saved` 文件夹，包括隐藏文件和空目录。
+- `%LOCALAPPDATA%\NeonCoast\Saved` 中的全部现有存档和设置。
+- 旧发行 SHA256 清单之外的用户文件，以及与旧清单哈希不同、已被用户修改的发行文件。
+
+例如 `游戏操作说明.txt` 如果仍与旧发行清单一致，就属于未修改的受管理文档，
+可以随新版更新；如果被修改过，或本来不在清单中，则备份并保护其现有内容。
+
+备份不跟随 junction/symlink；遇到路径重定向或备份期间文件变化就停止。
+脚本保存本机 `backup-manifest.json`，再使用已验证的注册目录静默运行安装器，
+带 `/NORESTART`，在等待之前保留进程原生句柄，以准确读取退出码。
+它检查所有新版 payload 校验和、主程序/manifest、注册版本与目录、桌面及
+开始菜单快捷方式，并再次核对每一个受保护文件。
+
+如果安装器改变或删除受保护数据，脚本尝试从已验证的备份恢复，且仍判失败。
+如果新版 payload 与需要保留的旧用户文档内容冲突，不能同时宣称两者校验通过；
+应调整发行清单后重建，不得悄悄覆盖用户文档。无论成功或失败，脚本都不会
+执行卸载、回滚程序版本、启动游戏或从其他试玩目录迁移存档。备份持续保留，
+结果写入 `artifacts/windows-upgrade-verification.json` 及本次独立目录的 `report.json`。
+
+v0.4.1 的命令示例和验收工具不会把 v0.4.0 的历史安装/卸载结果当作新版通过证据。
+最新试玩目录的存档选择及迁移是升级之后的独立步骤，需要单独备份与验证。

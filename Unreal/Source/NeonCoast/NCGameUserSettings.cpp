@@ -41,7 +41,13 @@ void UNCGameUserSettings::SetToDefaults()
     Super::SetToDefaults();
     ResetCustomDefaults();
     bVideoChangePending = false;
-    EnsureConfirmedVideoMode();
+    SetFullscreenMode(EWindowMode::WindowedFullscreen);
+    const FIntPoint Desktop = GetDesktopResolution();
+    SetScreenResolution(Desktop.X > 0 && Desktop.Y > 0 ? Desktop : FIntPoint(1600, 900));
+    Super::ConfirmVideoMode();
+    bStartInBorderless = true;
+    // Onboarding is a lifetime preference. Resetting settings does not replay
+    // the tutorial or clear the current process's startup preparation guard.
 }
 
 void UNCGameUserSettings::SanitizeCustomSettings()
@@ -67,7 +73,8 @@ void UNCGameUserSettings::LoadSettings(bool bForceReload)
     SanitizeCustomSettings();
     EnsureConfirmedVideoMode();
     const bool bRecoveredThisLoad = RestorePendingVideoMode();
-    if (bRecoveredThisLoad || bMigratedThisLoad)
+    const bool bStartupDisplayChanged = PrepareStartupDisplayMode(GetDesktopResolution());
+    if (bRecoveredThisLoad || bMigratedThisLoad || bStartupDisplayChanged)
     {
         // Avoid resolution changes, scalability application, or audio work while
         // the engine is still constructing its settings/viewport during startup.
@@ -81,6 +88,25 @@ void UNCGameUserSettings::LoadSettings(bool bForceReload)
     if (bMigratedThisLoad)
         UE_LOG(LogTemp, Display, TEXT("NC_SETTINGS_LEGACY_MIGRATED resolution=%dx%d mode=%d frameLimit=%.0f"),
             GetScreenResolution().X, GetScreenResolution().Y, int32(GetFullscreenMode()), GetFrameRateLimit());
+    if (bStartupDisplayChanged)
+        UE_LOG(LogTemp, Display, TEXT("NC_SETTINGS_STARTUP_BORDERLESS resolution=%dx%d mode=%d"),
+            GetScreenResolution().X, GetScreenResolution().Y, int32(GetFullscreenMode()));
+}
+
+bool UNCGameUserSettings::PrepareStartupDisplayMode(const FIntPoint& DesktopResolution)
+{
+    if (bStartupDisplayPrepared) return false;
+    bStartupDisplayPrepared = true;
+    // A recovered or pending video trial takes priority for this entire
+    // process. Reloading options must not override a safe recovered window.
+    if (!bStartInBorderless || bVideoModeRecovered || bVideoChangePending) return false;
+    // A headless process has no display; never persist a guessed monitor size.
+    if (DesktopResolution.X <= 0 || DesktopResolution.Y <= 0) return false;
+    SetFullscreenMode(EWindowMode::WindowedFullscreen);
+    SetScreenResolution(DesktopResolution);
+    Super::ConfirmVideoMode();
+    bStartupDisplayModeApplied = true;
+    return true;
 }
 
 bool UNCGameUserSettings::ImportLegacySettingsIfNeeded(FConfigFile& ConfigFile)

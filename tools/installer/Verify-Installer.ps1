@@ -4,8 +4,8 @@
 )
 $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Split-Path -Parent (Split-Path -Parent $PSScriptRoot)))
-if (-not $Installer) { $Installer = Join-Path $repo 'builds\releases\0.4.0\NeonCoast-0.4.0-Windows-Setup.exe' }
-if (-not $ExpectedManifest) { $ExpectedManifest = Join-Path $repo 'builds\releases\0.4.0\build-manifest.json' }
+if (-not $Installer) { $Installer = Join-Path $repo 'builds\releases\0.4.1\NeonCoast-0.4.1-Windows-Setup.exe' }
+if (-not $ExpectedManifest) { $ExpectedManifest = Join-Path $repo 'builds\releases\0.4.1\build-manifest.json' }
 $Installer = [IO.Path]::GetFullPath($Installer)
 $expected = Get-Content -LiteralPath $ExpectedManifest -Raw | ConvertFrom-Json
 $runId = [guid]::NewGuid().ToString('N')

@@ -4,11 +4,14 @@
 #include "TimerManager.h"
 #include "NCPlayerController.generated.h"
 class SNCFrontEnd;
+class SNCOnboarding;
+class UNCOnboardingComponent;
 UCLASS()
 class NEONCOAST_API ANCPlayerController : public APlayerController
 {
     GENERATED_BODY()
 public:
+    ANCPlayerController();
     void StartOrResumeGame();
     void ReturnToMainMenu();
     void QuitToDesktop();
@@ -17,6 +20,12 @@ public:
     bool IsFrontEndOpen() const { return bFrontEndOpen; }
     TSharedPtr<SNCFrontEnd> GetFrontEndWidget() const { return FrontEnd; }
     void OpenFrontEnd(bool bTitleScreen);
+    UNCOnboardingComponent* GetOnboarding() const { return Onboarding; }
+    TSharedPtr<SNCOnboarding> GetOnboardingWidget() const { return OnboardingWidget; }
+    void AdvanceOnboarding();
+    void SkipOnboarding();
+    void RestartOnboarding();
+    bool PreviewAudio();
     bool IsMapOpen() const { return bMapOpen; }
     bool IsHelpOpen() const { return bHelpOpen; }
     bool IsPhotoMode() const { return bPhotoMode; }
@@ -44,6 +53,12 @@ protected:
     bool bMapOpen=false, bHelpOpen=false, bPhotoMode=false, bMenuPaused=false, bHasWaypoint=false;
     FVector Waypoint=FVector::ZeroVector;
 private:
+    UPROPERTY() TObjectPtr<UNCOnboardingComponent> Onboarding;
+    TSharedPtr<SNCOnboarding> OnboardingWidget;
+    bool bOnboardingCameraOverride=false;
+    bool bPreviousOnboardingCameraMoveable=false;
+    void RefreshOnboarding();
+    bool ShouldStartOnboarding() const;
     TSharedPtr<SNCFrontEnd> FrontEnd;
     bool bFrontEndOpen=false;
     bool bSessionStarted=false;

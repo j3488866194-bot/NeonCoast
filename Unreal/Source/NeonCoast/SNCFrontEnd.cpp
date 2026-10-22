@@ -1,6 +1,7 @@
 #include "SNCFrontEnd.h"
 
 #include "NCGameUserSettings.h"
+#include "NCOnboardingComponent.h"
 #include "NCPlayerController.h"
 
 #include "Framework/Application/SlateApplication.h"
@@ -216,6 +217,7 @@ FNCSettingsDraft FNCSettingsDraft::Capture(const UNCGameUserSettings& Settings)
 	D.Quality = Level >= 0 && Level <= 3 ? Level : -1;
 	D.FrameRateLimit = Settings.GetFrameRateLimit();
 	D.bVSync = Settings.IsVSyncEnabled();
+	D.bStartInBorderless = Settings.GetStartInBorderless();
 	D.MouseSensitivity = Settings.GetMouseSensitivity();
 	D.GamepadSensitivity = Settings.GetGamepadSensitivity();
 	D.bInvertMouseY = Settings.GetInvertMouseY();
@@ -234,6 +236,7 @@ void FNCSettingsDraft::ResetVideo(const FIntPoint& DesktopResolution)
 	Quality = 2;
 	FrameRateLimit = 60.f;
 	bVSync = true;
+	bStartInBorderless = true;
 }
 
 void FNCSettingsDraft::ResetControls()
@@ -257,7 +260,8 @@ bool FNCSettingsDraft::DisplayModeEquals(const FNCSettingsDraft& O) const
 
 bool FNCSettingsDraft::VideoEquals(const FNCSettingsDraft& O) const
 {
-	return DisplayModeEquals(O) && Quality == O.Quality && Same(FrameRateLimit, O.FrameRateLimit) && bVSync == O.bVSync;
+	return DisplayModeEquals(O) && Quality == O.Quality && Same(FrameRateLimit, O.FrameRateLimit) && bVSync == O.bVSync
+		&& bStartInBorderless == O.bStartInBorderless;
 }
 
 bool FNCSettingsDraft::ControlsEquals(const FNCSettingsDraft& O) const
@@ -1370,6 +1374,11 @@ TSharedRef<SWidget> SNCFrontEnd::BuildVideoTab()
 	Add(MakeToggleRow(TEXT("Settings.VSync"), LOCTEXT("VSync", "垂直同步"),
 		LOCTEXT("VSyncHint", "消除画面撕裂，可能略微增加输入延迟。"), &FNCSettingsDraft::bVSync));
 
+	// Read once at launch: applying it never touches the current window or the 15 s display trial.
+	Add(MakeToggleRow(TEXT("Settings.StartInBorderless"), LOCTEXT("StartInBorderless", "启动时自动无边框"),
+		LOCTEXT("StartInBorderlessHint", "开启时，每次启动都以无边框窗口铺满桌面；关闭则沿用保存的显示模式。下次启动生效。"),
+		&FNCSettingsDraft::bStartInBorderless));
+
 	return Box;
 }
 
@@ -1406,8 +1415,75 @@ TSharedRef<SWidget> SNCFrontEnd::BuildAudioTab()
 		LOCTEXT("MusicVolumeHint", "车载电台与背景音乐。"), &FNCSettingsDraft::MusicVolume, 0.f, 1.f, .05f));
 	Add(MakeSliderRow(TEXT("Settings.EffectsVolume"), LOCTEXT("EffectsVolume", "音效"),
 		LOCTEXT("EffectsVolumeHint", "引擎、喇叭、环境与界面音效。"), &FNCSettingsDraft::EffectsVolume, 0.f, 1.f, .05f));
+	Add(MakeAudioPreviewRow());
 
 	return Box;
+}
+
+TSharedRef<SWidget> SNCFrontEnd::MakeAudioPreviewRow()
+{
+	// Plays at the APPLIED levels, never the draft, so the value shows what will actually be heard.
+	TSharedRef<TWeakPtr<SWidget>> Target = MakeShared<TWeakPtr<SWidget>>();
+	auto Focused = [Target]() { return HasFocus(*Target); };
+	auto Muted = []()
+	{
+		const UNCGameUserSettings* Settings = UNCGameUserSettings::Get();
+		return !Settings || Settings->GetMasterVolume() <= KINDA_SMALL_NUMBER || Settings->GetEffectsVolume() <= KINDA_SMALL_NUMBER;
+	};
+
+	TSharedPtr<SNCButton> Button;
+	SAssignNew(Button, SNCButton)
+		.Tag(TEXT("Settings.AudioPreview"))
+		.ButtonStyle(&ButtonStyle)
+		.ContentPadding(FMargin(0.f))
+		.OnClicked(FOnClicked::CreateSP(this, &SNCFrontEnd::OnAudioPreview))
+		[
+			SNew(SBox)
+			.HeightOverride(48.f)
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.FillWidth(1.f)
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Center)
+				.Padding(0.f, 0.f, 18.f, 0.f)
+				[
+					SNew(STextBlock)
+					.Text_Lambda([Muted]()
+					{
+						const UNCGameUserSettings* Settings = UNCGameUserSettings::Get();
+						if (Muted() || !Settings) return LOCTEXT("PreviewMuted", "主音量或音效为 0");
+						return FText::Format(LOCTEXT("PreviewLevels", "已应用 · 主 {0}% · 音效 {1}%"),
+							FText::AsNumber(FMath::RoundToInt(Settings->GetMasterVolume() * 100.f)),
+							FText::AsNumber(FMath::RoundToInt(Settings->GetEffectsVolume() * 100.f)));
+					})
+					.Font(Font("Regular", 20))
+					.ColorAndOpacity_Lambda([Focused, Muted]() { return FSlateColor(Muted() ? Mist(.8f) : Focused() ? Cream() : Sand(.85f)); })
+				]
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(0.f, 0.f, 12.f, 0.f)
+				[
+					SNew(SBorder)
+					.BorderImage(&PillBrush)
+					.BorderBackgroundColor_Lambda([Focused, Muted]() { return FSlateColor(Muted() ? Cream(.08f) : Focused() ? Teal() : Teal(.16f)); })
+					.Padding(FMargin(18.f, 4.f, 18.f, 5.f))
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("PreviewPlay", "试听"))
+						.Font(Font("Bold", 18, 60))
+						.ColorAndOpacity_Lambda([Focused, Muted]() { return FSlateColor(Muted() ? Mist(.7f) : Focused() ? Ink() : Teal()); })
+					]
+				]
+			]
+		];
+	*Target = Button;
+	Tagged.Add(TEXT("Settings.AudioPreview"), Button);
+
+	return MakeRowFrame(LOCTEXT("AudioPreview", "试听当前音量"),
+		LOCTEXT("AudioPreviewHint", "先应用音量更改，再试听。试听使用已保存的主音量与音效音量。"),
+		Button.ToSharedRef(), Target, nullptr);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -1420,9 +1496,30 @@ TSharedRef<SWidget> SNCFrontEnd::BuildControlsPage()
 		FOnClicked::CreateSP(this, &SNCFrontEnd::OnOpenControlSettings), EButtonKind::Secondary, &Adjust);
 	TSharedRef<SWidget> BackButton = MakeButton(TEXT("Controls.Back"), LOCTEXT("ControlsBack", "返回"),
 		FOnClicked::CreateSP(this, &SNCFrontEnd::OnControlsBack), EButtonKind::Primary, &Back);
+
+	// Tutorial replay (title and pause). Skip only appears while a tutorial is running.
+	ANCPlayerController* PC = Owner.Get();
+	const UNCOnboardingComponent* Onboarding = PC ? PC->GetOnboarding() : nullptr;
+	const bool bOnboardingActive = Onboarding && Onboarding->IsActive();
+	TSharedPtr<SWidget> Replay, SkipTutorial;
+	TSharedRef<SWidget> ReplayButton = MakeButton(TEXT("Controls.RestartOnboarding"), LOCTEXT("RestartOnboarding", "重新体验新手引导"),
+		FOnClicked::CreateSP(this, &SNCFrontEnd::OnRestartOnboarding), EButtonKind::Secondary, &Replay);
+	TSharedRef<SWidget> SkipButton = SNullWidget::NullWidget;
+	if (bOnboardingActive)
+	{
+		SkipButton = MakeButton(TEXT("Controls.SkipOnboarding"), LOCTEXT("SkipOnboarding", "跳过引导"),
+			FOnClicked::CreateSP(this, &SNCFrontEnd::OnSkipOnboarding), EButtonKind::Secondary, &SkipTutorial);
+	}
+
 	FNavRow Footer;
-	Footer.Items = { Adjust, Back };
-	Footer.Entry = 1;
+	Footer.Items.Add(Replay);
+	if (SkipTutorial.IsValid())
+	{
+		Footer.Items.Add(SkipTutorial);
+	}
+	Footer.Items.Add(Adjust);
+	Footer.Items.Add(Back);
+	Footer.Entry = Footer.Items.Num() - 1;
 	TailNav.Add(Footer);
 	PageDefault = Back;
 
@@ -1528,7 +1625,19 @@ TSharedRef<SWidget> SNCFrontEnd::BuildControlsPage()
 		.Padding(0.f, 18.f, 0.f, 0.f)
 		[
 			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot().FillWidth(1.f)[SNullWidget::NullWidget]
+			+ SHorizontalBox::Slot().AutoWidth()[ReplayButton]
+			+ SHorizontalBox::Slot().AutoWidth().Padding(bOnboardingActive ? 12.f : 0.f, 0.f, 0.f, 0.f)[SkipButton]
+			+ SHorizontalBox::Slot()
+			.FillWidth(1.f)
+			.VAlign(VAlign_Center)
+			.Padding(18.f, 0.f, 18.f, 0.f)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("SkipOnboardingTip", "游戏中按 F2 跳过引导"))
+				.Font(Font("Regular", 17))
+				.ColorAndOpacity(Mist())
+				.AutoWrapText(true)
+			]
 			+ SHorizontalBox::Slot().AutoWidth()[AdjustButton]
 			+ SHorizontalBox::Slot().AutoWidth().Padding(12.f, 0.f, 0.f, 0.f)[BackButton]
 		];
@@ -2419,6 +2528,52 @@ FReply SNCFrontEnd::OnControlsBack()
 	return FReply::Handled();
 }
 
+FReply SNCFrontEnd::OnRestartOnboarding()
+{
+	if (ANCPlayerController* PC = Owner.Get())
+	{
+		PC->RestartOnboarding();	// the controller closes the menu and shows the welcome card
+	}
+	return FReply::Handled();
+}
+
+FReply SNCFrontEnd::OnSkipOnboarding()
+{
+	ANCPlayerController* PC = Owner.Get();
+	if (!PC)
+	{
+		return FReply::Handled();
+	}
+	PC->SkipOnboarding();
+	// If the controller kept the menu open, drop the now-stale skip button and stay on the replay action.
+	if (PC->IsFrontEndOpen() && Page == EPage::Controls && Dialog == EDialog::None)
+	{
+		ShowPage(EPage::Controls, TEXT("Controls.RestartOnboarding"));
+	}
+	return FReply::Handled();
+}
+
+FReply SNCFrontEnd::OnAudioPreview()
+{
+	// Deliberately the applied settings: the draft is not heard until 应用.
+	const UNCGameUserSettings* Settings = UNCGameUserSettings::Get();
+	if (!Settings || Settings->GetMasterVolume() <= KINDA_SMALL_NUMBER || Settings->GetEffectsVolume() <= KINDA_SMALL_NUMBER)
+	{
+		SetStatus(LOCTEXT("PreviewSilent", "主音量或音效为 0，无法试听。"), Amber());
+		return FReply::Handled();
+	}
+	ANCPlayerController* PC = Owner.Get();
+	if (!PC || !PC->PreviewAudio())
+	{
+		SetStatus(LOCTEXT("PreviewFailed", "暂时无法试听。"), Coral());
+		return FReply::Handled();
+	}
+	SetStatus(Draft.AudioEquals(Original)
+		? LOCTEXT("PreviewPlaying", "正在试听当前音量。")
+		: LOCTEXT("PreviewApplied", "试听的是已应用的音量。"), Draft.AudioEquals(Original) ? Teal() : Amber());
+	return FReply::Handled();
+}
+
 FReply SNCFrontEnd::OnReturnToTitle()
 {
 	RootReturnTag = NAME_None;
@@ -2505,6 +2660,7 @@ FReply SNCFrontEnd::OnApply()
 	}
 	Settings->SetFrameRateLimit(Draft.FrameRateLimit);
 	Settings->SetVSyncEnabled(Draft.bVSync);
+	Settings->SetStartInBorderless(Draft.bStartInBorderless);
 	Settings->SetMouseSensitivity(Draft.MouseSensitivity);
 	Settings->SetGamepadSensitivity(Draft.GamepadSensitivity);
 	Settings->SetInvertMouseY(Draft.bInvertMouseY);

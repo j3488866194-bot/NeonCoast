@@ -260,4 +260,114 @@ bool FNCSettingsMigrationTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNCStartupDisplayTest, "NeonCoast.Settings.StartupBorderless",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FNCStartupDisplayTest::RunTest(const FString& Parameters)
+{
+    auto* Fresh = NewObject<UNCGameUserSettings>();
+    Fresh->SetToDefaults();
+    TestTrue(TEXT("automatic borderless is enabled by default"), Fresh->GetStartInBorderless());
+    TestEqual(TEXT("default video mode is borderless"), int32(Fresh->GetFullscreenMode()), int32(EWindowMode::WindowedFullscreen));
+    TestEqual(TEXT("default recovery resolution matches the desktop-sized window"), Fresh->GetLastConfirmedScreenResolution(), Fresh->GetScreenResolution());
+
+    // Model an existing v0.4 user's window while keeping all unrelated options.
+    Fresh->SetFullscreenMode(EWindowMode::Windowed);
+    Fresh->SetScreenResolution(FIntPoint(1600, 900));
+    Fresh->SetMasterVolume(.45f);
+    Fresh->SetGamepadSensitivity(1.7f);
+    Fresh->SetHasCompletedOnboarding(true);
+    TestTrue(TEXT("startup prepares the configured desktop-sized window"), Fresh->PrepareStartupDisplayMode(FIntPoint(2560, 1440)));
+    TestEqual(TEXT("startup selects borderless"), int32(Fresh->GetFullscreenMode()), int32(EWindowMode::WindowedFullscreen));
+    TestEqual(TEXT("startup covers the desktop"), Fresh->GetScreenResolution(), FIntPoint(2560, 1440));
+    TestEqual(TEXT("startup keeps a valid confirmed desktop size"), Fresh->GetLastConfirmedScreenResolution(), FIntPoint(2560, 1440));
+    TestTrue(TEXT("controller can apply prepared settings with command-line overrides"), Fresh->WasStartupDisplayModeApplied());
+    TestFalse(TEXT("automatic startup is not an unconfirmed display trial"), Fresh->IsVideoChangePending());
+    TestEqual(TEXT("startup preserves volume"), Fresh->GetMasterVolume(), .45f);
+    TestEqual(TEXT("startup preserves input sensitivity"), Fresh->GetGamepadSensitivity(), 1.7f);
+    TestTrue(TEXT("startup preserves onboarding completion"), Fresh->GetHasCompletedOnboarding());
+    Fresh->SetFullscreenMode(EWindowMode::Windowed);
+    Fresh->SetScreenResolution(FIntPoint(1280, 720));
+    Fresh->AcceptVideoMode();
+    TestFalse(TEXT("startup preparation does not override later in-session choices"), Fresh->PrepareStartupDisplayMode(FIntPoint(2560, 1440)));
+    TestEqual(TEXT("an in-session window remains selected"), int32(Fresh->GetFullscreenMode()), int32(EWindowMode::Windowed));
+
+    FConfigFile Saved;
+    const TCHAR* Section = TEXT("/Script/NeonCoast.NCGameUserSettings");
+    Saved.SetBool(Section, TEXT("bStartInBorderless"), false);
+    Saved.SetString(Section, TEXT("ResolutionSizeX"), TEXT("1280"));
+    Saved.SetString(Section, TEXT("ResolutionSizeY"), TEXT("720"));
+    Saved.SetString(Section, TEXT("FullscreenMode"), TEXT("2"));
+    UObject::FLoadConfigParams Params;
+    Params.ConfigClass = UNCGameUserSettings::StaticClass();
+    Params.OverrideFile = &Saved;
+    auto* OptedOut = NewObject<UNCGameUserSettings>();
+    OptedOut->LoadConfig(Params);
+    TestFalse(TEXT("automatic startup opt-out loads from config"), OptedOut->GetStartInBorderless());
+    TestFalse(TEXT("opt-out preserves the selected mode across launches"), OptedOut->PrepareStartupDisplayMode(FIntPoint(2560, 1440)));
+    TestEqual(TEXT("opt-out retains the selected window size"), OptedOut->GetScreenResolution(), FIntPoint(1280, 720));
+    TestEqual(TEXT("opt-out retains the selected window mode"), int32(OptedOut->GetFullscreenMode()), int32(EWindowMode::Windowed));
+
+    Saved.SetBool(Section, TEXT("bStartInBorderless"), true);
+    Saved.SetBool(Section, TEXT("bVideoChangePending"), true);
+    Saved.SetString(Section, TEXT("LastUserConfirmedResolutionSizeX"), TEXT("1600"));
+    Saved.SetString(Section, TEXT("LastUserConfirmedResolutionSizeY"), TEXT("900"));
+    Saved.SetString(Section, TEXT("LastConfirmedFullscreenMode"), TEXT("2"));
+    auto* Recovered = NewObject<UNCGameUserSettings>();
+    Recovered->LoadConfig(Params);
+    TestTrue(TEXT("interrupted trial is recovered before startup preparation"), Recovered->RestorePendingVideoMode());
+    TestFalse(TEXT("safe recovery takes priority over automatic borderless"), Recovered->PrepareStartupDisplayMode(FIntPoint(2560, 1440)));
+    TestEqual(TEXT("recovery retains the confirmed safe resolution"), Recovered->GetScreenResolution(), FIntPoint(1600, 900));
+    TestEqual(TEXT("recovery retains the confirmed safe window mode"), int32(Recovered->GetFullscreenMode()), int32(EWindowMode::Windowed));
+    TestFalse(TEXT("startup application flag remains clear after recovery"), Recovered->WasStartupDisplayModeApplied());
+
+    auto* Headless = NewObject<UNCGameUserSettings>();
+    Headless->SetToDefaults();
+    TestFalse(TEXT("headless startup never writes an unknown desktop size"), Headless->PrepareStartupDisplayMode(FIntPoint::ZeroValue));
+    TestTrue(TEXT("headless recovery size remains valid"), Headless->GetScreenResolution().X > 0 && Headless->GetScreenResolution().Y > 0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNCOnboardingPersistenceTest, "NeonCoast.Settings.OnboardingPersistence",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FNCOnboardingPersistenceTest::RunTest(const FString& Parameters)
+{
+    const FString Directory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Automation/Settings"));
+    IFileManager::Get().MakeDirectory(*Directory, true);
+    const FString Filename = FPaths::Combine(Directory, FGuid::NewGuid().ToString(EGuidFormats::Digits) + TEXT(".ini"));
+    ON_SCOPE_EXIT { IFileManager::Get().Delete(*Filename, false, true); };
+    auto* Original = NewObject<UNCGameUserSettings>();
+    Original->SetToDefaults();
+    Original->SetHasCompletedOnboarding(false);
+    TestFalse(TEXT("incomplete onboarding can be shown to new users"), Original->GetHasCompletedOnboarding());
+    Original->SetHasCompletedOnboarding(true);
+    Original->SetStartInBorderless(false);
+    Original->SetMasterVolume(.35f);
+    FConfigCacheIni TestConfig(EConfigCacheType::Temporary);
+    FConfigFile& File = TestConfig.Add(Filename, FConfigFile());
+    File.bCanSaveAllSections = true;
+    Original->SaveConfig(CPF_Config, *Filename, &TestConfig, false);
+    if (!TestTrue(TEXT("onboarding and launch preferences serialize independently of game progress"), File.Write(Filename, false))) return false;
+    FConfigFile ReadBack;
+    ReadBack.Read(Filename);
+    auto* Restored = NewObject<UNCGameUserSettings>();
+    Restored->SetHasCompletedOnboarding(false);
+    Restored->SetStartInBorderless(true);
+    UObject::FLoadConfigParams Params;
+    Params.ConfigClass = UNCGameUserSettings::StaticClass();
+    Params.OverrideFile = &ReadBack;
+    Restored->LoadConfig(Params);
+    TestTrue(TEXT("onboarding completion persists on restart"), Restored->GetHasCompletedOnboarding());
+    TestFalse(TEXT("automatic borderless opt-out persists on restart"), Restored->GetStartInBorderless());
+    TestEqual(TEXT("onboarding persistence preserves volume"), Restored->GetMasterVolume(), .35f);
+    Restored->ResetCustomDefaults();
+    TestTrue(TEXT("resetting custom options does not replay completed onboarding"), Restored->GetHasCompletedOnboarding());
+    TestFalse(TEXT("resetting input and audio does not change the launch preference"), Restored->GetStartInBorderless());
+    Restored->SetToDefaults();
+    TestTrue(TEXT("full settings defaults do not replay completed onboarding"), Restored->GetHasCompletedOnboarding());
+    TestTrue(TEXT("full settings defaults restore automatic borderless"), Restored->GetStartInBorderless());
+    return true;
+}
+
 #endif

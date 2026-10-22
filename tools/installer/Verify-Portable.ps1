@@ -1,7 +1,7 @@
 ﻿param([string]$Archive = '')
 $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Split-Path -Parent (Split-Path -Parent $PSScriptRoot)))
-if (-not $Archive) { $Archive = Join-Path $repo 'builds\releases\0.4.0\NeonCoast-0.4.0-Windows-Portable.zip' }
+if (-not $Archive) { $Archive = Join-Path $repo 'builds\releases\0.4.1\NeonCoast-0.4.1-Windows-Portable.zip' }
 $Archive = [IO.Path]::GetFullPath($Archive)
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [IO.Compression.ZipFile]::OpenRead($Archive)

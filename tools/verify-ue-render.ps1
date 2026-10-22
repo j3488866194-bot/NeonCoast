@@ -25,7 +25,9 @@ if(-not (Test-Path -LiteralPath $game)){throw "Packaged game is missing: $game"}
 $Release=(Resolve-Path -LiteralPath $Release).Path
 $game=(Resolve-Path -LiteralPath $game).Path
 $workingDirectory=Split-Path -Parent $game
-$savedRoot=[IO.Path]::GetFullPath((Join-Path $Release 'NeonCoast/Saved'))
+$userDir=Join-Path $repo ('artifacts/render-verification/'+$runId+'/user')
+New-Item -ItemType Directory -Path $userDir -Force | Out-Null
+$savedRoot=[IO.Path]::GetFullPath((Join-Path $userDir 'Saved'))
 $savedPrefix=$savedRoot.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar
 $shotName='NCVerify_'+$runId
 $log=Join-Path $repo 'artifacts/ue-release-render.log'
@@ -36,7 +38,8 @@ $log=Join-Path $repo 'artifacts/ue-release-render.log'
 # Synchronous CSV avoids the profiler background-thread teardown failure seen
 # in this package's A/B check. This flag affects verification, not normal play.
 $renderStartedUtc=[DateTime]::UtcNow
-$process=Start-Process -FilePath $game -ArgumentList @('-SkipFrontEnd','-windowed','-ResX=1600','-ResY=900','-nosplash','-unattended','-csvCaptureFrames=720','-csvCompression=0','-csvNoProcessingThread',('-csvMetadata=NeonCoastVerificationRun='+$runId),('"-csvExecCmds=600:shot filename='+$shotName+' -nosuffix"'),'-ExitAfterCsvProfiling','"-ExecCmds=t.MaxFPS 60"',('"-abslog='+$log+'"')) -WorkingDirectory $workingDirectory -WindowStyle Hidden -PassThru
+$process=Start-Process -FilePath $game -ArgumentList @('-SkipFrontEnd','-windowed','-ResX=1600','-ResY=900','-nosplash','-unattended','-csvCaptureFrames=720','-csvCompression=0','-csvNoProcessingThread',('-csvMetadata=NeonCoastVerificationRun='+$runId),('"-csvExecCmds=600:shot filename='+$shotName+' -nosuffix"'),'-ExitAfterCsvProfiling','"-ExecCmds=t.MaxFPS 60"',('"-UserDir='+$userDir+'"'),('"-abslog='+$log+'"')) -WorkingDirectory $workingDirectory -WindowStyle Hidden -PassThru
+$nativeProcessHandle=$process.Handle
 if(-not $process.WaitForExit(180000)){
     Stop-Process -Id $process.Id
     throw "Packaged render check timed out. See $log"
@@ -88,7 +91,7 @@ $result=[ordered]@{
     screenshot_sha256=(Get-FileHash -LiteralPath $imagePath -Algorithm SHA256).Hash.ToLowerInvariant()
     profile=$profile.FullName
     profile_sha256=(Get-FileHash -LiteralPath $profile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-    audio_ready=[bool](Select-String -LiteralPath $log -SimpleMatch 'NC_AUDIO_READY radioTracks=2 loops=4' -Quiet)
+    audio_ready=[bool](Select-String -LiteralPath $log -SimpleMatch 'NC_AUDIO_COMPONENTS ready=1 radioTracks=2 loops=4 menuLoops=2' -Quiet)
     exit_code=$process.ExitCode
     engine_failures=0
     scanned_character_instances=$scannedCharacters

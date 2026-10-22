@@ -60,10 +60,16 @@ switch($Action){
         $automationLog=Join-Path $artifacts 'ue-automation.log'
         $reportDir=Join-Path $artifacts ('ue-automation-'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
         & $commandlet $project -DisablePython -unattended -nop4 -nosplash -NullRHI '-ExecCmds=Automation RunTests NeonCoast.' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$reportDir" "-abslog=$automationLog"
-        if($LASTEXITCODE -ne 0){throw "Progress automation failed. See $automationLog"}
+        $automationExit=$LASTEXITCODE
+        # Editor automation can regenerate the unrelated Android file-server
+        # settings after Prepare has already cleaned them.
+        $engineConfig=[IO.File]::ReadAllText($defaultEnginePath)
+        $engineConfig=[regex]::Replace($engineConfig,'(?ms)^\[/Script/AndroidFileServerEditor\.AndroidFileServerRuntimeSettings\]\r?\n.*?(?=^\[|\z)','')
+        [IO.File]::WriteAllText($defaultEnginePath,$engineConfig.TrimEnd()+"`r`n",[Text.UTF8Encoding]::new($false))
+        if($automationExit -ne 0){throw "Progress automation failed. See $automationLog"}
         $report=Get-Content -LiteralPath (Join-Path $reportDir 'index.json') -Raw|ConvertFrom-Json
-        if($report.succeeded -ne 7 -or $report.failed -ne 0 -or $report.notRun -ne 0){throw "Progress/settings tests did not all pass. See $reportDir"}
-        Write-Host "Progress/settings automation: 7 passed; report $reportDir"
+        if($report.succeeded -ne 9 -or $report.failed -ne 0 -or $report.notRun -ne 0){throw "Progress/settings tests did not all pass. See $reportDir"}
+        Write-Host "Progress/settings automation: 9 passed; report $reportDir"
     }
     'Package' {
         $uat=Join-Path $engineRoot 'Engine/Build/BatchFiles/RunUAT.bat'

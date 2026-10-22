@@ -28,9 +28,30 @@ try {
         if(-not (Test-Path -LiteralPath $game -PathType Leaf)){throw "Packaged executable missing: $game"}
         $mode='packaged Win64 game'
     }
+    # Keep the existing menu/resolution suite's windowed baseline explicit.
+    # Automatic startup defaults are independently tested without -windowed by
+    # verify-ue-startup-display.ps1; never modify the real user's configuration.
+    $configPlatform=if($Editor){'WindowsEditor'}else{'Windows'}
+    $configDir=Join-Path $userDir ('Saved/Config/'+$configPlatform)
+    New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    @"
+[/Script/NeonCoast.NCGameUserSettings]
+Version=5
+bStartInBorderless=False
+ResolutionSizeX=$Width
+ResolutionSizeY=$Height
+LastUserConfirmedResolutionSizeX=$Width
+LastUserConfirmedResolutionSizeY=$Height
+FullscreenMode=2
+LastConfirmedFullscreenMode=2
+PreferredFullscreenMode=1
+FrameRateLimit=60.000000
+bVideoChangePending=False
+"@ | Set-Content -LiteralPath (Join-Path $configDir 'GameUserSettings.ini') -Encoding utf8
     $exeHash=(Get-FileHash -LiteralPath $game -Algorithm SHA256).Hash.ToLowerInvariant()
     $arguments+=@('-NeonCoastMenuTest','-windowed',('-ResX='+$Width),('-ResY='+$Height),'-nosplash','-unattended',('"-UserDir='+$userDir+'"'),('"-NeonCoastMenuReport='+$runtimeReport+'"'),('"-abslog='+$log+'"'))
     $process=Start-Process -FilePath $game -ArgumentList $arguments -WorkingDirectory (Split-Path -Parent $game) -WindowStyle Hidden -PassThru
+    $nativeProcessHandle=$process.Handle
     if(-not $process.WaitForExit(180000)){
         Stop-Process -Id $process.Id
         throw "Frontend validation exceeded 180 seconds; see $log"

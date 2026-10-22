@@ -1,5 +1,7 @@
 #include "NCPlayerController.h"
 #include "SNCFrontEnd.h"
+#include "SNCOnboarding.h"
+#include "NCOnboardingComponent.h"
 #include "NCGameUserSettings.h"
 #include "NCGameplaySubsystem.h"
 #include "NCSaveGame.h"
@@ -26,15 +28,20 @@
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
 
+ANCPlayerController::ANCPlayerController()
+{
+    Onboarding=CreateDefaultSubobject<UNCOnboardingComponent>(TEXT("Onboarding"));
+}
 void ANCPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+    Onboarding->OnStepChanged.AddUObject(this,&ANCPlayerController::RefreshOnboarding);
     UpdateInputMode();
     if(PlayerCameraManager) { PlayerCameraManager->ViewPitchMin=-65; PlayerCameraManager->ViewPitchMax=25; }
     if(auto* Settings=UNCGameUserSettings::Get())
     {
         Settings->ApplyCustomSettings();
-        if(Settings->WasVideoModeRecovered() || Settings->WasLegacySettingsMigrated()) Settings->ApplyResolutionSettings(true);
+        if(Settings->WasVideoModeRecovered() || Settings->WasLegacySettingsMigrated() || Settings->WasStartupDisplayModeApplied()) Settings->ApplyResolutionSettings(true);
     }
     const bool Skip=IsRunningCommandlet() || FParse::Param(FCommandLine::Get(),TEXT("SkipFrontEnd"))
         || FParse::Param(FCommandLine::Get(),TEXT("NeonCoastSmokeTest"))
@@ -55,6 +62,10 @@ void ANCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
     if(FrontEnd.IsValid() && GEngine && GEngine->GameViewport)
         GEngine->GameViewport->RemoveViewportWidgetContent(FrontEnd.ToSharedRef());
     FrontEnd.Reset();
+    Onboarding->OnStepChanged.RemoveAll(this);
+    if(OnboardingWidget.IsValid() && GEngine && GEngine->GameViewport)
+        GEngine->GameViewport->RemoveViewportWidgetContent(OnboardingWidget.ToSharedRef());
+    OnboardingWidget.Reset();
     bFrontEndOpen=false;
     Super::EndPlay(EndPlayReason);
 }
@@ -87,6 +98,7 @@ void ANCPlayerController::OpenFrontEnd(bool bTitleScreen)
     else FrontEnd->OpenRoot(bTitleScreen);
     if(!bFrontEndOpen) GEngine->GameViewport->AddViewportWidgetContent(FrontEnd.ToSharedRef(),100);
     bFrontEndOpen=true;
+    if(OnboardingWidget.IsValid()) OnboardingWidget->SetVisibility(EVisibility::Collapsed);
     UpdateInputMode();
     FrontEnd->FocusDefault();
     UE_LOG(LogTemp,Display,TEXT("NC_FRONTEND_READY page=%s"),bTitleScreen?TEXT("title"):TEXT("pause"));
@@ -105,6 +117,8 @@ void ANCPlayerController::StartOrResumeGame()
     if(PlayerInput) PlayerInput->FlushPressedKeys();
     UpdateInputMode();
     if(FSlateApplication::IsInitialized()) FSlateApplication::Get().SetAllUserFocusToGameViewport();
+    if(ShouldStartOnboarding()) Onboarding->StartIfNeeded();
+    RefreshOnboarding();
     UE_LOG(LogTemp,Display,TEXT("NC_FRONTEND_GAME_RESUMED"));
 }
 void ANCPlayerController::FinishStartupWarmup()
@@ -160,6 +174,7 @@ void ANCPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::M,IE_Pressed,this,&ANCPlayerController::ToggleMap).bExecuteWhenPaused=true;
     InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Pressed,this,&ANCPlayerController::ToggleMap).bExecuteWhenPaused=true;
     InputComponent->BindKey(EKeys::F1,IE_Pressed,this,&ANCPlayerController::ToggleHelp).bExecuteWhenPaused=true;
+    InputComponent->BindKey(EKeys::F2,IE_Pressed,this,&ANCPlayerController::SkipOnboarding).bExecuteWhenPaused=true;
     InputComponent->BindKey(EKeys::F6,IE_Pressed,this,&ANCPlayerController::TogglePhoto).bExecuteWhenPaused=true;
     auto& Click=InputComponent->BindKey(EKeys::LeftMouseButton,IE_Pressed,this,&ANCPlayerController::ClickMap);
     Click.bExecuteWhenPaused=true; Click.bConsumeInput=false;
@@ -176,7 +191,12 @@ void ANCPlayerController::SetupInputComponent()
 }
 void ANCPlayerController::UpdateInputMode()
 {
-    const bool Menu=bFrontEndOpen || bMenuPaused || bMapOpen || bHelpOpen;
+    const bool TutorialModal=Onboarding && Onboarding->IsModal() && !bFrontEndOpen && !bMapOpen && !bHelpOpen;
+    const bool Menu=bFrontEndOpen || bMenuPaused || bMapOpen || bHelpOpen || TutorialModal;
+    if(auto* Audio=GetWorld()->GetSubsystem<UNCAudioSubsystem>()) Audio->SetFrontEndActive(Menu);
+    if(OnboardingWidget.IsValid())
+        OnboardingWidget->SetVisibility(!Onboarding->IsActive() || bFrontEndOpen || bMapOpen || bHelpOpen || bPhotoMode
+            ? EVisibility::Collapsed : TutorialModal ? EVisibility::Visible : EVisibility::HitTestInvisible);
     SetPause(Menu && !bMenuWarmupPending);
     ResetIgnoreMoveInput(); ResetIgnoreLookInput();
     SetIgnoreMoveInput(Menu); SetIgnoreLookInput(Menu);
@@ -187,6 +207,7 @@ void ANCPlayerController::UpdateInputMode()
         Mode.SetHideCursorDuringCapture(false);
         Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
         if(bFrontEndOpen && FrontEnd.IsValid()) Mode.SetWidgetToFocus(FrontEnd);
+        else if(TutorialModal && OnboardingWidget.IsValid()) Mode.SetWidgetToFocus(OnboardingWidget);
         SetInputMode(Mode);
     }
     else
@@ -203,9 +224,9 @@ void ANCPlayerController::TogglePause()
     else { OpenFrontEnd(false); return; }
     UpdateInputMode();
 }
-void ANCPlayerController::ToggleMap() { if(bFrontEndOpen) return; bMapOpen=!bMapOpen; bHelpOpen=false; UpdateInputMode(); }
-void ANCPlayerController::ToggleHelp() { if(bFrontEndOpen) return; bHelpOpen=!bHelpOpen; bMapOpen=false; UpdateInputMode(); }
-void ANCPlayerController::TogglePhoto() { if(!bFrontEndOpen) bPhotoMode=!bPhotoMode; }
+void ANCPlayerController::ToggleMap() { if(bFrontEndOpen || Onboarding->IsModal()) return; bMapOpen=!bMapOpen; bHelpOpen=false; UpdateInputMode(); }
+void ANCPlayerController::ToggleHelp() { if(bFrontEndOpen || Onboarding->IsModal()) return; bHelpOpen=!bHelpOpen; bMapOpen=false; UpdateInputMode(); }
+void ANCPlayerController::TogglePhoto() { if(!bFrontEndOpen && !Onboarding->IsModal()) { bPhotoMode=!bPhotoMode; UpdateInputMode(); } }
 void ANCPlayerController::ClickMap()
 {
     if(!bMapOpen) return;
@@ -248,3 +269,53 @@ void ANCPlayerController::TakePhoto()
 }
 void ANCPlayerController::CycleRadio() { if(auto* Audio=GetWorld()->GetSubsystem<UNCAudioSubsystem>()) Audio->CycleRadio(); }
 void ANCPlayerController::SoundHorn() { if(auto* Audio=GetWorld()->GetSubsystem<UNCAudioSubsystem>()) Audio->SoundHorn(); }
+bool ANCPlayerController::PreviewAudio()
+{
+    if(auto* Audio=GetWorld()->GetSubsystem<UNCAudioSubsystem>()) return Audio->PlaySettingsPreview();
+    return false;
+}
+bool ANCPlayerController::ShouldStartOnboarding() const
+{
+    for(const TCHAR* Flag : {TEXT("SkipFrontEnd"),TEXT("NeonCoastMenuTest"),TEXT("NeonCoastAudioTest"),
+        TEXT("NeonCoastStartupDisplayTest"),TEXT("NeonCoastSmokeTest"),TEXT("NeonCoastPoliceTest")})
+        if(FParse::Param(FCommandLine::Get(),Flag)) return false;
+    return !IsRunningCommandlet();
+}
+void ANCPlayerController::AdvanceOnboarding() { Onboarding->AdvanceModal(); }
+void ANCPlayerController::SkipOnboarding() { Onboarding->Skip(); }
+void ANCPlayerController::RestartOnboarding()
+{
+    if(FrontEnd.IsValid() && FrontEnd->IsAwaitingVideoConfirmation()) return;
+    StartOrResumeGame();
+    Onboarding->Restart();
+}
+void ANCPlayerController::RefreshOnboarding()
+{
+    if(!GEngine || !GEngine->GameViewport || !FSlateApplication::IsInitialized()) return;
+    if(Onboarding->IsActive() && !OnboardingWidget.IsValid())
+    {
+        SAssignNew(OnboardingWidget,SNCOnboarding).OwnerController(this);
+        GEngine->GameViewport->AddViewportWidgetContent(OnboardingWidget.ToSharedRef(),90);
+    }
+    if(OnboardingWidget.IsValid()) OnboardingWidget->RefreshStep();
+    if(Onboarding->IsModal() && !bOnboardingCameraOverride)
+    {
+        bPreviousOnboardingCameraMoveable=GetWorld()->bIsCameraMoveableWhenPaused;
+        bOnboardingCameraOverride=true;
+        GetWorld()->bIsCameraMoveableWhenPaused=true;
+        if(auto* Hero=Cast<ANCHero>(GetPawn())) Hero->ResetHeldInput();
+        if(auto* Car=Cast<ANCCar>(GetPawn())) Car->ResetHeldInput();
+        if(PlayerInput) PlayerInput->FlushPressedKeys();
+    }
+    else if(!Onboarding->IsModal() && bOnboardingCameraOverride)
+    {
+        if(bFrontEndOpen) bPreviousCameraMoveableWhenPaused=bPreviousOnboardingCameraMoveable;
+        else GetWorld()->bIsCameraMoveableWhenPaused=bPreviousOnboardingCameraMoveable;
+        bOnboardingCameraOverride=false;
+    }
+    UpdateInputMode();
+    if(bFrontEndOpen) return;
+    if(Onboarding->IsModal() && OnboardingWidget.IsValid()) OnboardingWidget->FocusDefault();
+    else FSlateApplication::Get().SetAllUserFocusToGameViewport();
+    if(PlayerCameraManager) PlayerCameraManager->SetGameCameraCutThisFrame();
+}

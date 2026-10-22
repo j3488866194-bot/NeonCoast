@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.4.0',
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.4.1',
     [ValidateSet('All','StageOnly','PortableOnly','InstallerOnly')][string]$Mode = 'All',
     [string]$SourcePackage = '',
     [string]$Engine = '',
@@ -102,37 +102,76 @@ foreach ($file in Get-ChildItem -LiteralPath $thirdPartyLicenses -Recurse -File)
 }
 Copy-LicenseFile $vcSource 'Prerequisites\vc_redist.x64.exe'
 & (Join-Path $PSScriptRoot 'installer\New-Icon.ps1') -Destination (Join-Path $stage 'NeonCoast.ico')
-$startHere = @'
+$startHere = @"
 NEON COAST — Windows edition
 
-双击 NeonCoast.exe 开始游戏。首次进入会显示主菜单。
+双击 NeonCoast.exe 开始游戏。首次进入会显示主菜单，首次游玩默认无边框全屏。
 设置 → 画面：窗口、全屏、无边框；改变显示模式后请在 15 秒内确认。
 F11：游玩中切换窗口 / 无边框。菜单中请使用画面设置。
-Esc / 手柄 Menu：暂停、设置、按键说明、返回主菜单、保存并退出。
+Esc / 手柄 Menu：暂停、设置、操作说明、返回主菜单、保存并退出。
+首次游玩会显示新手引导；游戏中按 F2 跳过。
+主菜单或暂停菜单 → 操作说明 → 重新体验新手引导，可再次练习。
+设置 → 声音：先应用音量更改，再点击“试听当前音量”。主音量或音效为 0 时不播放。
 鼠标与手柄分别拥有灵敏度和垂直反转设置。默认抬高视角不反转。
 
 安装版：支持当前用户安装、自选目录、快捷方式与系统卸载。
 便携版：完整解压后运行；请勿只复制 EXE 或在 ZIP 内运行。
 卸载只移除发行文件，保留游戏生成的 Saved 文件夹和用户存档。
-更新前也可自行备份 NeonCoastSaved 和 %LOCALAPPDATA%NeonCoastSaved。
+更新前也可自行备份 NeonCoast/Saved 和 %LOCALAPPDATA%/NeonCoast/Saved。
 
 需要 Windows 10 2004 或更新的 64 位系统和支持 DirectX 12 的显卡，建议独立显卡。
 无需安装 Unreal Editor。首次启动/首次着色器缓存会比后续启动更慢。
-缺少 Visual C++ 运行库时，运行 Prerequisitesc_redist.x64.exe。
+缺少 Visual C++ 运行库时，运行 Prerequisites/vc_redist.x64.exe。
 该微软系统组件可能要求管理员确认；游戏本身使用当前用户权限。
-如果画面设置异常，可先备份后重命名 SavedConfigWindowsGameUserSettings.ini。
+如果画面设置异常，可先备份后重命名 Saved/Config/Windows/GameUserSettings.ini。
 
 第三方素材和 Unreal Engine 保留各自许可；详见 LICENSE.txt 与 Licenses。
 这是独立开发的开放世界原型，与 Rockstar Games 或 GTA VI 无关联。
 
 Run NeonCoast.exe after extracting the entire folder. No Unreal Editor is needed.
-Settings > Video provides windowed, fullscreen and borderless modes with a
-15-second confirmation. Escape / controller Menu opens the pause menu.
+First-time play defaults to borderless fullscreen. Settings > Video provides
+windowed, fullscreen and borderless modes with a 15-second confirmation.
+Escape / controller Menu opens the pause menu. F2 skips the tutorial;
+Controls > Replay Tutorial starts it again. Apply volume changes before using
+Settings > Audio > Preview. Muting master volume or effects also mutes the preview.
 Microsoft's x64 runtime installer is included in Prerequisites if it is missing.
 Uninstall keeps user-created saved games/settings. See Licenses for component terms.
-'@
+"@
+$controls = @"
+Neon Coast · UE 版操作
+
+首次游玩默认无边框全屏；设置 → 画面可切换窗口、全屏、无边框。
+更改显示模式后请在 15 秒内确认，否则自动还原。
+首次游玩有新手引导，F2 跳过；主菜单或暂停菜单 → 操作说明 → 重新体验新手引导。
+设置 → 声音：先应用更改，再点击“试听当前音量”。主音量或音效为 0 时保持静音。
+
+行为                         键盘鼠标                    手柄
+步行 / 驾驶方向              WASD                        左摇杆；RT 油门、LT 刹停后倒车
+视角                         鼠标                        右摇杆
+上车 / 下车 / 高速跳车        F                           Y
+步行跳跃 / 奔跑              空格 / 左 Shift             A / 左摇杆按下
+手刹 / 车辆加速              空格 / 左 Shift             B / A
+瞄准 / 射击 / 换弹            鼠标右键 / 左键 / R         LT / RT / X
+任务交互 / 与行人打招呼       E                           步行方向右；车内维修 X
+鸣笛 / 切换电台              H / Q                       左摇杆按下 / 方向左
+车灯 / 救援复位              L / T                       方向上 / 方向下
+地图 / 暂停                  M / Esc                     View / Menu
+地图标记 / 清除标记           地图内鼠标左键 / Delete
+操作说明                     F1；主菜单/暂停菜单也可打开
+跳过当前新手引导             F2；操作说明页也可跳过
+隐藏界面 / 截图              F6 / F12
+窗口 / 无边框切换             游玩中 F11
+画质 / 分辨率 / 音量         Esc → 设置                  Menu → 设置
+
+出生后附近有橙色跑车和海岸任务点。按 E 接取快递工作，上车运到内陆交付点；脱离警察视线、等待搜索结束后回海岸领取报酬。南侧道路可开始限时街道竞速。地图还显示维修、医疗和探索点。
+
+高速跳车会继承车辆动量并可能受伤；四周都被挡住时无法离车，可先移动或按 T 救援。医疗会扣除费用；角色倒下后自动恢复。游戏自动保存现金、任务进度、竞速纪录及探索奖励。
+
+F6 隐藏界面用于构图，不提供自由飞行相机。F12 截图位于运行项目的 Saved/Screenshots 目录。鼠标与手柄的灵敏度、垂直反转可分别设置；实体手柄连接及手感仍需对应硬件确认。
+"@
 [IO.File]::WriteAllText((Join-Path $stage 'START_HERE.txt'),$startHere,[Text.UTF8Encoding]::new($true))
 [IO.File]::WriteAllText((Join-Path $stage '开始游玩.txt'),$startHere,[Text.UTF8Encoding]::new($true))
+[IO.File]::WriteAllText((Join-Path $stage '游戏操作说明.txt'),$controls,[Text.UTF8Encoding]::new($true))
 $gitCommit = (& git -C $repo rev-parse HEAD 2>$null | Select-Object -First 1)
 $sourceDirty = [bool](& git -C $repo status --porcelain --untracked-files=normal 2>$null | Select-Object -First 1)
 $sourceFiles = @(foreach ($directory in @('Unreal\Source','Unreal\Config')) {

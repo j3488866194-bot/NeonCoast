@@ -1,74 +1,79 @@
-# v0.4.0 Windows 发行验证
+# v0.4.1 Windows 发行验证
 
-2026-10-22，Unreal Engine 5.8.4。本文绑定实际安装版与便携版中的同一 Win64 Development 程序及加密 Cook 资源。旧版记录保存在 [v0.3 验证记录](UE_VERIFICATION_V0_3.md)。
+2026-10-22，Unreal Engine 5.8.4。本记录绑定本次安装包、便携包及测试使用的同一 Win64 Development 程序与加密 Cook 资源。[v0.4.0 历史验证](UE_VERIFICATION_V0_4_0.md)单独保留，其性能及安装卸载数字不算本版结果。
 
-[下载本版](https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.0) · [机器可读摘要](releases/v0.4.0-verification.json) · [菜单和设置说明](UE_FRONTEND.md)
+[本版下载](https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.1) · [机器可读摘要](releases/v0.4.1-verification.json) · [功能说明](UE_FRONTEND.md)
 
-## 验收结果
+## 本版验收
 
-| 范围 | 结果 | 本机原始证据（不随 Git 分发） |
+| 范围 | 已取得结果 | 本机证据（不随 Git 分发） |
 | --- | --- | --- |
-| C++ / Cook / Stage / Archive | BuildCookRun 成功，ExitCode 0 | artifacts/v040-package-console.log |
-| 原生菜单与输入 | **163 项通过、0 失败、退出码 0** | artifacts/ue-frontend-verification.json |
-| 真实世界玩法 | **95 项通过** | artifacts/ue-release-smoke.log |
-| 正常警方导演 | **22 项通过** | artifacts/ue-release-police.log |
-| 设置与进度自动化 | **7 通过、0 失败** | artifacts/frontend-automation-accepted/index.json |
-| DX12 实际渲染 | 720 帧、第 600 帧原生截图、ExitCode 0 | artifacts/ue-release-render-verification.json |
-| 普通窗口关闭 | 主菜单就绪后等待 10 秒，向本次 UnrealWindow 发送 WM_CLOSE，ExitCode 0 | artifacts/ue-release-normal-exit-verification.json |
-| 安装与卸载 | 15 项通过、1349 个安装文件逐一核对 SHA-256，安装/卸载 ExitCode 0 | artifacts/windows-installer-verification.json |
-| 正式安装入口 | 从安装后的根目录 NeonCoast.exe 启动，隔离用户目录再次完成 163 项菜单/输入检查、ExitCode 0 | artifacts/installed-launcher-verification.json |
-| 便携 ZIP | 解压流逐文件核对，排除本机存档、密钥和调试文件 | artifacts/windows-portable-verification.json |
-| 资源保护 | 游戏 IoStore flags=11（数据与索引加密）、Pak 索引加密，无钥 UnrealPak 读取拒绝 | artifacts/ue-encryption-verification.json |
+| C++ / Cook / Stage / Archive | BuildCookRun 成功，ExitCode 0 | artifacts/v041-package-console.log |
+| 游戏主混音 | **50 项通过**，11 段实际 PCM 录制 | artifacts/ue-audio-verification.json |
+| 原生菜单与输入 | **183 项通过**，退出码 0 | artifacts/ue-frontend-verification.json |
+| 首次与返回玩家引导 | **84 + 16 = 100 项通过**，两个独立进程均退出码 0 | artifacts/ue-onboarding-verification.json |
+| 启动显示模式 | **95 项通过**，5 个实际游戏进程 | artifacts/ue-startup-display-verification.json |
+| 玩法与警方 | **95 + 22 = 117 项通过** | artifacts/ue-release-verification.json |
+| 设置与进度自动化 | 编辑器自动化 **9/9 通过**，0 警告、0 失败、0 未运行 | artifacts/v041-automation/index.json |
+| DX12 渲染与正常关闭 | 720 帧采样、第 600 帧截图；主菜单就绪后 WM_CLOSE，均退出码 0 | artifacts/ue-release-render-verification.json；artifacts/ue-release-normal-exit-verification.json |
+| v0.4.0 原位升级 | **20 项通过**，1349 个载荷文件核验；2 个既有用户文件、2 个目录保留，0 违规，安装退出码 0 | artifacts/windows-upgrade-verification.json |
+| 便携 ZIP | **1349 个文件逐一校验通过** | artifacts/windows-portable-verification.json |
+| 最新进度迁移 | 备份后将两份存档及设置复制到安装版/便携版，**6 次文件复制逐一哈希相符** | artifacts/v041-user-progress-migration.json |
+| 安装版实际入口 | 首次运行遇到 GPU 超时；相同方式重试 **18 项通过**，桌面尺寸 2560×1440 无边框，退出码 0 | artifacts/installed-launcher-verification.json |
+| 安装版短时观察 | 原生桌面无边框，主菜单就绪后运行 **120 秒**，WM_CLOSE 正常退出，退出码 0 | artifacts/v041-installed-stability-verification.json |
+| 资源加密 | 游戏 IoStore flags=11、Pak 索引加密；无钥 UnrealPak 读取被拒绝 | artifacts/ue-encryption-verification.json |
 
-菜单检查覆盖启动/暂停/继续/返回主菜单/退出确认，真实 Slate 键盘与手柄导航，设置草稿、应用落盘、取消，显示模式手动恢复/15 秒超时/保留，以及实际窗口、无边框、全屏视口切换。异常退出显示恢复与旧配置迁移由设置自动化覆盖。切换全屏的 DX12 日志也记录了 Fullscreen=1。
+上述检查均完成；各类检查保留自己的范围，不把编辑器自动化、软件注入事件或文件校验当作完整人工游玩。
 
-右摇杆事件经过真实 FSceneViewport、PlayerInput 映射及步行/驾驶 Pawn。上推的实测俯仰变化：步行正常 25.00°、反转 -34.29°；驾驶正常 25.00°、反转 -34.04°。这证明当前软件输入路径的方向，不替代物理手柄硬件测试。
+**已知 GPU 稳定性问题：** 安装版首次入口检查在本机 RTX 5060 Laptop / 驱动 616.92 上发生一次 `DXGI_ERROR_DEVICE_HUNG`，进程退出码 3。Aftermath 报告 Timeout，活动着色器位于虚拟阴影的非 Nanite 绘制命令剔除；当时显存使用约 3.20 GB，低于约 7.13 GB 预算，不能据此归因于显存不足。相同启动方式未作代码或设置改动的重试通过，随后 120 秒正常标题界面观察也通过。引擎/驱动根因仍未确认；通过的重试不抹去首次失败，也不等于长时间稳定性已验收。原始崩溃日志含本机标识，仅本地保留，公开摘要只记录诊断事实。
 
-玩法覆盖 Chaos 加速/刹车/短平路车体抖动、高速跳车、人物跳跃、交通与行人、瞄准射击/遮挡、医疗、快递、比赛、代币和警方追踪/搜索。任务位置部分由夹具定位；不把夹具完成时间当成人工跑圈成绩。正常场景确认 65 名扫描人物、9/9 公共模型、16/16 PBR 材质加载，无资产回退。
+菜单音乐、菜单海风、步行环境声、车辆引擎和电台均从游戏主混音录得非零 PCM；总音量和分类静音用例的 RMS/峰值均为 0。声音设置试听也实际产生混音输出。录制位于 **Windows 终端路由之前**，因此不证明扬声器、耳机或显示器的物理可听性，也不替代主观混音试听。
 
-安装器实际验证桌面/开始菜单、当前用户卸载注册、全量文件校验、卸载移除程序/快捷方式，并保留专门创建的 Saved 哨兵存档。当前机器已有 VC 运行库；未将此当成缺依赖新电脑的验收。官方 Inno Setup 编译器已核对官方 SHA-256 及有效 Authenticode，游戏安装 EXE 本身未购买代码签名。
+启动显示覆盖新配置、旧版迁移、关闭自动无边框、未确认显示设置恢复和命令行覆盖。新旧配置的本机无边框视口均为桌面尺寸 3840×2160；关闭选项和恢复用例保持窗口模式。菜单仍通过窗口/无边框/全屏切换、保留/撤销及 15 秒超时恢复检查。
 
-## 实际画面
+引导检查通过真实 Slate 控件与视口输入完成视角、步行、上车、驾驶停稳、下车、跳过和重看；另启进程确认完成状态持久化。夹具实际步行约 4.05 米、驾驶约 20.22 米。右摇杆仍经过 FSceneViewport → PlayerInput → 步行/驾驶 Pawn，正常上推与反转的符号符合设置；**实体手柄型号和连接情况尚未单独验收**。
 
-以下截图来自本版独立程序，已目视检查标题、中文控件、人物姿态与道路/车辆，1600×900。较早同功能菜单也在 1280×720 完成检查。首屏会先让角色姿态和车辆悬挂初始化，再暂停场景；暂停时保留相机渲染历史，避免冻结的运动模糊。
+正常渲染场景加载 65 名扫描人物（主角及 64 名行人）、9 套公共模型和 16 套 PBR 材质。玩法检查含 Chaos 驾驶/刹车、短平路车体抖动、高速跳车、射击遮挡、医疗、快递、比赛、代币和警方追踪。任务部分使用位置夹具，记录的完成时间不是人工跑圈成绩。
 
-![实际主菜单](images/ue/main-menu.png)
+## 本版实际画面
 
-![实际设置](images/ue/settings.png)
+以下欢迎、步行和完成画面来自最终独立程序，均为 **1280×720**；已目视检查中文控件、键位提示和画面层级。欢迎/完成面板下不再叠加旧暂停界面。
 
-设置图是验收中手动打开“反转手柄”的未应用草稿，默认反转关闭。
+![引导欢迎页](images/ue/onboarding-welcome.png)
 
-![实际游戏场景](images/ue/packaged-game.png)
+![步行引导](images/ue/onboarding-walking.png)
 
-## 性能范围
+![引导完成页](images/ue/onboarding-complete.png)
 
-RTX 5060 Laptop，DX12，1600×900，High，60 FPS 上限，静止出生点。预热后零基帧 240–598 共 359 帧，排除截图开销。平均 **60.0 FPS**；FrameTime 均值 16.670 ms、P95 17.551 ms；GPU 均值 7.434 ms。这不是全城驾驶、无上限性能、任意电脑或长时间稳定性的保证。
+[本版主菜单](images/ue/main-menu.png)、[本版设置](images/ue/settings.png)及[1600×900 游戏画面](images/ue/packaged-game.png)也与对应报告逐一核对 SHA-256。设置截图是验收过程中的草稿状态，不代表默认反转设置。截图的生成与目视检查分开记录。
+
+本版已完成 DX12 原生渲染采样，**本记录不发布本版 FPS 统计，也不沿用 v0.4.0 的帧率数字**。
 
 ## 文件绑定
 
-程序 SHA-256：`0303a58132e62db819e47ba6b734575c10ac21bbce89af0cdec86751356e1ddb`。
+最终游戏 EXE SHA-256：`f0d885204bb0917d8cdc6b625ddc00e6ab33f42973a76582a4e2e7571930f947`。
 
 | 内容文件 | 字节 | SHA-256 |
 | --- | ---: | --- |
-| global.ucas | 3,344,192 | `928e3a35e90a2c99db8bc23d055c36747d09a0c9649f3705c664a29494ccb239` |
-| global.utoc | 818 | `bb612221ce66d3c068920c1755c3f649028614615133340d7527980f43e905cd` |
-| NeonCoast-Windows.pak | 11,269,862 | `6f0b189e42bb5faaad05d12613844ea8062697ed0295d0283d876cb9607cc457` |
-| NeonCoast-Windows.ucas | 569,312,288 | `6009945e324ad8fce06d566b16cbf452582d959b9c0b3d7b81fae11beb8d8bb8` |
-| NeonCoast-Windows.utoc | 337,290 | `bfe1d48c82af0f6e121b3ef710152214aa5c58c3e29f560728e982b57c0f5a37` |
+| global.ucas | 3,344,880 | `26e58fa571512490c83ea4744d3465c8fd9caffc573fe31fc62acc9f11156643` |
+| global.utoc | 818 | `dfdf51442734fb2a33a4dbfb69dfb4180f05f77b19da4a671b9515cb80892131` |
+| NeonCoast-Windows.pak | 11,269,862 | `451acb7753f19e0e18ff95f394e389fd959943578293359042e6c0f53e5564b8` |
+| NeonCoast-Windows.ucas | 569,312,288 | `51cfbe03ea786bd809ace054b3a8772689a21b7e1dfcd04fbdfbfe4aa4b247af` |
+| NeonCoast-Windows.utoc | 337,290 | `502677230fe72694762128f8bbeebe6d5c5bf079a205e052430062db9fd0660a` |
 
 | 发行文件 | 字节 | SHA-256 |
 | --- | ---: | --- |
-| NeonCoast-0.4.0-Windows-Portable.zip | 771,359,940 | `139223176237facd96e8f7d6f74c60239f2c5148147c51e7a96ee90356486633` |
-| NeonCoast-0.4.0-Windows-Setup.exe | 744,453,272 | `f83d27a2179d211bcb15ea7e414939ba953ce91a20fa2d9e36e84e390a2f9711` |
+| NeonCoast-0.4.1-Windows-Portable.zip | 771,434,830 | `32208b982d5fbb7a37f3adc8dad5ff2b2892c05103485344d36665420d5e329a` |
+| NeonCoast-0.4.1-Windows-Setup.exe | 744,510,404 | `2e1fba4a0ab6f6f7e267fbb17d1d7b1450e585bce0822537a37486f575f90914` |
 
-菜单、玩法、渲染、窗口退出和安装程序中的 EXE 与全部容器逐项同哈希；分发 ZIP 另逐文件读取核对。源码与配置聚合哈希见机器摘要，排除本机 DefaultCrypto.ini。安装包 manifest 的 source_commit 是构建前基线，source_worktree_dirty=true；本版以实际源码聚合、EXE 与容器哈希绑定，不冒称旧基线就是最终源码。
+声音、菜单、引导、显示、玩法、渲染、退出报告与安装/便携载荷的 EXE 和容器均逐项同哈希。当前公开源码/配置共 58 文件，聚合 SHA-256 为 `5f96d6821765beda8be28ca93ace1b9d28550943642769fe77e9b7ae50612aa6`，已与安装 manifest 相符；排除本地加密配置。编辑器自动化再次生成的 AndroidFileServer 配置已清除。manifest 的 source_commit 是构建前 v0.4.0 基线，source_worktree_dirty=true，不能把该旧提交当成最终源码；具体聚合算法见机器摘要。
 
-首次本版玩法脚本取得了全部 95 PASS，但 Windows PowerShell 返回空 ExitCode，报告按失败处理。已移除 GUI 标准流重定向并保留进程句柄，重跑同一未变化 EXE 后通过 95+22 项及真实 ExitCode 检查。没有将缺失退出状态当作成功。
+升级验收没有卸载原游戏；现有两份用户文件逐字节保留。随后单独备份并迁入最新进度。当前机器已有 VC 运行库，不把本次升级当作缺依赖新电脑的安装测试。游戏安装 EXE 仍未进行商业代码签名。
 
-## 视觉、许可与限制
+## 视觉、许可与验证边界
 
-主菜单与设置使用实际 Claude Opus 5.5 high 的两轮生成/修订；[回执](UE_FRONTEND_OPUS_RECEIPTS.json)保留会话和作者文件哈希。Codex 完成控制器接入、输入/音量/配置、显示恢复、启动初始化、编译修正和测试。游戏写实资产的六轮历史视觉参与另见[写实说明](UE_REALISM.md)。
+新增中文引导和设置视觉由实际 Claude Opus 5.5 high 完成，[作者回执](UE_ONBOARDING_OPUS_RECEIPTS.json)记录会话及文件哈希；Codex 完成接入、音频/显示/引导逻辑、技术修正与验证。历史菜单和写实视觉贡献保留在各自回执中。
 
-原创代码 MIT，公共环境 CC0，Epic Examples 和 Renderpeople 人物各保留原许可。[发行许可](RELEASE_LICENSE.txt)、[第三方声明](../THIRD_PARTY_NOTICES.md)。加密保护已按容器和无钥读取实际验证，不能据此声称不可逆向或供应商另行批准。源码不含原始扫描人物、未 Cook 人物资产、UE 引擎或加密密钥；重建须自行取得合法素材。
+公开候选文件已检查常见令牌、私钥、AFS 与 AES 配置模式和排除路径，未检出命中；原始扫描人物、未 Cook 人物资源、构建目录和密钥保持忽略。模式扫描不等于能排除所有形式的秘密。原创代码 MIT、环境 CC0，Epic Examples 与 Renderpeople 人物保留自己的许可，见[发行许可](RELEASE_LICENSE.txt)和[第三方说明](../THIRD_PARTY_NOTICES.md)。加密验证不表示不可逆向或供应商另行批准。
 
-当前仍是开放世界原型，缺少完整室内、联机、船舶/飞机、完整剧情和 AAA 级角色交互动画，两种人物外观重复。物理手柄型号、混音试听、多设备、磁盘故障恢复和长时间游玩仍需要单独验收。
+这是单机开放世界原型；完整室内、联机、船舶/飞机、完整剧情和 AAA 级角色交互动画尚未实现。多设备、物理听感、实体手柄、长时间游玩和全城驾驶性能仍需另行验收。

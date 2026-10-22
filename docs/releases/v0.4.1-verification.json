@@ -1,0 +1,645 @@
+{
+  "version": "0.4.1",
+  "checked_at": "2026-10-22T15:11:18.786345+00:00",
+  "engine": "Unreal Engine 5.8.4",
+  "configuration": "Win64 Development, cooked, DX12; separate editor automation suite",
+  "game_executable_sha256": "f0d885204bb0917d8cdc6b625ddc00e6ab33f42973a76582a4e2e7571930f947",
+  "content_files": [
+    {
+      "name": "global.ucas",
+      "bytes": 3344880,
+      "sha256": "26e58fa571512490c83ea4744d3465c8fd9caffc573fe31fc62acc9f11156643"
+    },
+    {
+      "name": "global.utoc",
+      "bytes": 818,
+      "sha256": "dfdf51442734fb2a33a4dbfb69dfb4180f05f77b19da4a671b9515cb80892131"
+    },
+    {
+      "name": "NeonCoast-Windows.pak",
+      "bytes": 11269862,
+      "sha256": "451acb7753f19e0e18ff95f394e389fd959943578293359042e6c0f53e5564b8"
+    },
+    {
+      "name": "NeonCoast-Windows.ucas",
+      "bytes": 569312288,
+      "sha256": "51cfbe03ea786bd809ace054b3a8772689a21b7e1dfcd04fbdfbfe4aa4b247af"
+    },
+    {
+      "name": "NeonCoast-Windows.utoc",
+      "bytes": 337290,
+      "sha256": "502677230fe72694762128f8bbeebe6d5c5bf079a205e052430062db9fd0660a"
+    }
+  ],
+  "source_tree": {
+    "scope": [
+      "Unreal/Source",
+      "Unreal/Config"
+    ],
+    "excluded": [
+      "DefaultCrypto.ini",
+      "Crypto*.json",
+      "*Encryption*.ini"
+    ],
+    "algorithm": "SHA-256 of sorted lowercase file SHA-256 + two spaces + repo-relative slash path + LF, UTF-8",
+    "file_count": 58,
+    "sha256": "5f96d6821765beda8be28ca93ace1b9d28550943642769fe77e9b7ae50612aa6"
+  },
+  "source_tree_matches_current_after_afs_cleanup": true,
+  "source_commit_note": "Manifest records the pre-release v0.4.0 base HEAD with source_worktree_dirty=true. The source aggregate, executable and container hashes identify this build.",
+  "tests": {
+    "audio": {
+      "run_id": "8265bef2424c4b60869f549147490f24",
+      "checks": 50,
+      "failures": 0,
+      "exit_code": 0,
+      "pcm_stages": [
+        {
+          "stage": "paused-menu-mix",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.01338607,
+          "peak": 0.120996878,
+          "expected_silent": false
+        },
+        {
+          "stage": "paused-menu-music",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.022194007,
+          "peak": 0.160459593,
+          "expected_silent": false
+        },
+        {
+          "stage": "paused-menu-ambience",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.002909136,
+          "peak": 0.026395289,
+          "expected_silent": false
+        },
+        {
+          "stage": "paused-master-muted",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.0,
+          "peak": 0.0,
+          "expected_silent": true
+        },
+        {
+          "stage": "paused-categories-muted",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.0,
+          "peak": 0.0,
+          "expected_silent": true
+        },
+        {
+          "stage": "paused-settings-preview",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.010100906,
+          "peak": 0.104294628,
+          "expected_silent": false
+        },
+        {
+          "stage": "walking-ambience",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.004385633,
+          "peak": 0.038325753,
+          "expected_silent": false
+        },
+        {
+          "stage": "driving-engine",
+          "seconds": 2.517333,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.008873864,
+          "peak": 0.047616921,
+          "expected_silent": false
+        },
+        {
+          "stage": "driving-radio",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.012737402,
+          "peak": 0.15376015,
+          "expected_silent": false
+        },
+        {
+          "stage": "driving-master-muted",
+          "seconds": 2.517333,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.0,
+          "peak": 0.0,
+          "expected_silent": true
+        },
+        {
+          "stage": "return-to-menu",
+          "seconds": 2.496,
+          "sample_rate": 48000,
+          "channels": 8,
+          "rms": 0.013266751,
+          "peak": 0.121016219,
+          "expected_silent": false
+        }
+      ],
+      "scope": "Engine master-submix PCM before Windows endpoint routing; does not prove physical speaker audibility."
+    },
+    "frontend": {
+      "run_id": "a561e367c85c4c8a854134621b08a0f4",
+      "checks": 183,
+      "failures": 0,
+      "exit_code": 0,
+      "engine_failures": 0,
+      "metrics": {
+        "walking_normal_pitch_delta": 25.0,
+        "walking_inverted_pitch_delta": -35.3038,
+        "vehicle_normal_pitch_delta": 25.0,
+        "vehicle_inverted_pitch_delta": -34.3059
+      }
+    },
+    "onboarding": {
+      "run_id": "1e7e0b69f32e4c60b0e83c667dfb241d",
+      "checks": 100,
+      "failures": 0,
+      "engine_failures": 0,
+      "runs": [
+        {
+          "kind": "fresh",
+          "checks": 84,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "walk_displacement_cm": 404.635,
+            "drive_travel_cm": 2022.058,
+            "peak_speed_kmh": 49.87
+          }
+        },
+        {
+          "kind": "returning",
+          "checks": 16,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "walk_displacement_cm": 0.0,
+            "drive_travel_cm": 0.0,
+            "peak_speed_kmh": 0.0
+          }
+        }
+      ]
+    },
+    "startup_display": {
+      "run_id": "6be355dbcfa541e8b3c6111cb25a8e71",
+      "checks": 95,
+      "failures": 0,
+      "cases": [
+        {
+          "case": "fresh",
+          "checks": 18,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "viewport_mode": 1,
+            "native_window_mode": 1,
+            "configured_mode": 1,
+            "viewport_width": 3840,
+            "viewport_height": 2160,
+            "desktop_width": 3840,
+            "desktop_height": 2160,
+            "automatic_borderless": true,
+            "video_recovered": false
+          },
+          "command_line_display_override": false
+        },
+        {
+          "case": "legacy",
+          "checks": 20,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "viewport_mode": 1,
+            "native_window_mode": 1,
+            "configured_mode": 1,
+            "viewport_width": 3840,
+            "viewport_height": 2160,
+            "desktop_width": 3840,
+            "desktop_height": 2160,
+            "automatic_borderless": true,
+            "video_recovered": false
+          },
+          "command_line_display_override": false
+        },
+        {
+          "case": "opt_out",
+          "checks": 20,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "viewport_mode": 2,
+            "native_window_mode": 2,
+            "configured_mode": 2,
+            "viewport_width": 1280,
+            "viewport_height": 720,
+            "desktop_width": 3840,
+            "desktop_height": 2160,
+            "automatic_borderless": false,
+            "video_recovered": false
+          },
+          "command_line_display_override": false
+        },
+        {
+          "case": "recovery",
+          "checks": 20,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "viewport_mode": 2,
+            "native_window_mode": 2,
+            "configured_mode": 2,
+            "viewport_width": 1280,
+            "viewport_height": 720,
+            "desktop_width": 3840,
+            "desktop_height": 2160,
+            "automatic_borderless": true,
+            "video_recovered": true
+          },
+          "command_line_display_override": false
+        },
+        {
+          "case": "override",
+          "checks": 17,
+          "failures": 0,
+          "exit_code": 0,
+          "metrics": {
+            "viewport_mode": 2,
+            "native_window_mode": 2,
+            "configured_mode": 1,
+            "viewport_width": 1280,
+            "viewport_height": 720,
+            "desktop_width": 3840,
+            "desktop_height": 2160,
+            "automatic_borderless": true,
+            "video_recovered": false
+          },
+          "command_line_display_override": true
+        }
+      ]
+    },
+    "gameplay": {
+      "run_id": "c61aed0399274cf79574ce83a05d7e5b",
+      "checks": 95,
+      "police_checks": 22,
+      "total_checks": 117,
+      "failures": 0,
+      "engine_failures": 0
+    },
+    "automation": {
+      "succeeded": 9,
+      "succeededWithWarnings": 0,
+      "failed": 0,
+      "notRun": 0,
+      "tests": [
+        {
+          "name": "NeonCoast.Progress.RejectInvalidSave",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Progress.SaveRoundTrip",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.CameraDirections",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.ConfigRoundTrip",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.InvalidValues",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.LegacyMigration",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.OnboardingPersistence",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.StartupBorderless",
+          "state": "Success"
+        },
+        {
+          "name": "NeonCoast.Settings.VideoRecovery",
+          "state": "Success"
+        }
+      ]
+    },
+    "render": {
+      "run_id": "521d14f453284ecebf849ab10e4d85ad",
+      "exit_code": 0,
+      "engine_failures": 0,
+      "screenshot_sha256": "a574be3b60ad303654a8713df84c0d6744e30c08147124a4849c767239ee2e43",
+      "profile_sha256": "7d83395e94ee53e9d4f5678d70b8c1062d07a387e2c9fbe97f4cef8729a8c12c",
+      "scanned_character_instances": 65,
+      "public_models_loaded": 9,
+      "pbr_palettes_loaded": 16
+    },
+    "normal_exit": {
+      "run_id": "93c9b287026247abb2f7b25d7dff22f3",
+      "exit_code": 0,
+      "engine_failures": 0,
+      "title_menu_ready": true,
+      "windows_closed": 1
+    },
+    "upgrade": {
+      "run_id": "7e3502ee9d344784931dff56898cdadb",
+      "install_exit_code": 0,
+      "verified_payload_file_count": 1349,
+      "protected_file_count": 2,
+      "protected_directory_count": 2,
+      "previous_version": "0.4.0",
+      "expected_version": "0.4.1",
+      "installer_sha256": "2e1fba4a0ab6f6f7e267fbb17d1d7b1450e585bce0822537a37486f575f90914",
+      "migration_performed": false,
+      "uninstall_performed": false,
+      "checks": 20,
+      "failures": 0,
+      "preservation_violations": 0
+    },
+    "portable": {
+      "status": "passed",
+      "verified_file_count": 1349,
+      "archive_sha256": "32208b982d5fbb7a37f3adc8dad5ff2b2892c05103485344d36665420d5e329a",
+      "executable_sha256": "f0d885204bb0917d8cdc6b625ddc00e6ab33f42973a76582a4e2e7571930f947"
+    },
+    "progress_migration": {
+      "status": "passed",
+      "verified_file_copies": 6,
+      "scope": "Two current saves and game settings copied to installed and portable destinations after backup; hashes verified. Personal save contents and hashes are not published."
+    },
+    "installed_launcher_retry": {
+      "run_id": "cca75b047a894906beaaf3f79460854e",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": 18,
+      "failures": 0,
+      "user_dir_isolated": true,
+      "viewport": {
+        "viewport_mode": 1,
+        "native_window_mode": 1,
+        "configured_mode": 1,
+        "viewport_width": 2560,
+        "viewport_height": 1440,
+        "desktop_width": 2560,
+        "desktop_height": 1440,
+        "automatic_borderless": true,
+        "video_recovered": false
+      }
+    },
+    "installed_short_observation": {
+      "status": "passed",
+      "run_id": "e8a0228b12774abda8acd96376de46ee",
+      "exit_code": 0,
+      "engine_failures": 0,
+      "title_menu_ready": true,
+      "windows_closed": 1,
+      "seconds_after_title_ready": 120,
+      "scope": "Installed normal game, native desktop borderless, isolated UserDir, no test mode or CSV; WM_CLOSE. Title-menu observation, not an extended gameplay soak."
+    }
+  },
+  "encryption": {
+    "run_id": "7fa10b7a0fd64c9bb4e142dfd4ad66c9",
+    "utoc": [
+      {
+        "name": "global.utoc",
+        "toc_version": 8,
+        "header_bytes": 144,
+        "flags": 0,
+        "encrypted": false,
+        "indexed": false,
+        "directory_index_bytes": 0,
+        "entries": 1,
+        "partitions": 1,
+        "global_metadata_exemption": true,
+        "guid_note": "The embedded default AES key legitimately uses an all-zero GUID."
+      },
+      {
+        "name": "NeonCoast-Windows.utoc",
+        "toc_version": 8,
+        "header_bytes": 144,
+        "flags": 11,
+        "encrypted": true,
+        "indexed": true,
+        "directory_index_bytes": 51728,
+        "entries": 2521,
+        "partitions": 1,
+        "global_metadata_exemption": false,
+        "guid_note": "The embedded default AES key legitimately uses an all-zero GUID."
+      }
+    ],
+    "pak": [
+      {
+        "name": "NeonCoast-Windows.pak",
+        "pak_version": 12,
+        "footer_bytes": 221,
+        "index_encrypted": true,
+        "index_offset": 11131209,
+        "index_bytes": 25728
+      }
+    ],
+    "unkeyed_pak_checks": [
+      {
+        "name": "NeonCoast-Windows.pak",
+        "exit_code": 3,
+        "missing_key_diagnostic": true,
+        "unkeyed_index_listing_refused": true
+      }
+    ]
+  },
+  "release_files": [
+    {
+      "file": "NeonCoast-0.4.1-Windows-Portable.zip",
+      "bytes": 771434830,
+      "sha256": "32208b982d5fbb7a37f3adc8dad5ff2b2892c05103485344d36665420d5e329a"
+    },
+    {
+      "file": "NeonCoast-0.4.1-Windows-Setup.exe",
+      "bytes": 744510404,
+      "sha256": "2e1fba4a0ab6f6f7e267fbb17d1d7b1450e585bce0822537a37486f575f90914"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "docs/images/ue/main-menu.png",
+      "bytes": 2023905,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "sha256": "542ef10c76c8aa2a90c2a926e29134f477b1aef95e5a4307dc2a6c78a2645679"
+    },
+    {
+      "file": "docs/images/ue/settings.png",
+      "bytes": 1261476,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "sha256": "6d9516ae6e298e5d13ebbcaf081d669935fd871207049b4540c1bbfd43cfa852"
+    },
+    {
+      "file": "docs/images/ue/onboarding-welcome.png",
+      "bytes": 1187514,
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "3edc762f262ff35d2b33498eb76e44b593ecc869bf4c745c167a998de5922264"
+    },
+    {
+      "file": "docs/images/ue/onboarding-walking.png",
+      "bytes": 1602734,
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "b39b86b6904432b43df3f966314d39323b00cdfba243f7ce9d5f993bb1a5f43f"
+    },
+    {
+      "file": "docs/images/ue/onboarding-complete.png",
+      "bytes": 1100290,
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "a085bcc2afe67b415a06a80d218fbafb320bc27951001b68f906b5c5a95b2f9e"
+    },
+    {
+      "file": "docs/images/ue/packaged-game.png",
+      "bytes": 2628248,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "sha256": "a574be3b60ad303654a8713df84c0d6744e30c08147124a4849c767239ee2e43"
+    }
+  ],
+  "performance": {
+    "status": "not_summarized_for_this_release",
+    "render_capture_frames": 720,
+    "scope": "Current release has a successful DX12 capture; v0.4.0 FPS measurements are not reused."
+  },
+  "public_source_audit": {
+    "scope": "Current tracked and untracked publish candidates; known credential patterns in text files <=5 MiB, excluded-path and 100 MiB file checks. Not a proof of absence of all secrets.",
+    "text_files_scanned": 171,
+    "known_sensitive_pattern_matches": 0,
+    "forbidden_candidate_paths": 0,
+    "files_over_100MiB": 0,
+    "private_asset_and_key_ignore_checks": 3
+  },
+  "opus_receipt": "docs/UE_ONBOARDING_OPUS_RECEIPTS.json",
+  "limits": [
+    "Engine master-submix PCM was measured before Windows endpoint routing; physical speaker audibility and subjective mix quality were not verified.",
+    "Gamepad events were injected through the real Slate/FSceneViewport/PlayerInput pipeline; physical gamepad hardware was not verified.",
+    "Only this machine and short sessions were exercised; no whole-city or long-session performance guarantee.",
+    "Existing Windows runtime dependencies were present. No clean machine missing-runtime test was performed.",
+    "The existing installation was upgraded without uninstalling; v0.4.0 installation/uninstallation acceptance is historical.",
+    "Unsigned prototype; MIT does not relicense Epic or Renderpeople content; encryption is not a guarantee against reverse engineering.",
+    "One real DX12 GPU timeout occurred. Subsequent passing retries do not establish a fix or long-session stability."
+  ],
+  "evidence_reports": [
+    {
+      "file": "artifacts/ue-audio-verification.json",
+      "sha256": "8e64091a5e3388f8e1d282eaa6047a9827ad374cc499ffa297c50721f2e12a3e"
+    },
+    {
+      "file": "artifacts/ue-frontend-verification.json",
+      "sha256": "aa011ca0d283d21bcf502bb5470d3833579416f554260893c23c2715f080936d"
+    },
+    {
+      "file": "artifacts/ue-onboarding-verification.json",
+      "sha256": "3e36064e12093f25819d2b0a725b91fdd89b551b5367a20ea305a29bdae445be"
+    },
+    {
+      "file": "artifacts/ue-startup-display-verification.json",
+      "sha256": "34076c94cae7cdc138cca0e5fcc9dadaf5125a78d49fadc44219dad1f26ea3e0"
+    },
+    {
+      "file": "artifacts/ue-release-verification.json",
+      "sha256": "16f3f8317f943fd97d25fa1ca4d623fda5b3f0bd30c75e518c5c4171eb8970d9"
+    },
+    {
+      "file": "artifacts/ue-release-render-verification.json",
+      "sha256": "29279dee430e4845a4d233c34068e0347e9fea5968a2e95092a228a0e7a292a0"
+    },
+    {
+      "file": "artifacts/ue-release-normal-exit-verification.json",
+      "sha256": "c6fc8d1b7ae756f20249e59b71786bd298a52d52fb6a64fe0ca21235b9f42e6c"
+    },
+    {
+      "file": "artifacts/windows-upgrade-verification.json",
+      "sha256": "17c656f15d1cccebe8a687492ba4a04045de9975cd0dfe152c74e01a69690a94"
+    },
+    {
+      "file": "artifacts/windows-portable-verification.json",
+      "sha256": "fc2a84a55061e001e76b681fc198767df402a258bf757307fcac2697d8ff6e3a"
+    },
+    {
+      "file": "artifacts/ue-encryption-verification.json",
+      "sha256": "97eb6eab98dab84044f65acbc6207b4d3f81ca9e5a6d518ca7310ca163513cdb"
+    },
+    {
+      "file": "artifacts/v041-user-progress-migration.json",
+      "sha256": "2e37e041016f841d49dd42b80e4878cbce111545a112a2c124108b23eb290625"
+    },
+    {
+      "file": "artifacts/v041-automation/index.json",
+      "sha256": "93f561d4785a905c50b47babd9fe4d8aa5e07700f6a647d018078fe4565516d2"
+    },
+    {
+      "file": "builds/releases/0.4.1/build-manifest.json",
+      "sha256": "35c762135f08cf232c9143ccec0d4a6d01f919e3ce1f9dae1797036df15a5f90"
+    },
+    {
+      "file": "artifacts/installed-launcher-verification.json",
+      "sha256": "8e80c0b7baa7920ab50839b91e998b633d1795258f35fd7c21bd4fe7155112d3"
+    },
+    {
+      "file": "artifacts/v041-installed-stability-verification.json",
+      "sha256": "fec668ce722c35c2eff84af63becc87e3968df501f7cd628e41b5cdb0812dc8d"
+    }
+  ],
+  "result": "feature_checks_passed_with_known_gpu_timeout",
+  "known_issues": [
+    {
+      "issue": "One DX12 GPU timeout during the first installed-launcher acceptance run",
+      "run_id": "7e26bf4cca8b43789f1e59d9eeacf4b6",
+      "exit_code": 3,
+      "error": "DXGI_ERROR_DEVICE_HUNG",
+      "aftermath_status": "Timeout",
+      "active_shader": "CullPerPageDrawCommandsCs",
+      "render_stage": "Virtual shadow map non-Nanite draw-command culling",
+      "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+      "driver": "616.92",
+      "vram_used_mib": 3199.89,
+      "vram_budget_mib": 7131.0,
+      "root_cause": "Unresolved; shader breadcrumb does not establish an engine or driver root cause.",
+      "followup": "Identical launcher retry passed 18 checks; unchanged installed normal game then passed 120 seconds at title menu. No graphics workaround, registry or driver change was applied.",
+      "privacy": "Raw crash log retained locally; machine/account identifiers are not included in this public summary."
+    }
+  ]
+}

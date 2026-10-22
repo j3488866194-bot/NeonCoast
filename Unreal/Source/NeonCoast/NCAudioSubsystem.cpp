@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "HAL/PlatformTime.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
 
@@ -63,14 +64,13 @@ USoundBase* UNCAudioSubsystem::LoadSound(const TCHAR* Name)
     return Sound;
 }
 
-UAudioComponent* UNCAudioSubsystem::StartLoop(USoundBase* Sound, float Volume)
+UAudioComponent* UNCAudioSubsystem::StartLoop(USoundBase* Sound, float Volume, bool bUI)
 {
     if (!Sound) return nullptr;
     UAudioComponent* Component = UGameplayStatics::CreateSound2D(this, Sound, Volume, 1.f, 0.f, nullptr, false, false);
     if (Component)
     {
-        // Game sounds obey world pause; they are not UI sounds that continue over menus.
-        Component->bIsUISound = false;
+        Component->bIsUISound = bUI;
         Component->bAutoDestroy = false;
         Component->Play();
     }
@@ -82,40 +82,46 @@ bool UNCAudioSubsystem::EnsureStarted()
     if (!bEnabled || !GetWorld() || !GetWorld()->AllowAudioPlayback()
         || !GetWorld()->GetAudioDeviceRaw() || GetWorld()->GetNetMode() == NM_DedicatedServer) return false;
     if (bStarted) return true;
-    if (Clock < RetryAt) return false;
-    RetryAt = Clock + 1.f;
-    RadioSounds = { LoadSound(TEXT("SW_Radio_NightDrive")), LoadSound(TEXT("SW_Radio_Coastline")) };
-    EngineSound = LoadSound(TEXT("SW_EngineLoop"));
-    AmbienceSound = LoadSound(TEXT("SW_CoastAmbience"));
-    SirenSound = LoadSound(TEXT("SW_PoliceSiren"));
-    HornSound = LoadSound(TEXT("SW_Horn"));
-    GunshotSound = LoadSound(TEXT("SW_Gunshot"));
-    ReloadSound = LoadSound(TEXT("SW_Reload"));
-    FootstepSound = LoadSound(TEXT("SW_Footstep"));
-    // These four persistent players are paused when inactive. Keep a loop alive
-    // across a temporary inaudible distance/gain instead of losing its voice.
-    const TArray<USoundBase*> LoopAssets = { RadioSounds[0], RadioSounds[1], EngineSound, AmbienceSound, SirenSound };
-    for (USoundBase* LoopAsset : LoopAssets)
-        if (LoopAsset) LoopAsset->VirtualizationMode = EVirtualizationMode::PlayWhenSilent;
+    const double Now = FPlatformTime::Seconds();
+    if (Now < RetryAt) return false;
+    RetryAt = Now + 1.0;
+    if (!bAssetsLoaded)
+    {
+        RadioSounds = { LoadSound(TEXT("SW_Radio_NightDrive")), LoadSound(TEXT("SW_Radio_Coastline")) };
+        EngineSound = LoadSound(TEXT("SW_EngineLoop"));
+        AmbienceSound = LoadSound(TEXT("SW_CoastAmbience"));
+        SirenSound = LoadSound(TEXT("SW_PoliceSiren"));
+        HornSound = LoadSound(TEXT("SW_Horn"));
+        GunshotSound = LoadSound(TEXT("SW_Gunshot"));
+        ReloadSound = LoadSound(TEXT("SW_Reload"));
+        FootstepSound = LoadSound(TEXT("SW_Footstep"));
+        // Persistent players survive temporary silence, including genuine mute.
+        const TArray<USoundBase*> LoopAssets = { RadioSounds[0], RadioSounds[1], EngineSound, AmbienceSound, SirenSound };
+        for (USoundBase* LoopAsset : LoopAssets)
+            if (LoopAsset) LoopAsset->VirtualizationMode = EVirtualizationMode::PlayWhenSilent;
 
-    EffectAttenuation = NewObject<USoundAttenuation>(this);
-    EffectAttenuation->Attenuation.bAttenuate = true;
-    EffectAttenuation->Attenuation.bSpatialize = true;
-    EffectAttenuation->Attenuation.DistanceAlgorithm = EAttenuationDistanceModel::Linear;
-    EffectAttenuation->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
-    EffectAttenuation->Attenuation.AttenuationShapeExtents = FVector(550, 0, 0);
-    EffectAttenuation->Attenuation.FalloffDistance = 6500.f;
-    SirenAttenuation = NewObject<USoundAttenuation>(this);
-    SirenAttenuation->Attenuation = EffectAttenuation->Attenuation;
-    SirenAttenuation->Attenuation.AttenuationShapeExtents = FVector(500, 0, 0);
-    SirenAttenuation->Attenuation.FalloffDistance = 9500.f;
+        EffectAttenuation = NewObject<USoundAttenuation>(this);
+        EffectAttenuation->Attenuation.bAttenuate = true;
+        EffectAttenuation->Attenuation.bSpatialize = true;
+        EffectAttenuation->Attenuation.DistanceAlgorithm = EAttenuationDistanceModel::Linear;
+        EffectAttenuation->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+        EffectAttenuation->Attenuation.AttenuationShapeExtents = FVector(550, 0, 0);
+        EffectAttenuation->Attenuation.FalloffDistance = 6500.f;
+        SirenAttenuation = NewObject<USoundAttenuation>(this);
+        SirenAttenuation->Attenuation = EffectAttenuation->Attenuation;
+        SirenAttenuation->Attenuation.AttenuationShapeExtents = FVector(500, 0, 0);
+        SirenAttenuation->Attenuation.FalloffDistance = 9500.f;
+        bAssetsLoaded = true;
+    }
 
-    RadioLoop = StartLoop(RadioSounds.IsValidIndex(Station) ? RadioSounds[Station].Get() : nullptr, .001f * MusicGain());
-    EngineLoop = StartLoop(EngineSound, .001f * EffectsGain());
-    AmbienceLoop = StartLoop(AmbienceSound, .12f * EffectsGain());
+    if (!RadioLoop) RadioLoop = StartLoop(RadioSounds.IsValidIndex(Station) ? RadioSounds[Station].Get() : RadioSounds[0].Get(), 0.f);
+    if (!EngineLoop) EngineLoop = StartLoop(EngineSound, 0.f);
+    if (!AmbienceLoop) AmbienceLoop = StartLoop(AmbienceSound, bFrontEndActive ? 0.f : .24f * EffectsGain());
+    if (!MenuMusicLoop) MenuMusicLoop = StartLoop(RadioSounds.IsValidIndex(1) ? RadioSounds[1].Get() : nullptr, 0.f, true);
+    if (!MenuAmbienceLoop) MenuAmbienceLoop = StartLoop(AmbienceSound, 0.f, true);
     if (RadioLoop) RadioLoop->SetPaused(true);
     if (EngineLoop) EngineLoop->SetPaused(true);
-    if (SirenSound)
+    if (!SirenLoop && SirenSound)
     {
         const APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
         const FVector InitialLocation = PlayerPawn ? PlayerPawn->GetActorLocation() : FVector::ZeroVector;
@@ -128,37 +134,48 @@ bool UNCAudioSubsystem::EnsureStarted()
             SirenLoop->SetPaused(true);
         }
     }
-    bStarted = true;
-    UE_LOG(LogTemp, Display, TEXT("NC_AUDIO_READY radioTracks=%d loops=%d"), RadioSounds.Num(),
-        int32(IsValid(RadioLoop)) + int32(IsValid(EngineLoop)) + int32(IsValid(AmbienceLoop)) + int32(IsValid(SirenLoop)));
-    return true;
+    bStarted = RadioLoop && EngineLoop && AmbienceLoop && SirenLoop && MenuMusicLoop && MenuAmbienceLoop;
+    UpdateMenuAudio();
+    UE_LOG(LogTemp, Display, TEXT("NC_AUDIO_COMPONENTS ready=%d radioTracks=%d loops=%d menuLoops=%d"), bStarted, RadioSounds.Num(),
+        int32(IsValid(RadioLoop)) + int32(IsValid(EngineLoop)) + int32(IsValid(AmbienceLoop)) + int32(IsValid(SirenLoop)),
+        int32(IsValid(MenuMusicLoop)) + int32(IsValid(MenuAmbienceLoop)));
+    return bStarted;
 }
 
 void UNCAudioSubsystem::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    Clock += DeltaTime;
     if (!EnsureStarted()) return;
+    UpdateMenuAudio();
+    // Only the menu mix runs while paused; gameplay timers and effects stay frozen.
+    if (bFrontEndActive || UGameplayStatics::IsGamePaused(this)) return;
+    Clock += DeltaTime;
     APawn* Pawn = UGameplayStatics::GetPlayerPawn(this, 0);
     const ANCCar* Car = Cast<ANCCar>(Pawn);
     const float SpeedFraction = Car ? FMath::Clamp(Car->GetSpeedKmh() / 180.f, 0.f, 1.f) : 0.f;
     const bool bEngineRunning = Car && Car->GetCondition() > 0.f;
-    EngineGain = FMath::FInterpTo(EngineGain, bEngineRunning ? .085f + SpeedFraction * .10f : 0.f, DeltaTime, 5.f);
+    EngineGain = FMath::FInterpTo(EngineGain, bEngineRunning ? .18f + SpeedFraction * .16f : 0.f, DeltaTime, 5.f);
     EnginePitch = FMath::FInterpTo(EnginePitch, .75f + SpeedFraction * 1.65f, DeltaTime, 4.f);
     if (EngineLoop)
     {
         EngineLoop->SetPaused(!bEngineRunning && EngineGain < .002f);
-        EngineLoop->SetVolumeMultiplier(FMath::Max(.001f, EngineGain) * EffectsGain());
+        EngineLoop->SetVolumeMultiplier(EngineGain * EffectsGain());
+        if (bEngineRunning && EngineLoop->GetPlayState() == EAudioComponentPlayState::Stopped) EngineLoop->Play();
         EngineLoop->SetPitchMultiplier(EnginePitch);
     }
     const bool bRadioPlaying = Car && Station < 2;
-    RadioGain = FMath::FInterpTo(RadioGain, bRadioPlaying ? .18f : 0.f, DeltaTime, 4.f);
+    RadioGain = FMath::FInterpTo(RadioGain, bRadioPlaying ? .36f : 0.f, DeltaTime, 4.f);
     if (RadioLoop)
     {
         RadioLoop->SetPaused(!bRadioPlaying && RadioGain < .002f);
-        RadioLoop->SetVolumeMultiplier(FMath::Max(.001f, RadioGain) * MusicGain());
+        RadioLoop->SetVolumeMultiplier(RadioGain * MusicGain());
+        if (bRadioPlaying && RadioLoop->GetPlayState() == EAudioComponentPlayState::Stopped) RadioLoop->Play();
     }
-    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier((Car ? .065f : .13f) * EffectsGain());
+    if (AmbienceLoop)
+    {
+        AmbienceLoop->SetVolumeMultiplier((Car ? .12f : .24f) * EffectsGain());
+        if (AmbienceLoop->GetPlayState() == EAudioComponentPlayState::Stopped) AmbienceLoop->Play();
+    }
     UpdateSiren(DeltaTime, Pawn);
     UpdateFootsteps(Pawn);
 }
@@ -197,7 +214,7 @@ void UNCAudioSubsystem::UpdateFootsteps(APawn* Pawn)
     if (!Movement || !Movement->IsMovingOnGround() || Speed < 100.f) return;
     const float Pitch = 1.f + FMath::Sin(Clock * 17.f) * .055f;
     UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, Hero->GetActorLocation() - FVector(0, 0, 85),
-        .13f * EffectsGain(), Pitch, 0.f, EffectAttenuation);
+        .28f * EffectsGain(), Pitch, 0.f, EffectAttenuation);
     StepReadyAt = Clock + FMath::Clamp(170.f / Speed, .19f, .48f);
 }
 
@@ -251,10 +268,54 @@ void UNCAudioSubsystem::ApplyUserVolumeSettings()
 {
     const float Effects = EffectsGain();
     const bool bDriving = GetWorld() && Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0));
-    if (EngineLoop) EngineLoop->SetVolumeMultiplier(FMath::Max(.001f, EngineGain) * Effects);
-    if (RadioLoop) RadioLoop->SetVolumeMultiplier(FMath::Max(.001f, RadioGain) * MusicGain());
-    if (SirenLoop) SirenLoop->SetVolumeMultiplier(FMath::Max(.001f, SirenGain) * Effects);
-    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier((bDriving ? .065f : .13f) * Effects);
+    if (EngineLoop) EngineLoop->SetVolumeMultiplier(EngineGain * Effects);
+    if (RadioLoop) RadioLoop->SetVolumeMultiplier(RadioGain * MusicGain());
+    if (SirenLoop) SirenLoop->SetVolumeMultiplier(SirenGain * Effects);
+    if (AmbienceLoop) AmbienceLoop->SetVolumeMultiplier((bDriving ? .12f : .24f) * Effects);
+    if (PreviewSound) PreviewSound->SetVolumeMultiplier(.45f * Effects);
+    UpdateMenuAudio();
+}
+
+void UNCAudioSubsystem::SetFrontEndActive(bool bActive)
+{
+    bFrontEndActive = bActive;
+    if (!EnsureStarted()) return; // Tick retries even if a menu has already paused the world.
+    UpdateMenuAudio();
+    if (RadioLoop) RadioLoop->SetPaused(bActive || !Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0)) || Station >= 2);
+    if (EngineLoop) EngineLoop->SetPaused(bActive || !Cast<ANCCar>(UGameplayStatics::GetPlayerPawn(this, 0)));
+    if (SirenLoop) SirenLoop->SetPaused(bActive || !NearestPolice.IsValid());
+    if (AmbienceLoop) AmbienceLoop->SetPaused(bActive);
+    if (!bActive) StopLoop(PreviewSound);
+}
+
+void UNCAudioSubsystem::UpdateMenuAudio()
+{
+    if (MenuMusicLoop)
+    {
+        MenuMusicLoop->SetVolumeMultiplier(bFrontEndActive ? .38f * MusicGain() : 0.f);
+        if (bFrontEndActive && MenuMusicLoop->GetPlayState() == EAudioComponentPlayState::Stopped) MenuMusicLoop->Play();
+        MenuMusicLoop->SetPaused(!bFrontEndActive);
+    }
+    if (MenuAmbienceLoop)
+    {
+        MenuAmbienceLoop->SetVolumeMultiplier(bFrontEndActive ? .16f * EffectsGain() : 0.f);
+        if (bFrontEndActive && MenuAmbienceLoop->GetPlayState() == EAudioComponentPlayState::Stopped) MenuAmbienceLoop->Play();
+        MenuAmbienceLoop->SetPaused(!bFrontEndActive);
+    }
+}
+
+bool UNCAudioSubsystem::PlaySettingsPreview()
+{
+    if (!EnsureStarted() || !HornSound) return false;
+    StopLoop(PreviewSound);
+    // The original two-tone horn also makes an unmistakable, short output check.
+    // No minimum volume is imposed: 0 on either master or effects remains silent.
+    PreviewSound = UGameplayStatics::CreateSound2D(this, HornSound, .45f * EffectsGain(), 1.25f, 0.f, nullptr, false, false);
+    if (!PreviewSound) return false;
+    PreviewSound->bIsUISound = true;
+    PreviewSound->bAutoDestroy = false;
+    PreviewSound->Play();
+    return true;
 }
 
 void UNCAudioSubsystem::StopLoop(TObjectPtr<UAudioComponent>& Component)
@@ -273,6 +334,9 @@ void UNCAudioSubsystem::Deinitialize()
     StopLoop(EngineLoop);
     StopLoop(AmbienceLoop);
     StopLoop(SirenLoop);
+    StopLoop(MenuMusicLoop);
+    StopLoop(MenuAmbienceLoop);
+    StopLoop(PreviewSound);
     RadioSounds.Reset();
     bStarted = false;
     bEnabled = false;

@@ -242,8 +242,28 @@ void ANCFrontEndValidationRunner::Tick(float DeltaSeconds)
         Advance(11); break;
     case 11:
         Check(PageIs(TEXT("settings")), TEXT("gamepad A activates audio settings tab"));
+        if (!Activate(TEXT("Settings.AudioPreview"), EKeys::Gamepad_FaceButton_Bottom)) return;
         if (!Activate(TEXT("Settings.Tab.Video"))) return;
+        Advance(50); break;
+    case 50:
+        if (!Require(!Settings->GetStartInBorderless(), TEXT("isolated legacy UI fixture starts with automatic borderless disabled"))) return;
+        if (!Activate(TEXT("Settings.StartInBorderless"), EKeys::SpaceBar)) return;
+        Check(!Settings->GetStartInBorderless(), TEXT("startup borderless checkbox edits only the draft"));
+        if (!Activate(TEXT("Settings.Apply"))) return;
+        Advance(51); break;
+    case 51:
+    {
+        Check(Settings->GetStartInBorderless() && !FrontEnd()->IsAwaitingVideoConfirmation(), TEXT("startup preference applies without a current-session video trial"));
+        Check(int32(Settings->GetFullscreenMode()) == OriginalWindowMode, TEXT("startup preference does not change current display mode"));
+        FConfigFile Disk;
+        Disk.Read(SettingsFilePath());
+        bool bPersisted = false;
+        Check(Disk.GetBool(TEXT("/Script/NeonCoast.NCGameUserSettings"), TEXT("bStartInBorderless"), bPersisted) && bPersisted,
+            TEXT("startup borderless preference is saved to isolated physical config"));
+        if (!Activate(TEXT("Settings.StartInBorderless"), EKeys::SpaceBar)) return;
+        if (!Activate(TEXT("Settings.Apply"))) return;
         Advance(12); break;
+    }
     case 12:
         if (!Activate(TEXT("Settings.Resolution"))) return;
         Check(Settings->GetScreenResolution() == OriginalResolution, TEXT("resolution choice remains a draft before Apply"));
