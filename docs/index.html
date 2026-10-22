@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEON COAST 霓虹海岸 · 原创海滨开放世界原型（Windows）</title>
+  <meta name="description" content="NEON COAST 霓虹海岸：基于 Unreal Engine 5.8.4 的原创海滨开放世界原型，离线单人，Windows 10/11 64 位。下载 v0.4.1 安装版或便携版，查看实际游戏截图与源码。">
+  <link rel="canonical" href="https://j3488866194-bot.github.io/NeonCoast/">
+  <meta name="theme-color" content="#101D28">
+  <meta name="color-scheme" content="dark">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="NEON COAST 霓虹海岸">
+  <meta property="og:title" content="NEON COAST 霓虹海岸 · 原创海滨开放世界原型">
+  <meta property="og:description" content="基于 Unreal Engine 5.8.4 的离线单人海滨开放世界原型。v0.4.1 Windows 安装版与便携版现已提供。">
+  <meta property="og:url" content="https://j3488866194-bot.github.io/NeonCoast/">
+  <meta property="og:image" content="https://j3488866194-bot.github.io/NeonCoast/images/ue/packaged-game.png">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="NEON COAST 实际游戏画面：海滨大道上的主角、行人与橙色跑车">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23101D28'/%3E%3Ccircle cx='21' cy='12' r='4' fill='%23FFC457'/%3E%3Cpath d='M5 21.5c3.5-3 7-3 10.5 0s7 3 11.5 0' fill='none' stroke='%235FD8C0' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="./">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <rect width="32" height="32" rx="6" fill="#101D28" stroke="rgba(255,242,214,.18)"/>
+          <circle cx="21" cy="12" r="4" fill="#FFC457"/>
+          <path d="M5 21.5c3.5-3 7-3 10.5 0s7 3 11.5 0" fill="none" stroke="#5FD8C0" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+        <span class="brand__en" lang="en">NEON COAST</span>
+        <span class="brand__zh">霓虹海岸</span>
+      </a>
+      <nav class="site-nav" aria-label="页面导航">
+        <ul role="list">
+          <li><a href="#features">内容</a></li>
+          <li><a href="#captures">画面</a></li>
+          <li><a href="#update">更新</a></li>
+          <li><a href="#download">下载</a></li>
+          <li><a href="#status">状态</a></li>
+          <li><a class="site-nav__ext" href="https://github.com/j3488866194-bot/NeonCoast">源码<span aria-hidden="true"> ↗</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- Hero: the live street scene is the anchor, as in the game's own title screen -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__grid">
+        <div class="hero__head">
+          <p class="hero__meta"><span class="dot" aria-hidden="true"></span>最新版本 v0.4.1 · Windows 10/11</p>
+          <h1 id="hero-title" class="hero__title">
+            <span class="hero__zh">霓虹海岸</span>
+            <span class="wordmark" lang="en"><span>NEON</span> <span>COAST</span></span>
+          </h1>
+          <p class="hero__tagline">海风、霓虹，和一条漫长的海岸公路。</p>
+        </div>
+
+        <figure class="hero__shot">
+          <div class="hero__frame">
+            <img src="images/ue/packaged-game.png" width="1600" height="900" fetchpriority="high" decoding="async"
+                 alt="实际游戏画面：白天的海滨大道，身穿马甲的主角站在路中央，左侧人行道上有多名行人和路灯，右侧停着一辆橙色跑车；画面四角是任务目标、探索进度、小地图和按键提示。">
+          </div>
+          <figcaption><span class="label">实际画面</span>独立 Windows 程序 · v0.4.1 · 1600 × 900</figcaption>
+        </figure>
+
+        <div class="hero__body">
+          <p class="hero__lead">一款基于 Unreal Engine 5.8.4 的原创海滨开放世界原型。离线单人，开车沿海岸兜风、接一单快递、跑一场街道赛，或者甩掉身后的警车。</p>
+          <div class="actions">
+            <a class="btn btn--primary" href="https://github.com/j3488866194-bot/NeonCoast/releases/download/v0.4.1/NeonCoast-0.4.1-Windows-Setup.exe">
+              <span aria-hidden="true" class="btn__icon">↓</span>下载 Windows 安装版<span class="btn__ext">.exe</span>
+            </a>
+            <a class="btn btn--ghost" href="https://github.com/j3488866194-bot/NeonCoast/releases/download/v0.4.1/NeonCoast-0.4.1-Windows-Portable.zip">
+              便携版<span class="btn__ext">.zip</span>
+            </a>
+          </div>
+          <p class="hero__fine">DX12 · 无需安装 UE 编辑器、Python 或开发工具 · <a href="#status">开发状态</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 Features -->
+    <section id="features" class="section section--paper" aria-labelledby="features-title">
+      <div class="wrap features">
+        <div class="features__head">
+          <p class="kicker"><span class="kicker__no">01</span>游戏内容</p>
+          <h2 id="features-title">开车、闲逛、接单，<br>或者被警车追。</h2>
+          <p class="section-lead">在一段海岸街区里自由步行和驾驶。以下是 v0.4.1 实际包含的内容。</p>
+          <dl class="stats">
+            <div><dt>行人</dt><dd>64<small>名</small></dd></div>
+            <div><dt>快递任务</dt><dd>3<small>阶段</small></dd></div>
+            <div><dt>街道赛</dt><dd>8<small>门</small></dd></div>
+            <div><dt>探索代币</dt><dd>8<small>枚</small></dd></div>
+          </dl>
+        </div>
+
+        <ol class="feature-list" role="list">
+          <li>
+            <h3>驾驶</h3>
+            <p>Chaos 四轮车辆物理，路上有交通车流。随时上下车，高速行驶时也能跳车；车辆会损坏，也可以维修。</p>
+          </li>
+          <li>
+            <h3>行人与警方</h3>
+            <p>主角与 64 名行人同在街头，行人会受惊、受击并作出反应。警车会展开追捕，失去视线后转入搜索。</p>
+          </li>
+          <li>
+            <h3>任务与探索</h3>
+            <p>三阶段原创快递任务、8 门街道赛，以及散落在海岸各处的 8 枚探索代币。</p>
+          </li>
+          <li>
+            <h3>地图、照片与声音</h3>
+            <p>地图与照片模式，昼夜交替；原创合成音频、电台和引擎声。</p>
+          </li>
+          <li>
+            <h3>存档</h3>
+            <p>保存游戏进度，退出时自动存档。更新安装会保留已有进度。</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 02 Captures -->
+    <section id="captures" class="section section--deep" aria-labelledby="captures-title">
+      <div class="wrap captures">
+        <div class="captures__head">
+          <p class="kicker"><span class="kicker__no">02</span>实际画面</p>
+          <h2 id="captures-title">游戏里的样子</h2>
+          <p class="section-lead">以下均为 v0.4.1 独立 Windows 程序的实际截图。点击可查看原图。</p>
+        </div>
+
+        <figure class="shot shot--menu">
+          <a href="images/ue/main-menu.png">
+            <img src="images/ue/main-menu.png" width="1600" height="900" loading="lazy" decoding="async"
+                 alt="主菜单实际截图：左侧是霓虹海岸 NEON COAST 标题，开始游戏、设置、操作指南、退出游戏四个选项，以及显示现金、配送、赛事胜利和发现进度的当前进度卡；右侧是海滨街道、主角和橙色跑车。">
+            <span class="visually-hidden">（打开原图）</span>
+          </a>
+          <figcaption>
+            <span class="shot__title">主菜单</span>
+            <span class="shot__meta">1600 × 900</span>
+            <span class="shot__desc">开始游戏、设置、操作指南与当前进度。街道留在画面右侧。</span>
+          </figcaption>
+        </figure>
+
+        <figure class="shot shot--welcome">
+          <a href="images/ue/onboarding-welcome.png">
+            <img src="images/ue/onboarding-welcome.png" width="1280" height="720" loading="lazy" decoding="async"
+                 alt="新手引导欢迎页实际截图：画面中央的深色面板写着“欢迎来到霓虹海岸”，列出视角、步行、上车、驾驶、下车五个小练习，下方是跳过引导和开始引导按钮。">
+            <span class="visually-hidden">（打开原图）</span>
+          </a>
+          <figcaption>
+            <span class="shot__title">新手引导</span>
+            <span class="shot__meta">1280 × 720</span>
+            <span class="shot__desc">首次开始游戏时出现，五个小练习，可随时跳过。</span>
+          </figcaption>
+        </figure>
+
+        <figure class="shot shot--walking">
+          <a href="images/ue/onboarding-walking.png">
+            <img src="images/ue/onboarding-walking.png" width="1280" height="720" loading="lazy" decoding="async"
+                 alt="步行引导实际截图：主角站在海滨大道中央，右上角的引导卡片显示第 3 / 7 步“向前走几步”，提示 WASD 移动、Shift 冲刺，以及 F2 跳过引导。">
+            <span class="visually-hidden">（打开原图）</span>
+          </a>
+          <figcaption>
+            <span class="shot__title">步行练习</span>
+            <span class="shot__meta">1280 × 720</span>
+            <span class="shot__desc">引导卡片停在右上角，不阻挡操作。</span>
+          </figcaption>
+        </figure>
+
+        <figure class="shot shot--settings">
+          <a href="images/ue/settings.png">
+            <img src="images/ue/settings.png" width="1600" height="900" loading="lazy" decoding="async"
+                 alt="设置界面实际截图：操控分页列出鼠标灵敏度、反转鼠标垂直视角、手柄灵敏度、反转手柄垂直视角和右摇杆死区，底部有恢复默认、返回和应用按钮。">
+            <span class="visually-hidden">（打开原图）</span>
+          </a>
+          <figcaption>
+            <span class="shot__title">设置 · 操控</span>
+            <span class="shot__meta">1600 × 900</span>
+            <span class="shot__desc">灵敏度、垂直视角反转与右摇杆死区。截图为验收过程中的草稿状态，并非默认值。</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 03 v0.4.1 + controls -->
+    <section id="update" class="section section--ink" aria-labelledby="update-title">
+      <div class="wrap update">
+        <div class="update__notes">
+          <p class="kicker"><span class="kicker__no">03</span>本次更新</p>
+          <h2 id="update-title">v0.4.1 带来的变化</h2>
+          <ul class="notes" role="list">
+            <li>
+              <h3>菜单声音</h3>
+              <p>修复打开菜单后音乐与环境声随世界一起暂停的问题，并加入菜单专用声音。设置 → 声音可以试听当前已应用的音量。</p>
+            </li>
+            <li>
+              <h3>启动即无边框</h3>
+              <p>默认以桌面尺寸的无边框窗口启动。不需要时，可在设置 → 画面关闭“启动时自动无边框”。</p>
+            </li>
+            <li>
+              <h3>中文新手引导</h3>
+              <p>第一次开始游戏时，依次练习视角、步行、上车、驾驶和下车。F2 随时跳过，之后可在操作指南中重看。</p>
+            </li>
+            <li>
+              <h3>键鼠与手柄</h3>
+              <p>支持键盘鼠标和 Xbox 式手柄。实体手柄型号尚未单独验收。</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="controls" id="controls">
+          <p class="eyebrow">操作指南</p>
+          <h3>基本操作</h3>
+          <dl class="keys">
+            <div><dt>移动 / 驾驶</dt><dd><kbd>WASD</kbd></dd></div>
+            <div><dt>上下车 · 高速跳车</dt><dd><kbd>F</kbd></dd></div>
+            <div><dt>交互</dt><dd><kbd>E</kbd></dd></div>
+            <div><dt>地图</dt><dd><kbd>M</kbd></dd></div>
+            <div><dt>暂停</dt><dd><kbd>Esc</kbd></dd></div>
+            <div><dt>窗口 / 无边框切换</dt><dd><kbd>F11</kbd></dd></div>
+            <div><dt>跳过新手引导</dt><dd><kbd>F2</kbd></dd></div>
+          </dl>
+          <p class="controls__note">设置中可选择窗口、无边框或全屏，并分别反转鼠标与手柄的垂直视角。手柄按键与完整键位见游戏内操作指南。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 Download -->
+    <section id="download" class="section section--deep" aria-labelledby="download-title">
+      <div class="wrap download">
+        <div class="download__head">
+          <p class="kicker"><span class="kicker__no">04</span>下载</p>
+          <h2 id="download-title">下载 v0.4.1</h2>
+          <p class="section-lead">Windows 桌面游戏，下载后在本机运行，不能在浏览器中游玩。</p>
+        </div>
+
+        <ul class="dl-options" role="list">
+          <li class="dl-option dl-option--primary">
+            <div>
+              <h3>安装版 <span class="tag">推荐</span></h3>
+              <p class="file"><code>NeonCoast-0.4.1-Windows-Setup.exe</code></p>
+              <p>安装后从桌面或开始菜单启动 Neon Coast。在旧版本上更新安装会保留已有进度。</p>
+            </div>
+            <a class="btn btn--primary" href="https://github.com/j3488866194-bot/NeonCoast/releases/download/v0.4.1/NeonCoast-0.4.1-Windows-Setup.exe">
+              <span aria-hidden="true" class="btn__icon">↓</span>下载安装版
+            </a>
+          </li>
+          <li class="dl-option">
+            <div>
+              <h3>便携版</h3>
+              <p class="file"><code>NeonCoast-0.4.1-Windows-Portable.zip</code></p>
+              <p>完整解压到一个新文件夹，运行 <code>NeonCoast.exe</code>。要保留旧进度，请复制旧目录中的 <code>NeonCoast/Saved</code>。</p>
+            </div>
+            <a class="btn btn--ghost" href="https://github.com/j3488866194-bot/NeonCoast/releases/download/v0.4.1/NeonCoast-0.4.1-Windows-Portable.zip">
+              <span aria-hidden="true" class="btn__icon">↓</span>下载 ZIP
+            </a>
+          </li>
+        </ul>
+
+        <div class="download__aside">
+          <h3>运行环境</h3>
+          <dl class="spec">
+            <div><dt>系统</dt><dd>Windows 10 2004 或更新版本 / Windows 11，64 位</dd></div>
+            <div><dt>图形</dt><dd>DirectX 12</dd></div>
+            <div><dt>模式</dt><dd>离线单人</dd></div>
+            <div><dt>依赖</dt><dd>无需安装 Unreal Engine 编辑器、Python 或任何开发工具</dd></div>
+            <div><dt>签名</dt><dd>安装程序尚未进行商业代码签名，Windows 可能显示安全提示</dd></div>
+          </dl>
+          <p class="download__links">
+            <a class="link" href="https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.1">发布说明与 SHA-256 校验值<span aria-hidden="true"> ↗</span></a>
+          </p>
+        </div>
+
+        <div class="notice" role="note" aria-labelledby="notice-title">
+          <p class="notice__label" id="notice-title">已知问题</p>
+          <p>本机安装版启动检查中出现过一次 DX12 显卡超时（<code>DXGI_ERROR_DEVICE_HUNG</code>）。以相同方式重试的检查和随后两分钟的正常运行观察均已通过，但根因尚未查明，暂不能保证长时间游玩的稳定性。</p>
+          <p><a class="link" href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/docs/UE_VERIFICATION.md">查看 v0.4.1 验证记录<span aria-hidden="true"> ↗</span></a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Status -->
+    <section id="status" class="section section--paper" aria-labelledby="status-title">
+      <div class="wrap status">
+        <div class="status__head">
+          <p class="kicker"><span class="kicker__no">05</span>开发状态</p>
+          <h2 id="status-title">一个仍在开发中的原型</h2>
+          <p class="section-lead">NEON COAST 是独立的原创项目。它不是 GTA VI，也不是 Rockstar Games 的产品，与 Rockstar Games 没有任何关联。</p>
+        </div>
+        <div class="status__cols">
+          <div>
+            <h3>尚未包含</h3>
+            <ul role="list">
+              <li>联机多人</li>
+              <li>完整的室内场景</li>
+              <li>船舶与飞机</li>
+              <li>完整剧情</li>
+            </ul>
+          </div>
+          <div>
+            <h3>尚未单独验收</h3>
+            <ul role="list">
+              <li>实体手柄型号</li>
+              <li>长时间游玩的稳定性</li>
+              <li>不同硬件上的性能</li>
+            </ul>
+          </div>
+          <div>
+            <h3>公开记录</h3>
+            <p>每个版本的检查范围、实际截图与发行文件校验值都记录在仓库中。</p>
+            <p class="status__link"><a class="link" href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/docs/UE_VERIFICATION.md">阅读验证记录<span aria-hidden="true"> ↗</span></a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer">
+      <div class="footer__brand">
+        <p class="footer__mark" lang="en">NEON COAST</p>
+        <p>霓虹海岸 · v0.4.1 · Windows</p>
+      </div>
+      <nav class="footer__nav" aria-label="项目链接">
+        <ul role="list">
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast">源码仓库</a></li>
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.1">发布说明</a></li>
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/docs/UE_VERIFICATION.md">验证记录</a></li>
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/LICENSE">MIT 许可</a></li>
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/docs/RELEASE_LICENSE.txt">发行版使用许可</a></li>
+          <li><a href="https://github.com/j3488866194-bot/NeonCoast/blob/ue5-migration/THIRD_PARTY_NOTICES.md">第三方声明</a></li>
+        </ul>
+      </nav>
+      <div class="footer__legal">
+        <p>原创代码采用 MIT 许可；Unreal Engine 及第三方模型、人物与材质保留各自的许可。本项目与 Rockstar Games 无关联。</p>
+        <p class="footer__credit">视觉设计 · Claude Opus 5.5 ／ 开发与验证 · Codex</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

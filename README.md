@@ -2,7 +2,7 @@
 
 基于 Unreal Engine 5.8.4 的原创海滨开放世界游戏原型，Windows 64 位，离线单人。
 
-**[下载 v0.4.1 安装版或便携版](https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.1)** · [操作与设置](docs/UE_FRONTEND.md) · [验证记录](docs/UE_VERIFICATION.md)
+**[项目主页](https://j3488866194-bot.github.io/NeonCoast/)** · **[下载 v0.4.1 安装版或便携版](https://github.com/j3488866194-bot/NeonCoast/releases/tag/v0.4.1)** · [操作与设置](docs/UE_FRONTEND.md) · [验证记录](docs/UE_VERIFICATION.md)
 
 ![实际游戏主菜单](docs/images/ue/main-menu.png)
 
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify-ue-onboarding.ps1
 powershell -ExecutionPolicy Bypass -File tools/verify-ue-startup-display.ps1
 ```
 
-[UE 工作流与 MCP](docs/UE_MIGRATION.md) · [Windows 安装器构建](docs/WINDOWS_INSTALLER.md) · [历史 Godot 版本](docs/LEGACY_GODOT.md)。GitHub Actions 只验证保留的旧 Godot 工程；UE 的本机验收单独记录，不能用旧测试代替。
+[UE 工作流与 MCP](docs/UE_MIGRATION.md) · [Windows 安装器构建](docs/WINDOWS_INSTALLER.md) · [历史 Godot 版本](docs/LEGACY_GODOT.md)。游戏代码的 GitHub Actions 检查只验证保留的旧 Godot 工程；UE 的本机验收单独记录，不能用旧测试代替。GitHub Pages 从本分支的 `docs/` 自动发布展示与下载主页；Windows 游戏需下载安装后运行。
 
 ## 许可
 

@@ -1,0 +1,23 @@
+{
+  "purpose": "GitHub Pages project landing page",
+  "requested_model": "claude-opus-5-5",
+  "actual_model": "claude-opus-5-5",
+  "observed_message_models": [
+    "claude-opus-5-5"
+  ],
+  "effort": "high",
+  "session_id": "bc21ba2c-43a9-4d41-a228-728660bad830",
+  "status": "success",
+  "duration_ms": 491976,
+  "authored_files": [
+    {
+      "file": "docs/index.html",
+      "sha256": "b55cc6fd6fe730c25a7cce0789a1fa11d7763c56f6bbecacfeaf8f45d1bde5b5"
+    },
+    {
+      "file": "docs/site.css",
+      "sha256": "7fbedb8eaeef0b72300259ee8e07f419e3eb0f2bc621f9059ed2affaff2460a0"
+    }
+  ],
+  "integration_note": "Actual Opus author snapshot. Codex performs browser QA and GitHub Pages deployment and adds the precise minimum Windows version and release-license link after this snapshot."
+}
